@@ -1,0 +1,60 @@
+brokers:
+  zerodha:
+    api_key: your_zerodha_api_key
+    api_secret: your_zerodha_api_secret
+    base_url: https://api.kite.trade
+    name: zerodha
+    rate_limit_per_minute: 60
+    sandbox_mode: false
+    timeout_seconds: 30
+compliance:
+  audit_trail_retention_days: 2555
+  foreign_investment_limit_percent: 49.0
+  max_position_value: 50000000.0
+  sebi_reporting_enabled: true
+database:
+  database: trading_system
+  host: localhost
+  password: change_me_in_production
+  pool_size: 10
+  port: 5432
+  ssl_mode: prefer
+  username: trading_user
+debug: false
+environment: production
+max_workers: 4
+monitoring:
+  health_check_interval_seconds: 30
+  log_format: json
+  log_level: INFO
+  metrics_retention_days: 30
+  prometheus_enabled: true
+  prometheus_port: 8001
+redis:
+  db: 0
+  host: localhost
+  password: null
+  port: 6379
+  ssl: false
+security:
+  jwt_algorithm: HS256
+  jwt_expiration_hours: 24
+  jwt_secret: your-super-secret-jwt-key-change-in-production-minimum-32-chars
+  max_login_attempts: 5
+  password_hash_rounds: 12
+  require_2fa: false
+timezone: Asia/Kolkata
+trading:
+  default_stop_loss_percent: 2.0
+  max_daily_trades: 100
+  max_drawdown_percent: 20.0
+  max_order_value: 1000000.0
+  max_position_size_percent: 10.0
+  min_order_value: 1000.0
+  risk_per_trade_percent: 1.0
+version: 2.0.0
+websocket:
+  compression_enabled: true
+  max_connections: 1000
+  ping_interval: 30
+  port: 8002

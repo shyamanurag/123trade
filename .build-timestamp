@@ -1,0 +1,4 @@
+BUILD_TIMESTAMP=2025-06-06-04:35:00-UTC
+FORCE_REBUILD=true
+DEPENDENCIES_FIXED=prometheus_client,psutil,pyyaml
+CACHE_BUST=true 

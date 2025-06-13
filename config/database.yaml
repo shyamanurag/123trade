@@ -1,0 +1,125 @@
+# Database Configuration
+
+# Connection Settings
+connection:
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  database: ${DB_NAME}
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  ssl_mode: require
+  ssl_cert: ${DB_SSL_CERT}
+  ssl_key: ${DB_SSL_KEY}
+  ssl_ca: ${DB_SSL_CA}
+
+# Connection Pooling
+pool:
+  min_size: 5
+  max_size: 20
+  max_overflow: 10
+  pool_timeout: 30
+  pool_recycle: 3600
+  max_usage: 10000
+  echo: false
+
+# Migration Settings
+migrations:
+  enabled: true
+  directory: migrations
+  table: alembic_version
+  auto_migrate: false
+  backup_before_migrate: true
+  backup_directory: backups/migrations
+  version_format: %%(year)d%%(month).2d%%(day).2d_%%(hour).2d%%(minute).2d
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 0 * * *"  # Daily at midnight
+  retention_days: 30
+  compression: true
+  backup_directory: backups/database
+  include_schemas:
+    - public
+    - trading
+    - analytics
+  exclude_tables:
+    - audit_logs
+    - temp_data
+  backup_format: custom
+  parallel_jobs: 4
+
+# Replication
+replication:
+  enabled: true
+  role: master  # or slave
+  master:
+    host: ${DB_MASTER_HOST}
+    port: ${DB_MASTER_PORT}
+  slaves:
+    - host: ${DB_SLAVE1_HOST}
+      port: ${DB_SLAVE1_PORT}
+      priority: 1
+    - host: ${DB_SLAVE2_HOST}
+      port: ${DB_SLAVE2_PORT}
+      priority: 2
+  replication_lag_threshold: 60  # seconds
+  failover:
+    enabled: true
+    automatic: true
+    timeout: 30
+    max_retries: 3
+
+# Performance Tuning
+performance:
+  statement_timeout: 30000  # milliseconds
+  idle_in_transaction_timeout: 300000  # milliseconds
+  work_mem: 64MB
+  maintenance_work_mem: 256MB
+  effective_cache_size: 4GB
+  shared_buffers: 1GB
+  max_connections: 100
+  random_page_cost: 1.1
+  effective_io_concurrency: 200
+
+# Monitoring
+monitoring:
+  enabled: true
+  metrics:
+    - connection_count
+    - transaction_count
+    - query_duration
+    - cache_hit_ratio
+    - deadlocks
+    - replication_lag
+  alert_thresholds:
+    connection_count: 80
+    query_duration: 1000
+    cache_hit_ratio: 0.95
+    replication_lag: 60
+
+# Maintenance
+maintenance:
+  vacuum:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    analyze: true
+    full: false
+  reindex:
+    enabled: true
+    schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+  statistics:
+    enabled: true
+    schedule: "0 1 * * *"  # Daily at 1 AM
+
+# Security
+security:
+  ssl_required: true
+  password_encryption: scram-sha-256
+  row_level_security: true
+  audit_logging: true
+  connection_limit: 100
+  ip_whitelist:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16 

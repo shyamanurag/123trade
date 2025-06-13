@@ -1,0 +1,145 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+rule_files:
+  - "rules/*.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'trading-app'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['app:${API_PORT}']
+    scrape_interval: 5s
+    scrape_timeout: 4s
+    metrics_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'trading_.*'
+        action: keep
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+# Recording Rules
+recording_rules:
+  - name: trading
+    rules:
+      - record: trading:order_processing_time:rate5m
+        expr: rate(trading_order_processing_seconds_sum[5m]) / rate(trading_order_processing_seconds_count[5m])
+      
+      - record: trading:market_data_latency:rate5m
+        expr: rate(trading_market_data_latency_seconds_sum[5m]) / rate(trading_market_data_latency_seconds_count[5m])
+      
+      - record: trading:api_response_time:rate5m
+        expr: rate(trading_api_response_time_seconds_sum[5m]) / rate(trading_api_response_time_seconds_count[5m])
+      
+      - record: trading:error_rate:rate5m
+        expr: sum(rate(trading_errors_total[5m])) / sum(rate(trading_requests_total[5m]))
+
+# Alert Rules
+alerting_rules:
+  - name: trading
+    rules:
+      - alert: HighErrorRate
+        expr: trading:error_rate:rate5m > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate detected
+          description: Error rate is above 1% for the last 5 minutes
+
+      - alert: HighLatency
+        expr: trading:api_response_time:rate5m > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High API latency detected
+          description: API response time is above 500ms for the last 5 minutes
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage detected
+          description: Memory usage is above 80% for the last 5 minutes
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage detected
+          description: CPU usage is above 80% for the last 5 minutes
+
+      - alert: DatabaseConnectionIssues
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Database connection issues
+          description: Cannot connect to the database
+
+      - alert: RedisConnectionIssues
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis connection issues
+          description: Cannot connect to Redis
+
+      - alert: HighOrderProcessingTime
+        expr: trading:order_processing_time:rate5m > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High order processing time
+          description: Order processing time is above 1 second for the last 5 minutes
+
+      - alert: HighMarketDataLatency
+        expr: trading:market_data_latency:rate5m > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High market data latency
+          description: Market data latency is above 100ms for the last 5 minutes 

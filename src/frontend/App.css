@@ -1,0 +1,116 @@
+.app {
+    display: flex;
+    min-height: 100vh;
+    background: #0a0a0a;
+    color: #e0e0e0;
+}
+
+.sidebar {
+    width: 250px;
+    background: rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tab {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: left;
+    width: 100%;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.tab.active {
+    background: rgba(0, 153, 255, 0.1);
+    color: #00d4ff;
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+.tab-label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.placeholder {
+    padding: 40px;
+    text-align: center;
+}
+
+.placeholder h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.placeholder p {
+    color: #999;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .app {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px;
+    }
+
+    .logo {
+        margin-bottom: 20px;
+    }
+
+    .tabs {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 10px;
+    }
+
+    .tab {
+        white-space: nowrap;
+    }
+} 

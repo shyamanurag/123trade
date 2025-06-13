@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trading-system
+  namespace: trading-system
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: trading-system
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: trading-system
+    spec:
+      containers:
+      - name: trading-system
+        image: trading-system:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: api
+        - containerPort: 8001
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: trading-system-config
+        - secretRef:
+            name: trading-system-secrets
+        env:
+        - name: DB_HOST
+          value: trading-db
+        - name: REDIS_HOST
+          value: trading-redis
+        resources:
+          requests:
+            cpu: "1"
+            memory: "1Gi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: api
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: api
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: data
+          mountPath: /app/data
+        - name: backups
+          mountPath: /app/backups
+        - name: ssl-certs
+          mountPath: /app/certs
+          readOnly: true
+      volumes:
+      - name: logs
+        persistentVolumeClaim:
+          claimName: trading-logs-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: trading-data-pvc
+      - name: backups
+        persistentVolumeClaim:
+          claimName: trading-backups-pvc
+      - name: ssl-certs
+        secret:
+          secretName: trading-system-secrets
+          items:
+          - key: SSL_CERT
+            path: cert.pem
+          - key: SSL_KEY
+            path: key.pem 

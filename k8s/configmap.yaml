@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trading-system-config
+  namespace: trading-system
+data:
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  MARKET_DATA_UPDATE_INTERVAL: "1.0"
+  MARKET_DATA_CACHE_TTL: "60"
+  RISK_CHECK_INTERVAL: "1.0"
+  RISK_ALERT_THRESHOLD: "0.8"
+  ORDER_TIMEOUT: "30.0"
+  ORDER_RETRY_DELAY: "1.0"
+  ORDER_MAX_RETRIES: "3"
+  BACKUP_INTERVAL: "3600"
+  BACKUP_RETENTION_DAYS: "7"
+  SSL_ENABLED: "true" 

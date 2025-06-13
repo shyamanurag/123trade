@@ -1,0 +1,91 @@
+# Trading System Requirements
+# Core API Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+pydantic==2.5.0
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
+passlib[bcrypt]==1.7.4
+PyJWT==2.8.0
+jinja2==3.1.2
+
+# Database & Caching
+redis[hiredis]==5.0.1
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+alembic==1.13.1
+asyncpg==0.29.0
+
+# HTTP & WebSocket
+httpx==0.25.2
+aiohttp==3.9.1
+websockets==12.0
+aiofiles==23.2.1
+requests==2.31.0
+truedata_ws==1.0.0  # TrueData WebSocket package
+
+# Data Processing & ML
+pandas==2.2.0
+numpy==1.26.4
+scikit-learn==1.3.2
+scipy==1.11.4
+joblib==1.3.2
+# Cython>=3.0.0  # Removed - causing build issues
+yfinance==0.2.28
+
+# ML & AI Libraries
+xgboost==2.0.3
+lightgbm==4.1.0
+statsmodels==0.14.1
+ta==0.10.2  # Technical Analysis library
+plotly==5.18.0
+kaleido==0.2.1  # For plotly image export
+
+# Async & Background Tasks
+celery==5.3.4
+asyncio-mqtt==0.16.1
+aioredis==2.0.1
+
+# Monitoring & Metrics
+prometheus_client==0.19.0
+psutil==5.9.6
+
+# Development & Monitoring
+python-dotenv==1.0.0
+structlog==23.2.0
+rich==13.7.0
+pyyaml==6.0.1
+pydantic-settings==2.1.0
+
+# Authentication & Security
+bcrypt==4.1.2
+cryptography==42.0.8
+pyotp==2.9.0
+qrcode[pil]==7.4.2
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+
+# Email and SMS (optional)
+aiosmtplib==3.0.1
+twilio==8.11.0
+
+# Trading and financial
+kiteconnect==4.2.0
+
+# Additional utilities
+python-slugify==8.0.1
+pillow==10.1.0 
+# Additional packages for production APIs
+
+yfinance==0.2.28
+psutil==5.9.6
+
+# Deep Learning (optional - can be commented out if not needed)
+# tensorflow==2.15.0
+# torch==2.1.2
+# transformers==4.36.2

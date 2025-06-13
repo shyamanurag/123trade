@@ -1,0 +1,228 @@
+# n8n Configuration
+
+# Server Configuration
+server:
+  host: ${N8N_HOST:-localhost}
+  port: ${N8N_PORT:-5678}
+  protocol: ${N8N_PROTOCOL:-http}
+  base_url: ${N8N_BASE_URL:-http://localhost:5678}
+  webhook_url: ${N8N_WEBHOOK_URL:-http://localhost:5678/webhook/}
+
+# Security
+security:
+  jwt_secret: ${N8N_JWT_SECRET}
+  encryption_key: ${N8N_ENCRYPTION_KEY}
+  basic_auth:
+    enabled: true
+    user: ${N8N_BASIC_AUTH_USER}
+    password: ${N8N_BASIC_AUTH_PASSWORD}
+
+# Database
+database:
+  type: postgres
+  host: ${DB_HOST}
+  port: ${DB_PORT}
+  database: ${N8N_DB_NAME:-n8n}
+  user: ${N8N_DB_USER}
+  password: ${N8N_DB_PASSWORD}
+
+# Workflow Agents
+agents:
+  market_data_processor:
+    name: Market Data Processor
+    description: Processes and analyzes real-time market data
+    triggers:
+      - type: webhook
+        path: /market-data
+        method: POST
+        authentication: bearer_token
+      - type: schedule
+        cron: "*/1 * * * *"  # Every minute
+    actions:
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/market-data/process
+        headers:
+          Authorization: "Bearer ${API_TOKEN}"
+      - type: function
+        name: process_market_data
+        code: |
+          const data = items[0].json;
+          
+          // Validate market data
+          if (!data.symbol || !data.price || !data.volume) {
+            throw new Error('Invalid market data format');
+          }
+          
+          // Calculate technical indicators
+          const indicators = {
+            sma_20: calculateSMA(data.prices, 20),
+            rsi_14: calculateRSI(data.prices, 14),
+            macd: calculateMACD(data.prices)
+          };
+          
+          // Detect patterns
+          const patterns = detectPatterns(data.prices);
+          
+          // Generate signals
+          const signals = generateSignals(indicators, patterns);
+          
+          return {
+            ...data,
+            indicators,
+            patterns,
+            signals,
+            processed_at: new Date().toISOString()
+          };
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/signals/process
+        headers:
+          Authorization: "Bearer ${API_TOKEN}"
+    error_handling:
+      retry:
+        max_attempts: 3
+        delay: 5
+      fallback:
+        url: ${API_BASE_URL}/market-data/fallback
+    monitoring:
+      enabled: true
+      metrics:
+        - name: processing_time
+          type: histogram
+          buckets: [0.1, 0.5, 1, 2, 5]
+        - name: data_freshness
+          type: gauge
+      alerts:
+        - condition: "processing_time > 1s"
+          severity: warning
+        - condition: "data_freshness > 5s"
+          severity: critical
+
+  market_data:
+    name: Market Data Agent
+    description: Processes and analyzes market data
+    triggers:
+      - type: webhook
+        path: /market-data
+      - type: schedule
+        cron: "*/5 * * * *"
+    actions:
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/market-data/process
+      - type: function
+        name: analyze_market_data
+
+  order_management:
+    name: Order Management Agent
+    description: Handles order execution and management
+    triggers:
+      - type: webhook
+        path: /orders
+      - type: schedule
+        cron: "*/1 * * * *"
+    actions:
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/orders/execute
+      - type: function
+        name: validate_orders
+
+  risk_monitoring:
+    name: Risk Monitoring Agent
+    description: Monitors and manages trading risks
+    triggers:
+      - type: webhook
+        path: /risk
+      - type: schedule
+        cron: "*/15 * * * *"
+    actions:
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/risk/check
+      - type: function
+        name: calculate_risk_metrics
+
+  performance_tracking:
+    name: Performance Tracking Agent
+    description: Tracks and analyzes trading performance
+    triggers:
+      - type: webhook
+        path: /performance
+      - type: schedule
+        cron: "0 * * * *"
+    actions:
+      - type: http
+        method: POST
+        url: ${API_BASE_URL}/performance/update
+      - type: function
+        name: generate_performance_report
+
+# Integration Settings
+integrations:
+  zerodha:
+    enabled: true
+    api_key: "sylcoq492qz6f7ej"
+    api_secret: "${ZERODHA_API_SECRET}"
+    webhook:
+      path: /zerodha
+      method: POST
+      authentication: bearer_token
+      events:
+        - order_update
+        - position_update
+        - trade_update
+        - margin_update
+        - gtt_trigger
+      rate_limit: "100_per_minute"
+      retry:
+        max_attempts: 3
+        delay: 5
+      validation:
+        enabled: true
+        secret: "${WEBHOOK_SECRET}"
+      endpoints:
+        order_update: "/api/v1/orders/update"
+        position_update: "/api/v1/positions/update"
+        trade_update: "/api/v1/trades/update"
+        margin_update: "/api/v1/margins/update"
+        gtt_trigger: "/api/v1/gtt/trigger"
+      monitoring:
+        enabled: true
+        health_check_interval: 30
+        alert_threshold: 3
+
+  truedata:
+    enabled: true
+    webhook_path: /truedata
+    events:
+      - market_data
+      - news_update
+
+# Notification Settings
+notifications:
+  email:
+    enabled: true
+    smtp:
+      host: ${SMTP_HOST}
+      port: ${SMTP_PORT}
+      user: ${SMTP_USER}
+      password: ${SMTP_PASSWORD}
+    recipients:
+      - ${ADMIN_EMAIL}
+
+  slack:
+    enabled: true
+    webhook_url: ${SLACK_WEBHOOK_URL}
+    channels:
+      - trading-alerts
+      - risk-alerts
+      - performance-reports
+
+# Logging
+logging:
+  level: INFO
+  file: logs/n8n.log
+  max_size: 100MB
+  max_files: 10 

@@ -1,0 +1,55 @@
+# Shutdown Configuration
+# Controls graceful shutdown behavior
+
+shutdown:
+  # Timeout settings
+  timeout_seconds: 30
+  force_timeout_seconds: 60
+  graceful: true
+  
+  # Component shutdown order (priority)
+  component_order:
+    - security_monitor
+    - backup_manager
+    - health_checker
+    - redis_client
+    - database_connection
+  
+  # Cleanup operations
+  cleanup:
+    close_connections: true
+    save_state: true
+    backup_before_shutdown: true
+    clear_temp_files: true
+  
+  # Notifications
+  notifications:
+    enabled: true
+    webhook_url: null
+    email_alerts: false
+    
+  # Emergency shutdown
+  emergency:
+    enabled: true
+    triggers:
+      - high_memory_usage: 90
+      - disk_space_low: 95
+      - connection_failures: 10
+  
+  # Logging
+  logging:
+    enabled: true
+    level: INFO
+    file: logs/shutdown.log
+
+components:
+  - name: "DatabaseManager"
+    priority: 1
+  - name: "WebSocketManager"
+    priority: 2
+  - name: "SecurityManager"
+    priority: 3
+  - name: "BackupManager"
+    priority: 4
+  - name: "HealthChecker"
+    priority: 5 

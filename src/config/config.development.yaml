@@ -1,0 +1,84 @@
+# Development environment configuration
+# This file extends the base configuration with development-specific settings
+
+app:
+  environment: "development"
+  debug: true
+  port: 8000
+  workers: 1
+  timeout: 120
+  cors:
+    origins: ["http://localhost:3000", "http://localhost:8050"]
+
+database:
+  url: "postgresql://postgres:postgres@localhost:5432/trading_dev"
+  pool_size: 5
+  max_overflow: 5
+  echo: true
+
+redis:
+  url: "redis://localhost:6379/1"  # Use DB 1 for development
+  pool_size: 5
+
+logging:
+  level: "DEBUG"
+  file: "logs/trading_dev.log"
+
+trading:
+  broker:
+    name: "alpaca"
+    base_url: "https://paper-api.alpaca.markets"
+    data_url: "https://data.alpaca.markets"
+    timeout: 60
+    retry_attempts: 5
+
+  strategies:
+    enabled:
+      - "momentum"
+      - "mean_reversion"
+    max_positions: 5
+    position_size: 0.05  # 5% of portfolio per position
+
+  risk:
+    max_drawdown: 0.05  # 5% maximum drawdown
+    stop_loss: 0.01     # 1% stop loss per position
+    take_profit: 0.02   # 2% take profit per position
+    max_leverage: 1.0
+
+security:
+  auth:
+    access_token_expire_minutes: 60
+    refresh_token_expire_days: 30
+    password_min_length: 6
+
+  rate_limiting:
+    enabled: false
+    requests_per_minute: 1000
+    burst_size: 100
+
+monitoring:
+  prometheus:
+    enabled: true
+    port: 9090
+
+  grafana:
+    enabled: true
+    port: 3000
+    admin_password: "admin"  # Change in production
+
+  alerts:
+    enabled: false
+
+endpoints:
+  main_api: "http://localhost:8000"
+  security_api: "http://localhost:8001"
+  dash_app: "http://localhost:8050"
+  prometheus: "http://localhost:9090"
+  grafana: "http://localhost:3000"
+
+features:
+  enable_websockets: true
+  enable_backtesting: true
+  enable_optimization: true
+  enable_machine_learning: true
+  enable_social_trading: true 

@@ -1,0 +1,1 @@
+web: cd src/frontend && rm -rf node_modules package-lock.json && npm install && npm run build:production && cd ../.. && python src/main.py 

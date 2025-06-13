@@ -1,0 +1,86 @@
+# Test environment configuration
+# This file extends the base configuration with test-specific settings
+
+app:
+  environment: "test"
+  debug: true
+  port: 8000
+  workers: 1
+  timeout: 30
+  cors:
+    origins: ["*"]
+
+database:
+  url: "postgresql://postgres:postgres@localhost:5432/trading_test"
+  pool_size: 2
+  max_overflow: 2
+  echo: true
+
+redis:
+  url: "redis://localhost:6379/2"  # Use DB 2 for testing
+  pool_size: 2
+
+logging:
+  level: "DEBUG"
+  file: "logs/trading_test.log"
+
+trading:
+  broker:
+    name: "mock"  # Use mock broker for testing
+    base_url: "http://localhost:8000/mock"
+    data_url: "http://localhost:8000/mock/data"
+    timeout: 5
+    retry_attempts: 1
+
+  strategies:
+    enabled:
+      - "momentum"
+    max_positions: 2
+    position_size: 0.1
+
+  risk:
+    max_drawdown: 0.1
+    stop_loss: 0.02
+    take_profit: 0.04
+    max_leverage: 1.0
+
+security:
+  auth:
+    secret_key: "test_secret_key"
+    access_token_expire_minutes: 5
+    refresh_token_expire_days: 1
+    password_min_length: 6
+
+  encryption:
+    key: "test_encryption_key"
+    salt_length: 8
+    iterations: 1000
+
+  rate_limiting:
+    enabled: false
+    requests_per_minute: 1000
+    burst_size: 100
+
+monitoring:
+  prometheus:
+    enabled: false
+
+  grafana:
+    enabled: false
+
+  alerts:
+    enabled: false
+
+endpoints:
+  main_api: "http://localhost:8000"
+  security_api: "http://localhost:8001"
+  dash_app: "http://localhost:8050"
+  prometheus: "http://localhost:9090"
+  grafana: "http://localhost:3000"
+
+features:
+  enable_websockets: false
+  enable_backtesting: true
+  enable_optimization: false
+  enable_machine_learning: false
+  enable_social_trading: false 
