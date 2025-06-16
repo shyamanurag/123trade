@@ -8,9 +8,9 @@ from typing import List, Dict, Optional
 class TrueDataConfig:
     """TrueData API configuration for Trial106 account"""
     
-    # Trial106 Account Credentials
-    USERNAME = "Trial106"
-    PASSWORD = "shyam106"
+    # Trial106 Account Credentials - Use environment variables for security
+    USERNAME = os.getenv("TRUEDATA_USERNAME", "Trial106")
+    PASSWORD = os.getenv("TRUEDATA_PASSWORD", "")
     REALTIME_PORT = 8086
     
     # Connection Settings

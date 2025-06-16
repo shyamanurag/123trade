@@ -489,23 +489,23 @@ async def load_config():
             redis_port = os.getenv('REDIS_PORT', '25061')  # DigitalOcean Redis port
             db_port = os.getenv('DATABASE_PORT', '25060')   # DigitalOcean DB port
             
-            # Use DigitalOcean's actual values
+            # Use environment variables without hardcoded defaults for security
             basic_config = {
                 'redis': {
-                    'host': os.getenv('REDIS_HOST', 'redis-cache-do-user-23093341-0.k.db.ondigitalocean.com'),
-                    'port': int(redis_port),
-                    'password': os.getenv('REDIS_PASSWORD', 'AVNS_TSCy17L6f9z0CdWgcvW'),
+                    'host': os.getenv('REDIS_HOST'),
+                    'port': int(redis_port) if redis_port else 6379,
+                    'password': os.getenv('REDIS_PASSWORD'),
                     'username': os.getenv('REDIS_USERNAME', 'default'),
-                    'ssl': os.getenv('REDIS_SSL', 'true').lower() == 'true'
+                    'ssl': os.getenv('REDIS_SSL', 'false').lower() == 'true'
                 },
                 'database': {
-                    'host': os.getenv('DATABASE_HOST', 'app-81cd3b75-f46c-49f9-8f76-09040fd8fc68-do-user-23093341-0.k.db.ondigitalocean.com'),
-                    'port': int(db_port),
-                    'name': os.getenv('DATABASE_NAME', 'defaultdb'),  # DigitalOcean default
-                    'user': os.getenv('DATABASE_USER', 'doadmin'),   # DigitalOcean default
-                    'password': os.getenv('DATABASE_PASSWORD', 'AVNS_LpaPpsdL4CtOii03MnN')
+                    'host': os.getenv('DATABASE_HOST'),
+                    'port': int(db_port) if db_port else 5432,
+                    'name': os.getenv('DATABASE_NAME', 'defaultdb'),
+                    'user': os.getenv('DATABASE_USER'),
+                    'password': os.getenv('DATABASE_PASSWORD')
                 },
-                'security': {'jwt_secret': os.getenv('JWT_SECRET', 'K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A')},
+                'security': {'jwt_secret': os.getenv('JWT_SECRET')},
                 'monitoring': {'enabled': True}
             }
             logger.info("✅ Using DigitalOcean environment configuration")

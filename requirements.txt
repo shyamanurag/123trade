@@ -26,8 +26,8 @@ requests==2.31.0
 truedata_ws==1.0.0  # TrueData WebSocket package
 
 # Data Processing & ML
-pandas==2.2.0
-numpy==1.26.4
+pandas==2.1.4
+numpy==1.24.4
 scikit-learn==1.3.2
 scipy==1.11.4
 joblib==1.3.2
@@ -80,11 +80,6 @@ kiteconnect==4.2.0
 # Additional utilities
 python-slugify==8.0.1
 pillow==10.1.0 
-# Additional packages for production APIs
-
-yfinance==0.2.28
-psutil==5.9.6
-
 # Deep Learning (optional - can be commented out if not needed)
 # tensorflow==2.15.0
 # torch==2.1.2
