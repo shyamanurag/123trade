@@ -84,43 +84,59 @@ class DatabaseManager:
         self.slow_query_threshold = 1.0  # 1 second
         
     async def initialize(self) -> bool:
-        """Initialize the database connection pool"""
-        try:
-            logger.info("Initializing database connection pool...")
-            
-            # Build connection string
-            dsn = f"postgresql://{self.config.username}:{self.config.password}@{self.config.host}:{self.config.port}/{self.config.database}"
-            
-            # Create connection pool with optimized settings
-            self.pool = await asyncpg.create_pool(
-                dsn,
-                min_size=self.config.min_connections,
-                max_size=self.config.max_connections,
-                max_inactive_connection_lifetime=self.config.max_inactive_connection_lifetime,
-                max_queries=self.config.max_queries,
-                command_timeout=self.config.command_timeout,
-                timeout=self.config.connect_timeout,
-                server_settings=self.config.server_settings,
-                init=self._init_connection
-            )
-            
-            # Test connection
-            async with self.pool.acquire() as conn:
-                version = await conn.fetchval('SELECT version()')
-                logger.info(f"✅ Database connected: {version[:50]}...")
+        """Initialize the database connection pool with retry mechanism"""
+        max_retries = int(os.getenv('DB_MAX_RETRIES', '5'))
+        retry_delay = int(os.getenv('DB_RETRY_DELAY', '5'))
+        attempt = 0
+        
+        while attempt < max_retries:
+            try:
+                logger.info(f"Initializing database connection pool (attempt {attempt + 1}/{max_retries})...")
                 
-                # Create necessary tables if they don't exist
-                await self._create_tables(conn)
-            
-            self.is_initialized = True
-            self.stats.total_connections = self.config.max_connections
-            
-            logger.info(f"✅ Database pool initialized with {self.config.min_connections}-{self.config.max_connections} connections")
-            return True
-            
-        except Exception as e:
-            logger.error(f"❌ Database initialization failed: {e}")
-            return False
+                # Build connection string
+                dsn = f"postgresql://{self.config.username}:{self.config.password}@{self.config.host}:{self.config.port}/{self.config.database}"
+                
+                # Create connection pool with optimized settings
+                self.pool = await asyncpg.create_pool(
+                    dsn,
+                    min_size=self.config.min_connections,
+                    max_size=self.config.max_connections,
+                    max_inactive_connection_lifetime=self.config.max_inactive_connection_lifetime,
+                    max_queries=self.config.max_queries,
+                    command_timeout=self.config.command_timeout,
+                    timeout=self.config.connect_timeout,
+                    server_settings=self.config.server_settings,
+                    init=self._init_connection
+                )
+                
+                # Test connection
+                async with self.pool.acquire() as conn:
+                    version = await conn.fetchval('SELECT version()')
+                    logger.info(f"✅ Database connected: {version[:50]}...")
+                    
+                    # Create necessary tables if they don't exist
+                    await self._create_tables(conn)
+                
+                self.is_initialized = True
+                self.stats.total_connections = self.config.max_connections
+                
+                logger.info(f"✅ Database pool initialized with {self.config.min_connections}-{self.config.max_connections} connections")
+                return True
+                
+            except asyncpg.PostgresConnectionError as e:
+                attempt += 1
+                logger.warning(f"Database connection attempt {attempt}/{max_retries} failed: {e}")
+                if attempt < max_retries:
+                    logger.info(f"Retrying in {retry_delay} seconds...")
+                    await asyncio.sleep(retry_delay)
+                    # Exponential backoff
+                    retry_delay = min(retry_delay * 2, 60)  # Cap at 60 seconds
+                else:
+                    logger.error(f"❌ Database initialization failed after {max_retries} attempts: {e}")
+                    return False
+            except Exception as e:
+                logger.error(f"❌ Database initialization failed with unexpected error: {e}")
+                return False
     
     async def _init_connection(self, conn: Connection):
         """Initialize each new connection in the pool"""

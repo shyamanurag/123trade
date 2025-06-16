@@ -5,11 +5,12 @@ Monitors system components and provides health status
 
 import asyncio
 import logging
+import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import aiohttp
 import redis.asyncio as redis
-from prometheus_client import Gauge, Counter
+from prometheus_client import Gauge, Counter, Histogram
 
 logger = logging.getLogger(__name__)
 
