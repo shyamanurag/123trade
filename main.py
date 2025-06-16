@@ -304,11 +304,10 @@ app.add_middleware(ErrorRecoveryMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://algoauto-ua2iq.ondigitalocean.app",  # Production domain
-        os.getenv("FRONTEND_URL", "https://algoauto-ua2iq.ondigitalocean.app"),  # Dynamic frontend URL
-        os.getenv("APP_URL", "https://algoauto-ua2iq.ondigitalocean.app"),      # App URL
+        os.getenv("FRONTEND_URL", "http://localhost:3000"),  # Primary frontend URL
+        os.getenv("APP_URL", "http://localhost:8000"),      # App URL
         "http://localhost:3000",  # Development frontend
-        "http://0.0.0.0:3000",    # Replit development
+        "http://0.0.0.0:3000",    # Alternate development
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -442,13 +441,30 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, "your-secret-key", algorithm="HS256")
+    
+    # Get JWT secret from environment or config
+    jwt_secret = os.getenv('JWT_SECRET')
+    if not jwt_secret and hasattr(config, 'get') and callable(config.get):
+        jwt_secret = config.get('security', {}).get('jwt_secret')
+    if not jwt_secret:
+        logger.warning("JWT_SECRET not configured, using fallback (NOT SECURE for production)")
+        jwt_secret = "INSECURE_FALLBACK_FOR_DEVELOPMENT_ONLY"
+    
+    encoded_jwt = jwt.encode(to_encode, jwt_secret, algorithm="HS256")
     return encoded_jwt
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     """Verify JWT token"""
     try:
-        payload = jwt.decode(credentials.credentials, "your-secret-key", algorithms=["HS256"])
+        # Get JWT secret from environment or config
+        jwt_secret = os.getenv('JWT_SECRET')
+        if not jwt_secret and hasattr(config, 'get') and callable(config.get):
+            jwt_secret = config.get('security', {}).get('jwt_secret')
+        if not jwt_secret:
+            logger.warning("JWT_SECRET not configured, using fallback (NOT SECURE for production)")
+            jwt_secret = "INSECURE_FALLBACK_FOR_DEVELOPMENT_ONLY"
+        
+        payload = jwt.decode(credentials.credentials, jwt_secret, algorithms=["HS256"])
         return payload
     except jwt.PyJWTError:
         raise HTTPException(
@@ -463,7 +479,15 @@ def optional_auth(credentials: Optional[HTTPAuthorizationCredentials] = Depends(
     if not credentials:
         return None
     try:
-        payload = jwt.decode(credentials.credentials, "your-secret-key", algorithms=["HS256"])
+        # Get JWT secret from environment or config
+        jwt_secret = os.getenv('JWT_SECRET')
+        if not jwt_secret and hasattr(config, 'get') and callable(config.get):
+            jwt_secret = config.get('security', {}).get('jwt_secret')
+        if not jwt_secret:
+            logger.warning("JWT_SECRET not configured, using fallback (NOT SECURE for production)")
+            jwt_secret = "INSECURE_FALLBACK_FOR_DEVELOPMENT_ONLY"
+            
+        payload = jwt.decode(credentials.credentials, jwt_secret, algorithms=["HS256"])
         return payload
     except jwt.PyJWTError:
         return None
@@ -546,10 +570,10 @@ async def init_redis():
         # Load environment variables for production - prioritize REDIS_URL
         redis_url = os.getenv('REDIS_URL')
         redis_host = os.getenv('REDIS_HOST')
-        redis_port = os.getenv('REDIS_PORT', '25061')  # DigitalOcean default Redis port
+        redis_port = os.getenv('REDIS_PORT')
         redis_password = os.getenv('REDIS_PASSWORD')
         redis_username = os.getenv('REDIS_USERNAME', 'default')
-        redis_ssl = os.getenv('REDIS_SSL', 'true').lower() == 'true'  # DigitalOcean uses SSL by default
+        redis_ssl = os.getenv('REDIS_SSL', 'false').lower() == 'true'
         
         # Build Redis connection - prioritize REDIS_URL for DigitalOcean
         if redis_url:
