@@ -586,25 +586,9 @@ async def init_redis():
         
         # Build Redis connection - prioritize REDIS_URL for DigitalOcean
         if redis_url:
-            # Use Redis URL directly (DigitalOcean format: rediss://default:password@host:port)
-            logger.info(f"✅ Using REDIS_URL from DigitalOcean: {redis_url[:60]}...")
+            # Use Redis URL directly (DigitalOcean format: ${REDIS_URL}"✅ Using REDIS_URL from DigitalOcean: {redis_url[:60]}...")
             
-            # DigitalOcean provides rediss:// URL with SSL already configured
-            client = redis.from_url(
-                redis_url, 
-                decode_responses=True,
-                ssl_cert_reqs=None,
-                ssl_check_hostname=False,
-                ssl_ca_certs=None,
-                socket_timeout=10,
-                socket_connect_timeout=10,
-                socket_keepalive=True,
-                retry_on_timeout=True
-            )
-                
-        elif redis_host:
-            # Build connection from individual components
-            logger.info(f"Building Redis connection to: {redis_host}:{redis_port} (SSL: {redis_ssl})")
+            # DigitalOcean provides ${REDIS_URL}"Building Redis connection to: {redis_host}:{redis_port} (SSL: {redis_ssl})")
             
             if redis_ssl:
                 # DigitalOcean managed Redis with SSL
