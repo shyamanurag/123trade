@@ -26,14 +26,26 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONPATH=/app
 
-# Install system dependencies
+# Install system dependencies including TA-Lib
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     make \
     libpq-dev \
     curl \
+    wget \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
+
+# Install TA-Lib C library (in case needed)
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
+    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+    cd ta-lib/ && \
+    ./configure --prefix=/usr && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
 # Create app user
 RUN useradd --create-home --shell /bin/bash app
