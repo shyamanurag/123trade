@@ -1,5 +1,5 @@
 # Multi-stage Docker build for production-grade crypto trading system
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 # Set working directory for frontend
 WORKDIR /app/frontend
@@ -7,8 +7,8 @@ WORKDIR /app/frontend
 # Copy frontend package files
 COPY frontend/package*.json ./
 
-# Install frontend dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (including dev dependencies needed for build)
+RUN npm ci
 
 # Copy frontend source
 COPY frontend/ ./
