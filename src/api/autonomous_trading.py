@@ -46,76 +46,20 @@ async def get_status(
     orchestrator: Any = Depends(get_orchestrator)
 ):
     """Get current autonomous trading status"""
-    try:
-        # CRITICAL FIX: Ensure we get proper status even if orchestrator is not fully initialized
-        if not orchestrator or not hasattr(orchestrator, 'get_trading_status'):
-            logger.warning("Orchestrator not properly initialized - using fallback status")
-            return TradingStatusResponse(
-                success=True,
-                message="Trading status retrieved (fallback mode)",
-                data={
-                    "is_active": False,
-                    "session_id": f"fallback_{int(datetime.now().timestamp())}",
-                    "start_time": None,
-                    "last_heartbeat": datetime.now().isoformat(),
-                    "active_strategies": [],
-                    "active_strategies_count": 0,  # CRITICAL FIX: Add count to fallback
-                    "active_positions": 0,
-                    "total_trades": 0,
-                    "daily_pnl": 0.0,
-                    "risk_status": {"status": "not_initialized"},
-                    "market_status": "UNKNOWN",
-                    "system_ready": False,
-                    "timestamp": datetime.utcnow()
-                }
-            )
-        
-        status = await orchestrator.get_trading_status()
-        
-        # CRITICAL FIX: Handle case where status might be missing keys
-        safe_status = {
-            "is_active": status.get("is_active", False),
-            "session_id": status.get("session_id", f"session_{int(datetime.now().timestamp())}"),
-            "start_time": status.get("start_time"),
-            "last_heartbeat": status.get("last_heartbeat", datetime.now().isoformat()),
-            "active_strategies": status.get("active_strategies", []),
-            "active_strategies_count": status.get("active_strategies_count", len(status.get("active_strategies", []))),  # Use count from orchestrator
-            "active_positions": status.get("active_positions", 0),
-            "total_trades": status.get("total_trades", 0),
-            "daily_pnl": status.get("daily_pnl", 0.0),
-            "risk_status": status.get("risk_status", {"status": "unknown"}),
-            "market_status": status.get("market_status", "UNKNOWN"),
-            "system_ready": status.get("system_ready", False),
-            "timestamp": datetime.utcnow()
-        }
-        
-        return TradingStatusResponse(
-            success=True,
-            message="Trading status retrieved successfully",
-            data=safe_status
+    # REQUIRE proper orchestrator initialization - NO FALLBACKS
+    if not orchestrator or not hasattr(orchestrator, 'get_trading_status'):
+        raise HTTPException(
+            status_code=503,
+            detail="Trading orchestrator not properly initialized. System unavailable."
         )
-    except Exception as e:
-        logger.error(f"Error getting trading status: {str(e)}")
-        # Return safe fallback instead of failing
-        return TradingStatusResponse(
-            success=True,
-            message=f"Trading status error: {str(e)}",
-            data={
-                "is_active": False,
-                "session_id": f"error_{int(datetime.now().timestamp())}",
-                "start_time": None,
-                "last_heartbeat": datetime.now().isoformat(),
-                "active_strategies": [],
-                "active_strategies_count": 0,  # CRITICAL FIX: Add count to fallback
-                "active_positions": 0,
-                "total_trades": 0,
-                "daily_pnl": 0.0,
-                "risk_status": {"status": "error", "error": str(e)},
-                "market_status": "ERROR",
-                "system_ready": False,
-                "timestamp": datetime.utcnow()
-            }
-        )
+    
+    status_data = await orchestrator.get_trading_status()
+    
+    return TradingStatusResponse(
+        success=True,
+        message="Trading status retrieved successfully",
+        data=status_data
+    )
 
 @router.post("/start", response_model=BaseResponse)
 async def start_trading(

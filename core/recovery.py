@@ -3,40 +3,46 @@ Error recovery system for the trading system
 """
 
 import asyncio
-import functools
+import logging
 import time
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
-from .exceptions import TradingSystemError, RecoveryError
-from .logging import get_logger
+from typing import Any, Callable, Dict, Optional, Type
+from dataclasses import dataclass
+from enum import Enum
+import random
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
-F = TypeVar('F', bound=Callable[..., Any])
+class RetryStrategy(Enum):
+    """Retry strategy types"""
+    EXPONENTIAL_BACKOFF = "exponential_backoff"
+    LINEAR_BACKOFF = "linear_backoff"
+    FIXED_DELAY = "fixed_delay"
+    IMMEDIATE = "immediate"
 
+@dataclass
 class RetryConfig:
-    """Configuration for retry mechanism"""
+    """Configuration for retry behavior"""
+    max_retries: int = 3
+    initial_delay: float = 1.0
+    max_delay: float = 60.0
+    exponential_base: float = 2.0
+    jitter: bool = True
     
-    def __init__(
-        self,
-        max_attempts: int = 3,
-        initial_delay: float = 1.0,
-        max_delay: float = 30.0,
-        exponential_base: float = 2.0,
-        jitter: bool = True
-    ):
-        self.max_attempts = max_attempts
-        self.initial_delay = initial_delay
-        self.max_delay = max_delay
-        self.exponential_base = exponential_base
-        self.jitter = jitter
+    def __post_init__(self):
+        if self.max_retries < 0:
+            raise ValueError("max_retries must be non-negative")
+        if self.initial_delay < 0:
+            raise ValueError("initial_delay must be non-negative")
+        if self.max_delay < self.initial_delay:
+            raise ValueError("max_delay must be >= initial_delay")
+        if self.exponential_base <= 1:
+            raise ValueError("exponential_base must be > 1")
 
 class RecoveryManager:
     """Manages error recovery strategies"""
     
     def __init__(self):
         self._recovery_strategies: Dict[Type[Exception], Callable] = {}
-        self._fallback_strategies: Dict[Type[Exception], Callable] = {}
         
     def register_recovery_strategy(
         self,
@@ -46,14 +52,6 @@ class RecoveryManager:
         """Register a recovery strategy for an exception type"""
         self._recovery_strategies[exception_type] = strategy
         
-    def register_fallback_strategy(
-        self,
-        exception_type: Type[Exception],
-        strategy: Callable
-    ) -> None:
-        """Register a fallback strategy for an exception type"""
-        self._fallback_strategies[exception_type] = strategy
-        
     async def execute_with_recovery(
         self,
         func: Callable,
@@ -61,145 +59,126 @@ class RecoveryManager:
         retry_config: Optional[RetryConfig] = None,
         **kwargs: Any
     ) -> Any:
-        """
-        Execute a function with recovery mechanisms
-        
-        Args:
-            func: Function to execute
-            *args: Positional arguments for the function
-            retry_config: Configuration for retry mechanism
-            **kwargs: Keyword arguments for the function
+        """Execute function with recovery - NO FALLBACKS"""
+        if retry_config is None:
+            retry_config = RetryConfig()
             
-        Returns:
-            Any: Result of the function execution
-            
-        Raises:
-            RecoveryError: If all recovery attempts fail
-        """
-        retry_config = retry_config or RetryConfig()
-        attempt = 0
         last_exception = None
         
-        while attempt < retry_config.max_attempts:
+        for attempt in range(retry_config.max_retries + 1):
             try:
                 if asyncio.iscoroutinefunction(func):
                     return await func(*args, **kwargs)
-                return func(*args, **kwargs)
-                
+                else:
+                    return func(*args, **kwargs)
+                    
             except Exception as e:
                 last_exception = e
-                attempt += 1
+                logger.warning(
+                    f"Attempt {attempt + 1}/{retry_config.max_retries + 1} failed: {str(e)}",
+                    exc_info=True
+                )
                 
-                if attempt == retry_config.max_attempts:
+                # If this was the last attempt, don't sleep
+                if attempt == retry_config.max_retries:
                     break
                     
-                # Calculate delay with exponential backoff
-                delay = min(
-                    retry_config.initial_delay * (retry_config.exponential_base ** (attempt - 1)),
-                    retry_config.max_delay
-                )
-                
-                if retry_config.jitter:
-                    delay *= (0.5 + 0.5 * time.random())
-                    
-                logger.warning(
-                    f"Attempt {attempt} failed: {str(e)}. Retrying in {delay:.2f} seconds..."
-                )
-                
-                await asyncio.sleep(delay)
-                
-                # Try recovery strategy if available
+                # Try recovery strategy
+                recovery_attempted = False
                 for exc_type, strategy in self._recovery_strategies.items():
                     if isinstance(e, exc_type):
                         try:
                             if asyncio.iscoroutinefunction(strategy):
-                                await strategy(e)
+                                await strategy(e, attempt)
                             else:
-                                strategy(e)
+                                strategy(e, attempt)
+                            recovery_attempted = True
                             break
                         except Exception as recovery_error:
                             logger.error(
-                                f"Recovery strategy failed: {str(recovery_error)}"
+                                f"Recovery strategy failed: {str(recovery_error)}",
+                                exc_info=True
                             )
+                
+                # Calculate delay for next attempt
+                delay = self._calculate_delay(retry_config, attempt)
+                
+                logger.info(
+                    f"Retrying in {delay:.2f} seconds... "
+                    f"(attempt {attempt + 1}/{retry_config.max_retries + 1})"
+                )
+                
+                await asyncio.sleep(delay)
         
-        # If all retries failed, try fallback strategy
+        # All retries exhausted - raise the last exception
         if last_exception:
-            for exc_type, strategy in self._fallback_strategies.items():
-                if isinstance(last_exception, exc_type):
-                    try:
-                        if asyncio.iscoroutinefunction(strategy):
-                            return await strategy(last_exception)
-                        return strategy(last_exception)
-                    except Exception as fallback_error:
-                        raise RecoveryError(
-                            f"Fallback strategy failed: {str(fallback_error)}",
-                            last_exception
-                        )
-        
-        raise RecoveryError(
-            f"All recovery attempts failed after {retry_config.max_attempts} tries",
-            last_exception
-        )
-
-def with_recovery(
-    retry_config: Optional[RetryConfig] = None,
-    recovery_manager: Optional[RecoveryManager] = None
-) -> Callable[[F], F]:
-    """
-    Decorator for adding recovery mechanisms to functions
+            logger.error(f"All retries exhausted. Final error: {str(last_exception)}")
+            raise last_exception
+        else:
+            raise RuntimeError("Unknown error during execution with recovery")
     
-    Args:
-        retry_config: Configuration for retry mechanism
-        recovery_manager: Recovery manager instance
+    def _calculate_delay(self, config: RetryConfig, attempt: int) -> float:
+        """Calculate delay for next retry attempt"""
+        if config.initial_delay == 0:
+            return 0
+            
+        # Calculate base delay using exponential backoff
+        delay = config.initial_delay * (config.exponential_base ** attempt)
+        delay = min(delay, config.max_delay)
         
-    Returns:
-        Callable: Decorated function
-    """
-    def decorator(func: F) -> F:
-        @functools.wraps(func)
-        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-            manager = recovery_manager or RecoveryManager()
-            return await manager.execute_with_recovery(
-                func,
-                *args,
-                retry_config=retry_config,
-                **kwargs
+        # Add jitter if enabled
+        if config.jitter:
+            jitter_amount = delay * 0.1  # 10% jitter
+            delay += random.uniform(-jitter_amount, jitter_amount)
+            
+        return max(0, delay)
+
+def retry_on_exception(
+    exceptions: tuple = (Exception,),
+    max_retries: int = 3,
+    initial_delay: float = 1.0,
+    max_delay: float = 60.0,
+    exponential_base: float = 2.0,
+    jitter: bool = True
+):
+    """Decorator for retrying functions on specific exceptions"""
+    def decorator(func: Callable) -> Callable:
+        async def async_wrapper(*args, **kwargs):
+            retry_config = RetryConfig(
+                max_retries=max_retries,
+                initial_delay=initial_delay,
+                max_delay=max_delay,
+                exponential_base=exponential_base,
+                jitter=jitter
             )
             
-        @functools.wraps(func)
-        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-            manager = recovery_manager or RecoveryManager()
-            return manager.execute_with_recovery(
-                func,
-                *args,
-                retry_config=retry_config,
-                **kwargs
+            recovery_manager = RecoveryManager()
+            return await recovery_manager.execute_with_recovery(
+                func, *args, retry_config=retry_config, **kwargs
             )
             
-        return async_wrapper if asyncio.iscoroutinefunction(func) else sync_wrapper
+        def sync_wrapper(*args, **kwargs):
+            # For sync functions, use asyncio.run
+            retry_config = RetryConfig(
+                max_retries=max_retries,
+                initial_delay=initial_delay,
+                max_delay=max_delay,
+                exponential_base=exponential_base,
+                jitter=jitter
+            )
+            
+            recovery_manager = RecoveryManager()
+            return asyncio.run(recovery_manager.execute_with_recovery(
+                func, *args, retry_config=retry_config, **kwargs
+            ))
         
+        # Return appropriate wrapper based on function type
+        if asyncio.iscoroutinefunction(func):
+            return async_wrapper
+        else:
+            return sync_wrapper
+            
     return decorator
 
-# Create global recovery manager instance
-recovery_manager = RecoveryManager()
-
-# Example recovery strategies
-async def handle_connection_error(error: Exception) -> None:
-    """Handle connection errors"""
-    logger.info("Attempting to reconnect...")
-    # Implement reconnection logic here
-
-async def handle_authentication_error(error: Exception) -> None:
-    """Handle authentication errors"""
-    logger.info("Refreshing authentication token...")
-    # Implement token refresh logic here
-
-# Register recovery strategies
-recovery_manager.register_recovery_strategy(
-    ConnectionError,
-    handle_connection_error
-)
-recovery_manager.register_recovery_strategy(
-    AuthenticationError,
-    handle_authentication_error
-) 
+# Global recovery manager instance
+recovery_manager = RecoveryManager() 

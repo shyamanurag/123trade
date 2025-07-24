@@ -3,38 +3,10 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import numpy as np
 
-# Optional ML imports with graceful fallback
-try:
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.preprocessing import StandardScaler
-    import pandas as pd
-    SKLEARN_AVAILABLE = True
-except ImportError:
-    SKLEARN_AVAILABLE = False
-    # Create stub classes for compatibility
-    class RandomForestRegressor:
-        def __init__(self, *args, **kwargs): pass
-        def fit(self, X, y): pass
-        def predict(self, X): return [0.0] * len(X)
-        @property
-        def feature_importances_(self): return [1.0] * 6
-    
-    class StandardScaler:
-        def __init__(self): pass
-        def fit(self, X): return self
-        def transform(self, X): return X
-        def fit_transform(self, X): return X
-    
-    # Simple pandas replacement
-    class DataFrame:
-        def __init__(self, data): 
-            self.data = data
-            self.columns = list(data.keys()) if isinstance(data, dict) else []
-        def __getitem__(self, key): return self.data.get(key, [])
-        @property
-        def values(self): return []
-    
-    pd = type('pd', (), {'DataFrame': DataFrame})()
+# ML imports - REQUIRED, NO FALLBACKS
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
 
 from .models import Order, OrderStatus
 from .exceptions import OrderError

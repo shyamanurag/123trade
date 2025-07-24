@@ -16,19 +16,13 @@ from abc import ABC, abstractmethod
 import warnings
 warnings.filterwarnings('ignore')
 
-# ML Libraries - with graceful fallback
-try:
-    import sklearn
-    from sklearn.ensemble import RandomForestRegressor, GradientBoostingClassifier
-    from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
-    from sklearn.preprocessing import StandardScaler, RobustScaler
-    from sklearn.metrics import mean_squared_error, accuracy_score, precision_recall_fscore_support
-    from sklearn.feature_selection import SelectKBest, f_regression
-    SKLEARN_AVAILABLE = True
-except ImportError:
-    logger = logging.getLogger(__name__)
-    logger.warning("scikit-learn not available. ML features will be limited.")
-    SKLEARN_AVAILABLE = False
+# ML Libraries - REQUIRED, NO FALLBACKS
+import sklearn
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
+from sklearn.preprocessing import StandardScaler, RobustScaler
+from sklearn.metrics import mean_squared_error, accuracy_score, precision_recall_fscore_support
+from sklearn.feature_selection import SelectKBest, f_regression
 
 # Deep Learning - optional
 try:

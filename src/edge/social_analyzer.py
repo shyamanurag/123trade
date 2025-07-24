@@ -13,15 +13,9 @@ from datetime import datetime, timedelta
 from collections import defaultdict, deque
 import aiohttp
 
-# Social media API imports
-try:
-    import tweepy
-    import praw  # Reddit API
-    SOCIAL_APIS_AVAILABLE = True
-except ImportError:
-    SOCIAL_APIS_AVAILABLE = False
-    logger = logging.getLogger(__name__)
-    logger.error("Social media APIs not available. Real social data required - no fallback.")
+# Social media API imports - REQUIRED, NO FALLBACKS
+import tweepy
+import praw  # Reddit API
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +143,7 @@ class QuantumSocialAnalyzer:
     async def _initialize_apis(self):
         """Initialize social media API clients"""
         try:
-            if SOCIAL_APIS_AVAILABLE and self.twitter_api_key:
+            if self.twitter_api_key:
                 # Initialize Twitter API v2
                 self.twitter_client = tweepy.Client(
                     bearer_token=self.twitter_api_key,
@@ -157,7 +151,7 @@ class QuantumSocialAnalyzer:
                 )
                 logger.info("✅ Twitter API initialized")
             
-            if SOCIAL_APIS_AVAILABLE and self.reddit_client_id:
+            if self.reddit_client_id:
                 # Initialize Reddit API
                 self.reddit_client = praw.Reddit(
                     client_id=self.reddit_client_id,
@@ -256,7 +250,7 @@ class QuantumSocialAnalyzer:
     async def _analyze_twitter_keyword(self, keyword: str):
         """Analyze Twitter posts for a specific keyword"""
         try:
-            if not SOCIAL_APIS_AVAILABLE:
+            if not self.twitter_client:
                 return
             
             # Search for recent tweets
@@ -292,7 +286,7 @@ class QuantumSocialAnalyzer:
     async def _analyze_influencer_tweets(self, influencer: InfluencerTracker):
         """Analyze tweets from a specific influencer"""
         try:
-            if not SOCIAL_APIS_AVAILABLE:
+            if not self.twitter_client:
                 return
             
             # Get user by username
@@ -341,7 +335,7 @@ class QuantumSocialAnalyzer:
     async def _analyze_reddit_subreddit(self, subreddit_name: str):
         """Analyze Reddit posts in a subreddit"""
         try:
-            if not SOCIAL_APIS_AVAILABLE:
+            if not self.reddit_client:
                 return
             
             subreddit = self.reddit_client.subreddit(subreddit_name)

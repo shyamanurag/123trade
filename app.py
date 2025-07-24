@@ -45,12 +45,8 @@ class TradingMode(str, Enum):
     TESTING = "testing"
     PAPER = "paper"
 
-# Get trading mode from environment with validation
-try:
-    TRADING_MODE = TradingMode(os.getenv("TRADING_MODE", TradingMode.FREE_TIER.value))
-except ValueError as e:
-    logging.warning(f"Invalid TRADING_MODE '{os.getenv('TRADING_MODE')}'. Using FREE_TIER as fallback. Valid modes: {[mode.value for mode in TradingMode]}")
-    TRADING_MODE = TradingMode.FREE_TIER
+# Get trading mode from environment with validation - NO FALLBACKS
+TRADING_MODE = TradingMode(os.getenv("TRADING_MODE", TradingMode.FREE_TIER.value))
 
 # Conditional imports based on mode
 if TRADING_MODE in [TradingMode.PRODUCTION, TradingMode.DEVELOPMENT, TradingMode.FREE_TIER, TradingMode.PAPER]:

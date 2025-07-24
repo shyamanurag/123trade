@@ -48,7 +48,7 @@ class RecoveryStrategy(str, Enum):
     RETRY = "retry"                  # Retry the operation
     FALLBACK = "fallback"            # Use fallback mechanism
     CIRCUIT_BREAKER = "circuit_breaker"  # Implement circuit breaker
-    GRACEFUL_DEGRADATION = "graceful_degradation"  # Degrade functionality
+    # Removed graceful degradation - system should fail fast
     MANUAL_INTERVENTION = "manual_intervention"  # Requires manual action
 
 @dataclass
