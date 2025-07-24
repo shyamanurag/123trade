@@ -8,12 +8,21 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.backup
 .Python
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Python cache files (found in src/)
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.backup
+**/*.py.backup
 
 # Large build directories
 frontend/node_modules/
