@@ -43,12 +43,17 @@ class TradingMode(str, Enum):
     FREE_TIER = "free-tier"
     SIMPLE = "simple"
     TESTING = "testing"
+    PAPER = "paper"
 
-# Get trading mode from environment
-TRADING_MODE = TradingMode(os.getenv("TRADING_MODE", TradingMode.DEVELOPMENT.value))
+# Get trading mode from environment with validation
+try:
+    TRADING_MODE = TradingMode(os.getenv("TRADING_MODE", TradingMode.FREE_TIER.value))
+except ValueError as e:
+    logging.warning(f"Invalid TRADING_MODE '{os.getenv('TRADING_MODE')}'. Using FREE_TIER as fallback. Valid modes: {[mode.value for mode in TradingMode]}")
+    TRADING_MODE = TradingMode.FREE_TIER
 
 # Conditional imports based on mode
-if TRADING_MODE in [TradingMode.PRODUCTION, TradingMode.DEVELOPMENT, TradingMode.FREE_TIER]:
+if TRADING_MODE in [TradingMode.PRODUCTION, TradingMode.DEVELOPMENT, TradingMode.FREE_TIER, TradingMode.PAPER]:
     try:
         from src.quantum_trading_system import QuantumTradingSystem
         from src.core.crypto_strategy_orchestrator_enhanced import EnhancedCryptoStrategyOrchestrator
@@ -202,8 +207,10 @@ async def lifespan(app: FastAPI):
         if QUANTUM_SYSTEM_AVAILABLE:
             # Initialize quantum trading system
             config_file = "local_deployment_config.yaml"
-            if TRADING_MODE == TradingMode.FREE_TIER:
-                config_file = "config/quantum_trading_config.yaml"
+                    if TRADING_MODE == TradingMode.FREE_TIER:
+            config_file = "config/quantum_trading_config.yaml"
+        elif TRADING_MODE == TradingMode.PAPER:
+            config_file = "config/quantum_trading_config.yaml"
                 
             try:
                 quantum_system = QuantumTradingSystem(config_file)
