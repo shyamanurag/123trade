@@ -1,3 +1,5 @@
+# PRODUCTION DEPENDENCIES ONLY - OPTIMIZED FOR FAST DEPLOYMENT
+
 # Core Framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
@@ -28,10 +30,9 @@ aiohttp==3.9.1
 # Data Processing & Analysis
 pandas==2.1.3
 numpy==1.24.3
-ta==0.10.2
 scikit-learn==1.3.2
 
-# Machine Learning & AI
+# Machine Learning & AI (CPU-optimized for fast install)
 tensorflow-cpu==2.15.0
 torch==2.1.0
 torchvision==0.16.0
@@ -70,7 +71,3 @@ pytz==2023.3
 # Networking & Utils
 requests==2.31.0
 urllib3==2.1.0
-
-# Development & Testing (optional for production)
-pytest==7.4.3
-pytest-asyncio==0.21.1

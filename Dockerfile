@@ -1,83 +1,64 @@
-# Multi-stage Docker build for production-grade crypto trading system
+# =====================================================
+# MINIMAL DOCKERFILE FOR FAST DIGITALOCEAN DEPLOYMENT
+# =====================================================
+
+# Frontend build stage - keep minimal
 FROM node:20-alpine AS frontend-builder
-
-# Set working directory for frontend
 WORKDIR /app/frontend
-
-# Copy frontend package files
 COPY frontend/package*.json ./
-
-# Install ALL dependencies (including dev dependencies needed for build)
-RUN npm ci
-
-# Copy frontend source
+RUN npm ci --only=production
 COPY frontend/ ./
-
-# Build frontend for production
 RUN npm run build
 
-# ================================
-# Python Backend Stage
-# ================================
-FROM python:3.11-slim AS backend
+# =====================================================
+# MINIMAL PYTHON BACKEND - OPTIMIZED FOR SPEED
+# =====================================================
+FROM python:3.11-slim
 
-# Set environment variables
+# Environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONPATH=/app
 
-# Install system dependencies including TA-Lib
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
-    make \
-    libpq-dev \
+# MINIMAL system dependencies - only what's absolutely required
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
     curl \
-    wget \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Install TA-Lib C library (in case needed)
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib/ && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
-
-# Create app user
-RUN useradd --create-home --shell /bin/bash app
+# Create non-root user
+RUN useradd --create-home --no-log-init --shell /bin/bash app
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements and install Python dependencies
+# Copy and install Python dependencies FIRST (for better caching)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Python packages using pre-built wheels (much faster)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
-# Copy built frontend from frontend-builder stage
+# Copy built frontend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
-# Create necessary directories
-RUN mkdir -p logs config data backups
+# Create required directories and set permissions
+RUN mkdir -p logs config data backups && \
+    chown -R app:app /app
 
-# Set ownership
-RUN chown -R app:app /app
-
-# Switch to app user
+# Switch to non-root user
 USER app
 
 # Expose port
 EXPOSE 8000
 
-# Health check
+# Simple health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# Primary command only - NO FALLBACKS
+# Single command - no fallbacks
 CMD ["python", "app.py"]
