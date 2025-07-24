@@ -220,7 +220,7 @@ async def lifespan(app: FastAPI):
                 asyncio.create_task(quantum_system.start())
                 
                 logging.info("✅ Quantum Trading System started successfully")
-                    except Exception as qe:
+            except Exception as qe:
                 logging.warning(f"⚠️ Quantum system initialization failed: {qe}")
                 logging.info("🔧 Starting with core trading components only")
                 try:
