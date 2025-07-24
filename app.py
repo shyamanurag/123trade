@@ -27,7 +27,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
-# from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST  # Removed for minimal deployment
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from pydantic import BaseModel, ConfigDict
 from typing import Dict, List, Optional, Any
 
