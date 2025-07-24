@@ -27,7 +27,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, JSONResponse, HTMLResponse
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+# from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST  # Removed for minimal deployment
 from pydantic import BaseModel, ConfigDict
 from typing import Dict, List, Optional, Any
 
@@ -71,31 +71,34 @@ except ImportError as e:
 # Metrics (only for production and development)
 if TRADING_MODE in [TradingMode.PRODUCTION, TradingMode.DEVELOPMENT]:
     # Prometheus metrics setup
-    from prometheus_client import Counter, Histogram, CollectorRegistry, REGISTRY
-    import prometheus_client
+    # from prometheus_client import Counter, Histogram, CollectorRegistry, REGISTRY # Removed for minimal deployment
+    # import prometheus_client # Removed for minimal deployment
 
     # Clear default registry to prevent duplicated timeseries
     try:
-        prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR)
-        prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
-        prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
+        # prometheus_client.REGISTRY.unregister(prometheus_client.GC_COLLECTOR) # Removed for minimal deployment
+        # prometheus_client.REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR) # Removed for minimal deployment
+        # prometheus_client.REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR) # Removed for minimal deployment
+        pass # Removed for minimal deployment
     except Exception:
-        pass
+        pass # Removed for minimal deployment
 
     # Clear any existing metrics
-    prometheus_client.REGISTRY._collector_to_names.clear()
-    prometheus_client.REGISTRY._names_to_collectors.clear()
+    # prometheus_client.REGISTRY._collector_to_names.clear() # Removed for minimal deployment
+    # prometheus_client.REGISTRY._names_to_collectors.clear() # Removed for minimal deployment
 
     # Create metrics with unique names
     try:
-        REQUEST_COUNT = Counter('trading_http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
-        REQUEST_LATENCY = Histogram('trading_http_request_duration_seconds', 'HTTP request latency')
+        # REQUEST_COUNT = Counter('trading_http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status']) # Removed for minimal deployment
+        # REQUEST_LATENCY = Histogram('trading_http_request_duration_seconds', 'HTTP request latency') # Removed for minimal deployment
+        pass # Removed for minimal deployment
     except ValueError:
         # If still exists, create with different name
-        REQUEST_COUNT = Counter('app_http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status'])
-        REQUEST_LATENCY = Histogram('app_http_request_duration_seconds', 'HTTP request latency')
-    WEBSOCKET_CONNECTIONS = Counter('websocket_connections_total', 'Total WebSocket connections')
-    TRADING_SIGNALS = Counter('trading_signals_total', 'Total trading signals generated', ['strategy', 'action'])
+        # REQUEST_COUNT = Counter('app_http_requests_total', 'Total HTTP requests', ['method', 'endpoint', 'status']) # Removed for minimal deployment
+        # REQUEST_LATENCY = Histogram('app_http_request_duration_seconds', 'HTTP request latency') # Removed for minimal deployment
+        pass # Removed for minimal deployment
+    # WEBSOCKET_CONNECTIONS = Counter('websocket_connections_total', 'Total WebSocket connections') # Removed for minimal deployment
+    # TRADING_SIGNALS = Counter('trading_signals_total', 'Total trading signals generated', ['strategy', 'action']) # Removed for minimal deployment
     METRICS_ENABLED = True
 else:
     METRICS_ENABLED = False
@@ -303,12 +306,12 @@ def create_app() -> FastAPI:
             
             # Record metrics
             duration = (datetime.now() - start_time).total_seconds()
-            REQUEST_COUNT.labels(
-                method=request.method,
-                endpoint=request.url.path,
-                status=response.status_code
-            ).inc()
-            REQUEST_LATENCY.observe(duration)
+            # REQUEST_COUNT.labels( # Removed for minimal deployment
+            #     method=request.method, # Removed for minimal deployment
+            #     endpoint=request.url.path, # Removed for minimal deployment
+            #     status=response.status_code # Removed for minimal deployment
+            # ).inc() # Removed for minimal deployment
+            # REQUEST_LATENCY.observe(duration) # Removed for minimal deployment
             
             return response
     
@@ -400,11 +403,10 @@ def create_app() -> FastAPI:
     if METRICS_ENABLED:
         @app.get("/metrics")
         async def metrics():
-            """Prometheus metrics endpoint"""
-            from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+            """Prometheus metrics endpoint - DISABLED for minimal deployment"""
             return JSONResponse(
-                content=generate_latest(),
-                media_type=CONTENT_TYPE_LATEST
+                content="# Metrics disabled for minimal deployment\n",
+                media_type="text/plain"
             )
     
     # Mode-specific endpoints
