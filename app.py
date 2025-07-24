@@ -195,7 +195,6 @@ config = load_config()
 # Trading system variables
 quantum_system = None
 
-# Lifespan management
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifespan - PRODUCTION ONLY, NO MOCK DATA"""
@@ -234,11 +233,7 @@ async def lifespan(app: FastAPI):
                     logging.info("🚀 Starting minimal API mode")
         else:
             # Start with core trading orchestrator - full system without quantum features
-            logging.info("🚀 Starting full trading system with core components")
-            from src.core.orchestrator import get_orchestrator
-            orchestrator = get_orchestrator()
-            await orchestrator.initialize()
-            logging.info("✅ Full trading system started (no quantum features)")
+            logging.info("🚀 Starting minimal API mode - quantum system not available")
         
     except Exception as e:
         logging.error(f"❌ Failed to start trading system: {e}")
@@ -248,12 +243,15 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # Shutdown
-    logging.info(f"🛑 Shutting down {config.app_name}...")
-    
-    if quantum_system:
-        await quantum_system.stop()
-        logging.info("✅ Quantum Trading System stopped")
+    # Cleanup
+    try:
+        if quantum_system:
+            await quantum_system.shutdown()
+            logging.info("✅ Quantum trading system shutdown complete")
+        else:
+            logging.info("✅ System shutdown complete (minimal mode)")
+    except Exception as e:
+        logging.error(f"❌ Error during system shutdown: {e}")
 
 # Create FastAPI application
 def create_app() -> FastAPI:
