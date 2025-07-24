@@ -207,10 +207,10 @@ async def lifespan(app: FastAPI):
         if QUANTUM_SYSTEM_AVAILABLE:
             # Initialize quantum trading system
             config_file = "local_deployment_config.yaml"
-                    if TRADING_MODE == TradingMode.FREE_TIER:
-            config_file = "config/quantum_trading_config.yaml"
-        elif TRADING_MODE == TradingMode.PAPER:
-            config_file = "config/quantum_trading_config.yaml"
+            if TRADING_MODE == TradingMode.FREE_TIER:
+                config_file = "config/quantum_trading_config.yaml"
+            elif TRADING_MODE == TradingMode.PAPER:
+                config_file = "config/quantum_trading_config.yaml"
                 
             try:
                 quantum_system = QuantumTradingSystem(config_file)
@@ -220,14 +220,18 @@ async def lifespan(app: FastAPI):
                 asyncio.create_task(quantum_system.start())
                 
                 logging.info("✅ Quantum Trading System started successfully")
-            except Exception as qe:
+                    except Exception as qe:
                 logging.warning(f"⚠️ Quantum system initialization failed: {qe}")
                 logging.info("🔧 Starting with core trading components only")
-                # Initialize core orchestrator instead
-                from src.core.orchestrator import get_orchestrator
-                orchestrator = get_orchestrator()
-                await orchestrator.initialize()
-                logging.info("✅ Core trading orchestrator started")
+                try:
+                    # Initialize core orchestrator instead
+                    from src.core.orchestrator import get_orchestrator
+                    orchestrator = get_orchestrator()
+                    await orchestrator.initialize()
+                    logging.info("✅ Core trading orchestrator started")
+                except Exception as oe:
+                    logging.warning(f"⚠️ Core orchestrator failed: {oe}")
+                    logging.info("🚀 Starting minimal API mode")
         else:
             # Start with core trading orchestrator - full system without quantum features
             logging.info("🚀 Starting full trading system with core components")
