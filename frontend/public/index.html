@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quantum Crypto Trading System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #2d1b69 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .App {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .App-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .App-header h1 {
+            margin: 0;
+            color: #00ff88;
+            font-size: 2rem;
+        }
+
+        .status {
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-indicator.connected {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .status-indicator.disconnected {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
+        .App-main {
+            padding: 40px 20px;
+            flex: 1;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .card h2 {
+            margin: 0 0 16px 0;
+            color: #00ff88;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #00ff88;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <div class="App">
+            <header class="App-header">
+                <h1>🚀 Quantum Crypto Trading System</h1>
+                <div class="status">
+                    <span id="status-indicator" class="status-indicator disconnected">
+                        ❌ Connecting...
+                    </span>
+                </div>
+            </header>
+
+            <main class="App-main">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h2>Portfolio</h2>
+                        <div id="portfolio-data" class="loading">Loading portfolio data...</div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Market Data</h2>
+                        <div id="market-data" class="loading">Loading market data...</div>
+                    </div>
+
+                    <div class="card">
+                        <h2>Strategies</h2>
+                        <div id="strategies-data" class="loading">Loading strategies...</div>
+                    </div>
+
+                    <div class="card">
+                        <h2>System Status</h2>
+                        <div id="system-status" class="loading">Loading system status...</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        console.log('=== VANILLA JS TRADING DASHBOARD STARTING ===')
+
+        // Test backend connection
+        async function testBackendConnection() {
+            try {
+                const response = await fetch('http://localhost:8000/health')
+                const data = await response.json()
+
+                document.getElementById('status-indicator').className = 'status-indicator connected'
+                document.getElementById('status-indicator').textContent = '✅ Connected'
+
+                console.log('Backend connected:', data)
+                return true
+            } catch (error) {
+                console.error('Backend connection failed:', error)
+                document.getElementById('status-indicator').className = 'status-indicator disconnected'
+                document.getElementById('status-indicator').textContent = '❌ Disconnected'
+                return false
+            }
+        }
+
+        // Load portfolio data
+        async function loadPortfolioData() {
+            try {
+                const response = await fetch('http://localhost:8000/api/positions/portfolio')
+                const data = await response.json()
+                document.getElementById('portfolio-data').innerHTML = `
+            <p>Portfolio Value: $${data.total_value || 'Loading...'}</p>
+            <p>Daily Change: ${data.daily_change || '0.00'}%</p>
+          `
+            } catch (error) {
+                document.getElementById('portfolio-data').innerHTML = '<p style="color: #ff4444;">Failed to load portfolio data</p>'
+            }
+        }
+
+        // Load market data
+        async function loadMarketData() {
+            try {
+                const response = await fetch('http://localhost:8000/v1/crypto/market/overview')
+                const data = await response.json()
+                document.getElementById('market-data').innerHTML = `
+            <p>Active Pairs: ${data.active_pairs || 'Loading...'}</p>
+            <p>Market Cap: $${data.total_market_cap || 'Loading...'}</p>
+          `
+            } catch (error) {
+                document.getElementById('market-data').innerHTML = '<p style="color: #ff4444;">Failed to load market data</p>'
+            }
+        }
+
+        // Load strategies
+        async function loadStrategies() {
+            try {
+                const response = await fetch('http://localhost:8000/api/trading/strategies')
+                const data = await response.json()
+                const strategies = data.strategies || []
+                document.getElementById('strategies-data').innerHTML = `
+            <p>Active Strategies: ${strategies.filter(s => s.status === 'active').length}/${strategies.length}</p>
+            <p>Total Return: ${data.total_return || '0.00'}%</p>
+          `
+            } catch (error) {
+                document.getElementById('strategies-data').innerHTML = '<p style="color: #ff4444;">Failed to load strategies</p>'
+            }
+        }
+
+        // Load system status
+        async function loadSystemStatus() {
+            try {
+                const response = await fetch('http://localhost:8000/api/health/system')
+                const data = await response.json()
+                document.getElementById('system-status').innerHTML = `
+            <p>System Status: ${data.status || 'Unknown'}</p>
+            <p>Uptime: ${data.uptime || 'Unknown'}</p>
+          `
+            } catch (error) {
+                document.getElementById('system-status').innerHTML = '<p style="color: #ff4444;">Failed to load system status</p>'
+            }
+        }
+
+        // Initialize dashboard
+        async function initDashboard() {
+            console.log('Initializing trading dashboard...')
+
+            const connected = await testBackendConnection()
+            if (connected) {
+                await Promise.all([
+                    loadPortfolioData(),
+                    loadMarketData(),
+                    loadStrategies(),
+                    loadSystemStatus()
+                ])
+            }
+
+            // Refresh data every 30 seconds
+            setInterval(async () => {
+                if (await testBackendConnection()) {
+                    await Promise.all([
+                        loadPortfolioData(),
+                        loadMarketData(),
+                        loadStrategies(),
+                        loadSystemStatus()
+                    ])
+                }
+            }, 30000)
+        }
+
+        // Start dashboard
+        initDashboard()
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+environment: test
+debug: true
+version: "2.0.0-test"
+
+database:
+  host: "localhost"
+  port: 5432
+  database: "trading_test"
+  username: "postgres"
+  password: "postgres"
+  ssl_mode: "disable"
+  pool_size: 5
+  max_overflow: 10
+  pool_timeout: 30
+
+redis:
+  host: "localhost"
+  port: 6379
+  db: 1
+  ssl: false
+  socket_timeout: 5.0
+
+security:
+  jwt_secret_key: "test-jwt-secret-key-for-testing-only"
+  jwt_algorithm: "HS256"
+  jwt_expiration_hours: 1
+  password_hash_rounds: 4
+  max_login_attempts: 10
+  lockout_duration_minutes: 1
+  require_2fa: false
+
+trading:
+  max_daily_trades: 10
+  max_position_size_percent: 1.0
+  default_stop_loss_percent: 5.0
+  max_drawdown_percent: 20.0
+  risk_per_trade_percent: 0.1
+  min_order_value: 100.0
+  max_order_value: 10000.0
+
+monitoring:
+  prometheus_enabled: false
+  prometheus_port: 9090
+  health_check_interval_seconds: 60
+  log_level: "DEBUG"
+  log_format: "text"
+  metrics_retention_days: 1
+
+websocket:
+  port: 8002
+  max_connections: 10
+  ping_interval: 30
+  ping_timeout: 10
+  compression_enabled: false
+
+compliance:
+  sebi_reporting_enabled: false
+  audit_trail_retention_days: 1
+  max_position_value: 1000000.0
+
+timezone: "UTC"
+max_workers: 2
+
+# Test-specific configurations
+testing:
+  mock_market_data: true
+  mock_broker_apis: true
+  fast_execution: true
+  skip_external_apis: true 

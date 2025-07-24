@@ -1,0 +1,107 @@
+# LOCAL DEPLOYMENT CONFIGURATION FOR WINDOWS
+# This file contains all settings needed for local development
+# DO NOT connect to production systems - this is completely isolated
+
+# Database Configuration (Local PostgreSQL)
+database:
+  host: localhost
+  port: 5432
+  name: trading_system_local
+  user: trading_user
+  password: trading_password_local
+  ssl_mode: disable  # Disabled for local development
+
+# Redis Configuration (Local Redis)
+redis:
+  host: localhost
+  port: 6379
+  password: null  # No password for local Redis
+  ssl: false
+  database: 0
+
+# Application Settings
+app:
+  environment: local
+  debug: true
+  log_level: INFO
+  host: localhost
+  port: 8000
+  reload: true
+
+# Frontend Configuration
+frontend:
+  port: 3000
+  api_url: http://localhost:8000
+  build_command: npm run build
+  dev_command: npm run dev
+
+# Security Settings (Local Only)
+security:
+  jwt_secret: local-development-jwt-secret-key-not-for-production
+  encryption_key: local-development-encryption-key-32b
+  webhook_secret: local-webhook-secret-key
+  cors_origins:
+    - http://localhost:3000
+    - http://127.0.0.1:3000
+    - http://localhost:8000
+    - http://127.0.0.1:8000
+
+# Trading Configuration (Local/Paper Trading)
+trading:
+  paper_trading_mode: true
+  max_daily_trades: 10
+  max_order_value: 10000
+  risk_per_trade_percent: 1.0
+  default_stop_loss_percent: 2.0
+
+# Broker Configuration (Isolated from Production)
+brokers:
+  zerodha:
+    # These are example credentials - replace with your own for testing
+    api_key: your_zerodha_api_key_here
+    api_secret: your_zerodha_api_secret_here
+    sandbox_mode: true
+    paper_trading: true
+
+# Market Data Configuration (Real APIs Only)
+market_data:
+  provider: binance
+  mock_data: false  # NO mock data - real APIs only
+  update_interval: 1000  # milliseconds
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus_port: 9090
+  health_check_interval: 30
+  log_to_file: true
+  log_directory: logs
+
+# Performance Settings
+performance:
+  max_workers: 2
+  pool_size: 5
+  timeout: 30
+  batch_size: 100
+
+# Local Development Paths
+paths:
+  data_directory: data
+  logs_directory: logs
+  backup_directory: backups
+  temp_directory: temp
+
+# Services Configuration
+services:
+  postgresql:
+    install_url: https://get.enterprisedb.com/postgresql/postgresql-15.4-1-windows-x64.exe
+    service_name: postgresql-x64-15
+  redis:
+    install_url: "Download from official Redis website"
+    service_name: Redis
+  nodejs:
+    install_url: https://nodejs.org/dist/v18.19.0/node-v18.19.0-x64.msi
+    version: 18.19.0
+  python:
+    version: 3.11.2
+    install_url: https://www.python.org/ftp/python/3.11.2/python-3.11.2-amd64.exe 

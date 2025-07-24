@@ -1,0 +1,152 @@
+# Monitoring Configuration
+
+# Prometheus Metrics
+prometheus:
+  enabled: true
+  port: ${PROMETHEUS_METRICS_PORT}
+  path: /metrics
+  scrape_interval: 15s
+  metrics:
+    - trading_performance
+    - system_health
+    - resource_usage
+    - error_rates
+    - latency_metrics
+
+# Health Checks
+health_checks:
+  enabled: true
+  interval: 30s
+  timeout: 5s
+  checks:
+    - name: database
+      type: tcp
+      host: ${DB_HOST}
+      port: ${DB_PORT}
+    - name: redis
+      type: tcp
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+    - name: api
+      type: http
+      url: http://localhost:${API_PORT}/health
+    - name: market_data
+      type: http
+      url: http://localhost:${API_PORT}/market-data/health
+
+# Logging
+logging:
+  level: ${LOG_LEVEL}
+  format: ${LOG_FORMAT}
+  handlers:
+    - type: file
+      path: ${LOG_FILE_PATH}/app.log
+      max_size: 100MB
+      backup_count: 10
+    - type: console
+      format: json
+  loggers:
+    trading:
+      level: INFO
+      propagate: false
+    security:
+      level: WARNING
+      propagate: false
+    performance:
+      level: INFO
+      propagate: false
+
+# Alerting
+alerting:
+  enabled: true
+  channels:
+    - type: slack
+      webhook_url: ${SLACK_WEBHOOK_URL}
+      channel: #alerts
+    - type: email
+      smtp_host: smtp.gmail.com
+      smtp_port: 587
+      from_email: alerts@yourdomain.com
+      to_emails:
+        - admin@yourdomain.com
+  rules:
+    - name: high_error_rate
+      condition: error_rate > 0.01
+      duration: 5m
+      severity: critical
+    - name: high_latency
+      condition: p95_latency > 500ms
+      duration: 5m
+      severity: warning
+    - name: high_memory_usage
+      condition: memory_usage > 80%
+      duration: 5m
+      severity: warning
+    - name: high_cpu_usage
+      condition: cpu_usage > 80%
+      duration: 5m
+      severity: warning
+
+# Performance Monitoring
+performance:
+  enabled: true
+  metrics:
+    - name: order_processing_time
+      type: histogram
+      buckets: [0.1, 0.5, 1, 2, 5]
+    - name: market_data_latency
+      type: histogram
+      buckets: [0.01, 0.05, 0.1, 0.5, 1]
+    - name: api_response_time
+      type: histogram
+      buckets: [0.1, 0.5, 1, 2, 5]
+  thresholds:
+    order_processing_time: 1s
+    market_data_latency: 100ms
+    api_response_time: 500ms
+
+# Resource Monitoring
+resources:
+  enabled: true
+  metrics:
+    - name: memory_usage
+      type: gauge
+    - name: cpu_usage
+      type: gauge
+    - name: disk_usage
+      type: gauge
+    - name: network_io
+      type: counter
+  thresholds:
+    memory_usage: 80%
+    cpu_usage: 80%
+    disk_usage: 80%
+
+# Trading Metrics
+trading_metrics:
+  enabled: true
+  metrics:
+    - name: pnl
+      type: gauge
+    - name: position_size
+      type: gauge
+    - name: trade_count
+      type: counter
+    - name: win_rate
+      type: gauge
+  thresholds:
+    daily_loss: -1000
+    position_size: 100000
+    win_rate: 0.4
+
+# Error Tracking
+error_tracking:
+  enabled: true
+  provider: sentry
+  dsn: ${SENTRY_DSN}
+  environment: production
+  sample_rate: 1.0
+  traces_sample_rate: 0.1
+  ignore_errors:
+    - ConnectionError
+    - TimeoutError 

@@ -1,0 +1,119 @@
+# Main application configuration
+app:
+  name: "Trading System"
+  version: "1.0.0"
+  environment: ${APP_ENV:-production}
+  debug: ${DEBUG:-false}
+  host: ${APP_HOST:-0.0.0.0}
+  port: ${APP_PORT:-8000}
+  workers: ${APP_WORKERS:-4}
+  timeout: ${APP_TIMEOUT:-60}
+  cors:
+    origins: ${CORS_ORIGINS:-["*"]}
+    methods: ${CORS_METHODS:-["*"]}
+    headers: ${CORS_HEADERS:-["*"]}
+
+# Database configuration
+database:
+  url: ${DATABASE_URL}
+  pool_size: ${DB_POOL_SIZE:-5}
+  max_overflow: ${DB_MAX_OVERFLOW:-10}
+  pool_timeout: ${DB_POOL_TIMEOUT:-30}
+  pool_recycle: ${DB_POOL_RECYCLE:-1800}
+  echo: ${DB_ECHO:-false}
+
+# Redis configuration
+redis:
+  url: ${REDIS_URL}
+  host: ${REDIS_HOST}
+  port: ${REDIS_PORT:-6379}
+  db: ${REDIS_DB:-0}
+  password: ${REDIS_PASSWORD}
+  ssl: ${REDIS_SSL:-false}
+  pool_size: ${REDIS_POOL_SIZE:-10}
+  socket_timeout: ${REDIS_SOCKET_TIMEOUT:-5}
+  socket_connect_timeout: ${REDIS_SOCKET_CONNECT_TIMEOUT:-5}
+  retry_on_timeout: ${REDIS_RETRY_ON_TIMEOUT:-true}
+
+# Logging configuration
+logging:
+  level: ${LOG_LEVEL:-INFO}
+  format: ${LOG_FORMAT:-"%(asctime)s - %(name)s - %(levelname)s - %(message)s"}
+  file: ${LOG_FILE:-"logs/trading.log"}
+  max_size: ${LOG_MAX_SIZE:-10485760}  # 10MB
+  backup_count: ${LOG_BACKUP_COUNT:-5}
+
+# Trading system configuration
+trading:
+  broker:
+    name: ${BROKER_NAME:-zerodha}
+    api_key: ${BROKER_API_KEY}
+    api_secret: ${BROKER_API_SECRET}
+    base_url: ${BROKER_BASE_URL}
+    data_url: ${BROKER_DATA_URL}
+    timeout: ${BROKER_TIMEOUT:-30}
+    retry_attempts: ${BROKER_RETRY_ATTEMPTS:-3}
+
+  strategies:
+    enabled: ${ENABLED_STRATEGIES:-["momentum", "mean_reversion", "trend_following"]}
+    default_timeframe: ${DEFAULT_TIMEFRAME:-"1h"}
+    max_positions: ${MAX_POSITIONS:-10}
+    position_size: ${POSITION_SIZE:-0.1}  # 10% of portfolio per position
+
+  risk:
+    max_drawdown: ${MAX_DRAWDOWN:-0.1}  # 10% maximum drawdown
+    stop_loss: ${STOP_LOSS:-0.02}    # 2% stop loss per position
+    take_profit: ${TAKE_PROFIT:-0.04}  # 4% take profit per position
+    max_leverage: ${MAX_LEVERAGE:-2.0}
+    risk_free_rate: ${RISK_FREE_RATE:-0.02}
+
+  execution:
+    order_type: ${ORDER_TYPE:-"market"}
+    time_in_force: ${TIME_IN_FORCE:-"day"}
+    retry_attempts: ${EXECUTION_RETRY_ATTEMPTS:-3}
+    retry_delay: ${EXECUTION_RETRY_DELAY:-1}
+    slippage_tolerance: ${SLIPPAGE_TOLERANCE:-0.001}
+
+# Security configuration
+security:
+  auth:
+    secret_key: ${AUTH_SECRET_KEY}
+    algorithm: ${AUTH_ALGORITHM:-"HS256"}
+    access_token_expire_minutes: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+    refresh_token_expire_days: ${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+    password_min_length: ${PASSWORD_MIN_LENGTH:-8}
+    password_hash_rounds: ${PASSWORD_HASH_ROUNDS:-12}
+
+  encryption:
+    key: ${ENCRYPTION_KEY}
+    algorithm: ${ENCRYPTION_ALGORITHM:-"AES-256-GCM"}
+    salt_length: ${ENCRYPTION_SALT_LENGTH:-16}
+    iterations: ${ENCRYPTION_ITERATIONS:-100000}
+
+  rate_limiting:
+    enabled: ${RATE_LIMITING_ENABLED:-true}
+    requests_per_minute: ${RATE_LIMIT_REQUESTS:-60}
+    burst_size: ${RATE_LIMIT_BURST:-10}
+    window_size: ${RATE_LIMIT_WINDOW:-60}
+
+# Monitoring configuration
+monitoring:
+  enabled: ${ENABLE_METRICS:-true}
+  prometheus_url: ${PROMETHEUS_URL}
+  grafana_url: ${GRAFANA_URL}
+
+# Service endpoints
+services:
+  main_api: ${MAIN_API_URL}
+  security_api: ${SECURITY_API_URL}
+  dash_app: ${DASH_APP_URL}
+  prometheus: ${PROMETHEUS_URL}
+  grafana: ${GRAFANA_URL}
+
+# Feature flags
+features:
+  enable_websockets: ${ENABLE_WEBSOCKETS:-true}
+  enable_backtesting: ${ENABLE_BACKTESTING:-true}
+  enable_optimization: ${ENABLE_OPTIMIZATION:-true}
+  enable_machine_learning: ${ENABLE_ML:-false}
+  enable_social_trading: ${ENABLE_SOCIAL_TRADING:-false} 

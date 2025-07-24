@@ -1,0 +1,150 @@
+# Quantum Trading System Configuration
+# This is a minimal configuration for testing and development
+
+# System Configuration
+system:
+  name: "Quantum Crypto Trading System"
+  version: "2.0.0"
+  environment: "development"
+  debug: true
+  log_level: "INFO"
+
+# Database Configuration
+database:
+  url: "sqlite:///./trading_system.db"
+  echo: false
+  pool_size: 10
+  max_overflow: 20
+
+# Exchange Configuration
+exchanges:
+  binance:
+    enabled: true
+    api_key: "your_binance_api_key"
+    api_secret: "your_binance_api_secret"
+    testnet: true
+  
+  coinbase:
+    enabled: false
+    api_key: "your_coinbase_api_key"
+    api_secret: "your_coinbase_api_secret"
+    passphrase: "your_coinbase_passphrase"
+    sandbox: true
+
+# Trading Configuration
+trading:
+  enabled: true
+  max_positions: 5
+  max_risk_per_trade: 0.02  # 2% per trade
+  max_total_risk: 0.10      # 10% total portfolio risk
+  
+  # Default trading pairs
+  symbols:
+    - "BTCUSDT"
+    - "ETHUSDT"
+    - "ADAUSDT"
+    - "DOTUSDT"
+    - "BNBUSDT"
+
+# Strategy Configuration
+strategies:
+  enhanced_momentum:
+    enabled: true
+    weight: 0.25
+    params:
+      lookback_period: 20
+      momentum_threshold: 0.02
+  
+  enhanced_mean_reversion:
+    enabled: true
+    weight: 0.25
+    params:
+      lookback_period: 50
+      deviation_threshold: 2.0
+  
+  enhanced_breakout:
+    enabled: true
+    weight: 0.25
+    params:
+      lookback_period: 20
+      breakout_threshold: 0.03
+  
+  enhanced_arbitrage:
+    enabled: true
+    weight: 0.25
+    params:
+      min_profit_threshold: 0.001
+
+# Risk Management
+risk_management:
+  max_drawdown: 0.15        # 15% max drawdown
+  stop_loss: 0.05           # 5% stop loss
+  take_profit: 0.10         # 10% take profit
+  position_sizing: "kelly"   # kelly, fixed, or volatility
+  
+# Monitoring and Alerts
+monitoring:
+  enabled: true
+  health_check_interval: 60  # seconds
+  performance_log_interval: 300  # 5 minutes
+  
+  alerts:
+    email:
+      enabled: false
+      smtp_server: "smtp.gmail.com"
+      smtp_port: 587
+      username: "your_email@gmail.com"
+      password: "your_app_password"
+      recipients:
+        - "alerts@yourcompany.com"
+    
+    slack:
+      enabled: false
+      webhook_url: "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+      channel: "#trading-alerts"
+
+# Edge Intelligence Configuration
+edge_intelligence:
+  onchain_analyzer:
+    enabled: true
+    update_interval: 300  # 5 minutes
+    
+  ai_predictor:
+    enabled: true
+    model_update_interval: 3600  # 1 hour
+    
+  social_analyzer:
+    enabled: true
+    update_interval: 600  # 10 minutes
+    sources:
+      - "twitter"
+      - "reddit"
+      - "telegram"
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:5173"
+  rate_limit: 1000
+  
+# WebSocket Configuration
+websocket:
+  enabled: true
+  max_connections: 100
+  heartbeat_interval: 30
+
+# Caching Configuration
+cache:
+  redis_url: "redis://localhost:6379/0"
+  default_ttl: 300  # 5 minutes
+  
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/trading_system.log"
+  max_size: "10MB"
+  backup_count: 5

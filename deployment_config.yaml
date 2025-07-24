@@ -1,0 +1,220 @@
+# Production Deployment Configuration
+# Quantum Crypto Trading System - Production Ready
+
+# Environment Configuration
+environment:
+  name: "production"
+  version: "2.0.0"
+  debug: false
+  log_level: "WARNING"
+  
+# Application Settings
+app:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  timeout: 60
+  max_requests: 1000
+  max_requests_jitter: 50
+  
+# Security Configuration
+security:
+  jwt_secret: "${JWT_SECRET}"  # Must be set in environment
+  jwt_algorithm: "HS256"
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  cors_origins:
+    - "https://yourdomain.com"
+    - "https://www.yourdomain.com"
+  trusted_hosts:
+    - "yourdomain.com"
+    - "www.yourdomain.com"
+  
+# Database Configuration
+database:
+  url: "${DATABASE_URL}"  # PostgreSQL connection string
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+  pool_recycle: 3600
+  pool_pre_ping: true
+  echo: false
+  ssl_mode: "require"
+  
+# Redis Configuration
+redis:
+  url: "${REDIS_URL}"
+  max_connections: 20
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  retry_on_timeout: true
+  health_check_interval: 30
+  
+# Trading Configuration
+trading:
+  mode: "live"  # live, paper, simulation
+  max_positions: 10
+  max_risk_per_trade: 0.02
+  max_total_risk: 0.10
+  emergency_stop_loss: 0.05
+  
+  # Strategy Configuration
+  strategies:
+    enhanced_momentum_surfer:
+      enabled: true
+      allocation: 0.25
+      max_position_size: 0.05
+    enhanced_confluence_amplifier:
+      enabled: true
+      allocation: 0.20
+      min_confluence_signals: 2
+    enhanced_news_impact_scalper:
+      enabled: true
+      allocation: 0.15
+      news_sources: ["premium_feeds"]
+    crypto_regime_adaptive_controller:
+      enabled: true
+      allocation: 0.10
+    enhanced_volatility_explosion:
+      enabled: true
+      allocation: 0.15
+    enhanced_volume_profile_scalper:
+      enabled: true
+      allocation: 0.15
+      
+# API Configuration
+api:
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_limit: 1500
+  documentation:
+    enabled: false  # Disable in production
+  monitoring:
+    enabled: true
+    
+# Monitoring & Observability
+monitoring:
+  prometheus:
+    enabled: true
+    port: 9090
+    metrics_path: "/metrics"
+  
+  alerting:
+    enabled: true
+    rules:
+      - name: "high_cpu_usage"
+        threshold: 80
+        duration: 300
+      - name: "high_memory_usage" 
+        threshold: 85
+        duration: 300
+      - name: "high_error_rate"
+        threshold: 0.05
+        duration: 180
+        
+  tracing:
+    enabled: true
+    sample_rate: 0.1
+    
+  logging:
+    level: "WARNING"
+    format: "json"
+    structured: true
+    
+# Health Checks
+health_checks:
+  enabled: true
+  intervals:
+    liveness: 30
+    readiness: 10
+  timeouts:
+    liveness: 5
+    readiness: 3
+    
+# Performance Settings
+performance:
+  connection_pool_size: 20
+  query_timeout: 30
+  request_timeout: 60
+  websocket_max_connections: 1000
+  
+# External Services
+external_services:
+  binance:
+    enabled: true
+    api_key: "${BINANCE_API_KEY}"
+    api_secret: "${BINANCE_API_SECRET}"
+    testnet: false
+    timeout: 10
+    
+  coinbase:
+    enabled: false
+    api_key: "${COINBASE_API_KEY}"
+    api_secret: "${COINBASE_API_SECRET}"
+    passphrase: "${COINBASE_PASSPHRASE}"
+    sandbox: false
+    
+# Backup & Recovery
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  destinations:
+    - type: "s3"
+      bucket: "${BACKUP_S3_BUCKET}"
+      region: "${AWS_REGION}"
+      
+# Compliance & Audit
+compliance:
+  enabled: true
+  audit_logging: true
+  trade_reporting: true
+  risk_monitoring: true
+  
+# Feature Flags
+features:
+  enhanced_monitoring: true
+  api_versioning: true
+  secure_authentication: true
+  optimized_database: true
+  advanced_error_handling: true
+  
+# Required Environment Variables
+required_env_vars:
+  - JWT_SECRET
+  - DATABASE_URL
+  - REDIS_URL
+  - BINANCE_API_KEY
+  - BINANCE_API_SECRET
+  
+# Optional Environment Variables
+optional_env_vars:
+  - COINBASE_API_KEY
+  - COINBASE_API_SECRET
+  - COINBASE_PASSPHRASE
+  - BACKUP_S3_BUCKET
+  - AWS_REGION
+  - SENTRY_DSN
+  - SLACK_WEBHOOK_URL
+  
+# Deployment Checks
+deployment_checks:
+  - database_connection
+  - redis_connection
+  - external_apis
+  - required_env_vars
+  - ssl_certificates
+  - disk_space
+  - memory_requirements
+  
+# Resource Requirements
+resources:
+  minimum:
+    cpu: "2 cores"
+    memory: "4GB"
+    disk: "20GB"
+  recommended:
+    cpu: "4 cores"
+    memory: "8GB"
+    disk: "50GB" 

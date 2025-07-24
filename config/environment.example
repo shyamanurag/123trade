@@ -1,0 +1,50 @@
+# Sharekhan API Configuration
+SHAREKHAN_API_KEY=your_sharekhan_api_key_here
+SHAREKHAN_SECRET_KEY=your_sharekhan_secret_key_here
+SHAREKHAN_CUSTOMER_ID=your_sharekhan_customer_id_here
+SHAREKHAN_ACCESS_TOKEN=your_sharekhan_access_token_here
+SHAREKHAN_BASE_URL=https://connect.sharekhan.com
+SHAREKHAN_WS_URL=wss://connect.sharekhan.com/ws
+SHAREKHAN_TIMEOUT=10
+SHAREKHAN_RETRY_ATTEMPTS=3
+SHAREKHAN_RETRY_DELAY=5
+SHAREKHAN_RATE_LIMIT=0.1
+
+# Redis Configuration (for caching)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost/trading_system
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=trading_system
+POSTGRES_USER=trading_user
+POSTGRES_PASSWORD=secure_password
+
+# Zerodha API Configuration (for trading)
+ZERODHA_API_KEY=your_zerodha_api_key
+ZERODHA_API_SECRET=your_zerodha_api_secret
+ZERODHA_USER_ID=your_zerodha_user_id
+ZERODHA_ACCESS_TOKEN=your_zerodha_access_token
+ZERODHA_PIN=your_zerodha_pin
+
+# Application Configuration
+ENVIRONMENT=development
+DEBUG=true
+LOG_LEVEL=INFO
+SECRET_KEY=your_secret_key_here
+JWT_SECRET=your_jwt_secret_here
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+CORS_ORIGINS=http://localhost:3000,http://localhost:8000
+
+# Trading Configuration
+PAPER_TRADING=true
+MAX_POSITION_SIZE=10000
+MAX_DAILY_LOSS=5000
+RISK_TOLERANCE=0.02 

@@ -1,0 +1,194 @@
+# Security Configuration
+
+# JWT Settings
+jwt:
+  secret_key: ${JWT_SECRET_KEY}
+  algorithm: HS256
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  token_url: /api/v1/auth/token
+
+# API Security
+api:
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    burst_limit: 100
+  cors:
+    allowed_origins:
+      - https://algoauto-9gx56.ondigitalocean.app
+      - ${FRONTEND_URL}
+    allowed_methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+    allowed_headers:
+      - Authorization
+      - Content-Type
+    expose_headers:
+      - X-Total-Count
+    max_age: 3600
+
+# SSL/TLS Configuration
+ssl:
+  enabled: true
+  cert_path: ${SSL_CERT_PATH}
+  key_path: ${SSL_KEY_PATH}
+  verify_client: false
+
+# Password Policy
+password_policy:
+  min_length: 12
+  require_uppercase: true
+  require_lowercase: true
+  require_numbers: true
+  require_special_chars: true
+  max_age_days: 90
+
+# Session Management
+session:
+  cookie_name: algo_scalper_session
+  secure: true
+  http_only: true
+  same_site: strict
+  max_age: 3600
+
+# Security Headers
+security_headers:
+  x_frame_options: DENY
+  x_content_type_options: nosniff
+  x_xss_protection: 1; mode=block
+  strict_transport_security: max-age=31536000; includeSubDomains
+  content_security_policy: "default-src 'self'"
+
+# Encryption
+encryption:
+  key: ${ENCRYPTION_KEY}
+  algorithm: AES-256-GCM
+  salt_length: 16
+
+# Audit Logging
+audit:
+  enabled: true
+  log_file: /var/log/algo-scalper/audit.log
+  log_level: INFO
+  events:
+    - login
+    - logout
+    - password_change
+    - trade_execution
+    - position_modification
+    - risk_limit_change
+
+# IP Whitelist
+ip_whitelist:
+  enabled: true
+  allowed_ips:
+    - 127.0.0.1
+    - 192.168.1.0/24
+
+# API Key Management
+api_keys:
+  rotation_days: 90
+  max_keys_per_user: 5
+  require_approval: true
+
+# Security Monitoring
+monitoring:
+  failed_login_threshold: 5
+  lockout_duration_minutes: 30
+  alert_on_suspicious_activity: true
+  alert_channels:
+    - email
+    - slack
+
+# Network Security
+network:
+  ssl:
+    enabled: true
+    cert_path: ${SSL_CERT_PATH}
+    key_path: ${SSL_KEY_PATH}
+    protocols:
+      - TLSv1.2
+      - TLSv1.3
+  
+  firewall:
+    allowed_ips:
+      - 127.0.0.1
+      - your-office-ip
+    blocked_ips: []
+    max_connections: 1000
+
+# Database Security
+database:
+  ssl_mode: require
+  max_connections: 100
+  connection_timeout: 30
+  password_encryption: true
+
+# Redis Security
+redis:
+  ssl: true
+  password: ${REDIS_PASSWORD}
+  max_connections: 100
+  timeout: 30
+
+# Cloud Security
+cloud:
+  aws:
+    iam_roles:
+      - trading-system-role
+    security_groups:
+      - trading-system-sg
+    vpc: trading-system-vpc
+  
+  gcp:
+    service_account: trading-system-sa
+    network_tags:
+      - trading-system
+    vpc: trading-system-network
+
+# Monitoring Security
+monitoring:
+  prometheus:
+    basic_auth: true
+    ssl: true
+  
+  grafana:
+    basic_auth: true
+    ssl: true
+    allowed_ips:
+      - 127.0.0.1
+      - your-office-ip
+
+# Audit Logging
+audit:
+  enabled: true
+  level: INFO
+  format: json
+  retention: 90d
+  sensitive_fields:
+    - password
+    - api_key
+    - token
+  destinations:
+    - file
+    - syslog
+    - cloudwatch
+
+# Emergency Procedures
+emergency:
+  auto_stop:
+    max_daily_loss: 0.02
+    max_position_loss: 0.01
+    system_error_threshold: 3
+  
+  notifications:
+    channels:
+      - email
+      - sms
+      - slack
+    recipients:
+      - admin@your-domain.com
+      - support@your-domain.com 

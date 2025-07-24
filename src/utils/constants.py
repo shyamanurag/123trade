@@ -1,0 +1,12 @@
+ORDER_TYPE_MARKET = 'MARKET'
+ORDER_TYPE_LIMIT = 'LIMIT'
+SYSTEM_VERSION = '1.0.0'
+
+class OrderTypes:
+    MARKET = 'MARKET'
+    LIMIT = 'LIMIT'
+
+class OrderStatus:
+    PENDING = 'PENDING'
+    FILLED = 'FILLED'
+    CANCELLED = 'CANCELLED'

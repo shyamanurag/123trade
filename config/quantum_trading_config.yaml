@@ -1,0 +1,276 @@
+# config/quantum_trading_config.yaml
+# Configuration for the Smartest Crypto Trading Algorithm in the World
+# FREE TIER VERSION - No paid APIs required
+
+# ============================================
+# SYSTEM CONFIGURATION (FREE MODE)
+# ============================================
+system:
+  name: "Quantum Crypto Trading System"
+  version: "2.0-FREE"
+  environment: "testnet"  # FREE testnet mode
+  paper_trading_mode: true  # Enable paper trading
+  
+# ============================================
+# FREE TIER EXCHANGE CONFIGURATION
+# ============================================
+exchanges:
+  binance:
+    enabled: true
+    testnet: true  # FREE Binance testnet
+    api_key: "testnet"  # Will be replaced with real testnet keys
+    api_secret: "testnet"
+    base_url: "https://testnet.binance.vision"
+    
+# ============================================
+# FREE BLOCKCHAIN NODES
+# ============================================
+onchain_config:
+  # FREE Ethereum RPC
+  eth_node: "https://eth.public-rpc.com"
+  # FREE BSC RPC  
+  bsc_node: "https://bsc-dataseed.binance.org/"
+  
+  # Smart wallet detection (reduced for free tier)
+  smart_wallet_min_performance: 0.65
+  smart_wallet_min_trades: 20  # Reduced from 50
+  
+  # Liquidation monitoring (basic)
+  liquidation_scan_protocols:
+    - "aave"
+    - "compound"
+  liquidation_distance_threshold: 0.05
+  
+  # Whale tracking (reduced)
+  whale_threshold_usd: 500000  # $500K instead of $1M
+
+# ============================================
+# AI CONFIGURATION (CPU OPTIMIZED)
+# ============================================
+ai_config:
+  # Reduced model parameters for free tier
+  transformer_layers: 6     # Reduced from 12
+  transformer_heads: 8      # Reduced from 16
+  embedding_dim: 384        # Reduced from 768
+  sequence_length: 100      # Reduced from 1000
+  
+  # Training (faster/less data)
+  model_update_frequency: "weekly"  # Less frequent
+  min_data_points: 1000             # Reduced from 10000
+  validation_split: 0.2
+  
+  # Ensemble weights
+  transformer_weight: 0.35
+  pattern_cnn_weight: 0.25
+  volatility_lstm_weight: 0.20
+  rl_agent_weight: 0.20
+  
+  # Confidence thresholds
+  min_prediction_confidence: 0.60  # Lowered for free tier
+  high_confidence_threshold: 0.80  # Lowered
+
+# ============================================
+# FREE SOCIAL ANALYSIS
+# ============================================
+social_config:
+  # FREE RSS feeds (no API keys needed)
+  rss_feeds_enabled: true
+  
+  # Optional: Free API keys (get them if you want)
+  twitter_api_key: ""  # Leave empty to disable
+  reddit_client_id: ""  # Leave empty to disable
+  
+  # Influencer tracking (basic)
+  influencer_impact_scores:
+    elonmusk: 10.0
+    vitalikbuterin: 8.0
+    cz_binance: 7.5
+  
+  # Viral detection (adjusted)
+  viral_threshold: 0.70        # Lowered from 0.80
+  sentiment_window_hours: 12   # Reduced from 24
+  pump_detection_threshold: 0.60  # Lowered
+
+# ============================================
+# FREE ARBITRAGE (BASIC)
+# ============================================
+arbitrage_config:
+  enabled: false  # Disabled for free tier (requires multiple APIs)
+  
+  # If enabled later, use free RPCs
+  chains:
+    - name: "ethereum"
+      rpc: "https://eth.public-rpc.com"
+      chain_id: 1
+
+# ============================================
+# ENHANCED STRATEGIES CONFIGURATION
+# ============================================
+strategies:
+  # All strategies enabled with conservative settings
+  enhanced_momentum_surfer:
+    enabled: true
+    capital_allocation: 0.25  # 25%
+    max_position_size: 0.05   # 5% per trade
+    
+  enhanced_confluence_amplifier:
+    enabled: true
+    capital_allocation: 0.20  # 20%
+    min_confluence_signals: 2
+    
+  enhanced_news_impact_scalper:
+    enabled: true
+    capital_allocation: 0.15  # 15%
+    news_sources: ["rss"]  # Only free RSS feeds
+    
+  crypto_regime_adaptive_controller:
+    enabled: true
+    capital_allocation: 0.10  # 10%
+    
+  enhanced_volatility_explosion:
+    enabled: true
+    capital_allocation: 0.15  # 15%
+    
+  enhanced_volume_profile_scalper:
+    enabled: true
+    capital_allocation: 0.15  # 15%
+
+# ============================================
+# TRADING PAIRS (MAJOR ONLY FOR FREE TIER)
+# ============================================
+trading_pairs:
+  - "BTCUSDT"   # Bitcoin
+  - "ETHUSDT"   # Ethereum  
+  - "ADAUSDT"   # Cardano
+  - "DOTUSDT"   # Polkadot
+  - "LINKUSDT"  # Chainlink
+
+# ============================================
+# RISK MANAGEMENT (CONSERVATIVE FOR FREE)
+# ============================================
+risk_management:
+  # Conservative limits for paper trading
+  max_position_size: 0.05           # 5% per position
+  max_daily_loss: 0.01              # 1% daily loss limit
+  max_drawdown: 0.03                # 3% max drawdown
+  max_correlation: 0.60             # 60% correlation limit
+  
+  # Position limits
+  max_open_positions: 3             # Maximum 3 positions
+  max_concentration: 0.15           # 15% max per symbol
+  
+  # Emergency protocols (conservative)
+  black_swan_threshold: 0.70        # Higher threshold
+  emergency_close_positions: true
+
+# ============================================
+# EXECUTION ENGINE (PAPER TRADING)
+# ============================================
+execution:
+  mode: "paper_trading"
+  
+  # Paper trading settings
+  starting_balance: 10000           # $10,000 virtual balance
+  simulate_slippage: true
+  simulate_fees: true
+  
+  # Order types
+  supported_order_types:
+    - "MARKET"
+    - "LIMIT"
+    - "STOP_LOSS"
+  
+  # Execution delays (realistic simulation)
+  market_order_delay_ms: 100
+  limit_order_delay_ms: 50
+
+# ============================================
+# MONITORING (FREE TIER)
+# ============================================
+monitoring:
+  # Console output (always free)
+  console_logging: true
+  log_level: "INFO"
+  
+  # File logging
+  file_logging: true
+  log_directory: "logs/"
+  max_log_size_mb: 100
+  
+  # Performance tracking
+  track_performance: true
+  save_trades_to_file: true
+  
+  # Alerts (optional)
+  email_alerts: false    # Set to true if you configure email
+  telegram_alerts: false # Set to true if you get bot token
+
+# ============================================
+# DATA SOURCES (FREE ONLY)
+# ============================================
+data_sources:
+  # Primary: Binance public API (free)
+  primary_exchange: "binance"
+  
+  # Market data
+  market_data_source: "binance_public"  # Free Binance public API
+  backup_source: "coingecko"            # Free CoinGecko API
+  
+  # Rate limits (conservative for free APIs)
+  rate_limits:
+    binance_public: 1200  # per minute
+    coingecko: 30         # per minute
+    
+# ============================================
+# DEVELOPMENT SETTINGS
+# ============================================
+development:
+  debug_mode: true
+  verbose_logging: true
+  quick_start: true
+  
+  # Reduced requirements for testing
+  min_data_for_ai: 100     # Reduced from 1000
+  fast_backtesting: true
+  
+  # Demo mode fallbacks
+  use_simulated_data: true
+  offline_mode_capable: true
+
+# ============================================
+# PAPER TRADING CONFIGURATION
+# ============================================
+paper_trading:
+  enabled: true
+  
+  # Virtual portfolio
+  initial_balance: 10000  # $10,000 virtual money
+  currency: "USDT"
+  
+  # Realistic simulation
+  simulate_market_impact: true
+  simulate_network_delays: true
+  simulate_partial_fills: true
+  
+  # Performance tracking
+  track_all_metrics: true
+  generate_reports: true
+  save_trade_history: true
+
+# ============================================
+# FREE API ENDPOINTS
+# ============================================
+api_endpoints:
+  # Free market data
+  binance_public: "https://api.binance.com/api/v3"
+  binance_testnet: "https://testnet.binance.vision/api/v3"
+  coingecko: "https://api.coingecko.com/api/v3"
+  
+  # Free blockchain RPCs  
+  ethereum_rpc: "https://eth.public-rpc.com"
+  bsc_rpc: "https://bsc-dataseed.binance.org/"
+  
+  # Free news feeds
+  news_rss:
+    - "https://cointelegraph.com/rss"
+    - "https://decrypt.co/feed" 

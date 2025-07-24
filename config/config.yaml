@@ -1,0 +1,82 @@
+# config/config.yaml
+# Configuration for the Trading System API
+#
+# In production environments (like DigitalOcean), these values should be
+# set using environment variables for security and flexibility.
+
+# Redis Cache Configuration
+redis:
+  host: localhost          # For local development
+  port: 6379               # Default Redis port
+  password: null           # No password for local Redis by default
+  ssl: false               # SSL is typically disabled for local development
+
+# PostgreSQL Database Configuration
+database:
+  host: localhost          # For local development
+  port: 5432               # Default PostgreSQL port
+  name: trading_system     # Local database name
+  user: user               # Local database user
+  password: password       # Local database password
+
+# Security Settings
+security:
+  # It is STRONGLY recommended to set this as an environment variable in production
+  # Example: export JWT_SECRET="your-long-random-secret-key"
+  jwt_secret: "a-secret-key-for-local-development"
+  encryption_key: "a-local-encryption-key-that-is-32-bytes-long"
+  webhook_secret: "local-webhook-secret"
+
+# Application Settings
+app:
+  environment: "development"
+  log_level: "INFO"
+
+brokers:
+  zerodha:
+    api_key: vc9ft4zpknynpm3u
+    api_secret: 0nwjb2cncw9stf3m5cre73rqc3bc5xsc
+    base_url: https://api.kite.trade
+    name: zerodha
+    rate_limit_per_minute: 60
+    sandbox_mode: false
+    timeout_seconds: 30
+compliance:
+  # Trading Rate Limits
+  max_trades_per_second: 7
+  max_orders_per_second: 7
+  ops_monitoring_window: 1  # 1 second window for precise control
+  
+  # Existing compliance settings
+  audit_trail_retention_days: 2555
+  foreign_investment_limit_percent: 49.0
+  max_position_value: 50000000.0
+  sebi_reporting_enabled: true
+pool_size: 10
+ssl_mode: prefer
+debug: false
+max_workers: 4
+monitoring:
+  health_check_interval_seconds: 30
+  log_format: json
+  log_level: INFO
+  metrics_retention_days: 30
+  prometheus_enabled: true
+  prometheus_port: 8001
+db: trading_system
+username: trading_user
+timezone: Asia/Kolkata
+trading:
+  default_stop_loss_percent: 2.0
+  max_daily_trades: 9999  # No daily trade limit
+  max_drawdown_percent: 20.0
+  max_order_value: 1000000.0
+  max_position_size_percent: 10.0
+  min_order_value: 1000.0
+  risk_per_trade_percent: 1.0
+version: 2.0.0
+websocket:
+  compression_enabled: true
+  max_connections: 1000
+  ping_interval: 30
+  port: 8002

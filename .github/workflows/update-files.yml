@@ -1,0 +1,48 @@
+name: Update Files
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/utils/**'
+      - 'src/config/**'
+      - 'src/core/**'
+      - 'main.py'
+      - 'tests/**'
+
+jobs:
+  update-files:
+    name: Update Files
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Configure Git
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'github-actions@github.com'
+        
+    - name: Check for changes
+      id: changes
+      run: |
+        # Add any modified files in the specified directories
+        git add src/utils/* 2>/dev/null || true
+        git add src/config/* 2>/dev/null || true
+        git add src/core/* 2>/dev/null || true
+        git add main.py 2>/dev/null || true
+        git add tests/* 2>/dev/null || true
+        
+        if git diff --staged --quiet; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Commit and push if changes exist
+      if: steps.changes.outputs.changes == 'true'
+      run: |
+        git commit -m "Update configuration and core files [skip ci]"
+        git push 

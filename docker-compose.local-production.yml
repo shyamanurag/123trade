@@ -1,0 +1,197 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database - Production Configuration
+  postgres:
+    image: postgres:15-alpine
+    container_name: trading_postgres_local
+    environment:
+      POSTGRES_DB: trading_system_production
+      POSTGRES_USER: trading_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_trading_password_2024}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+      - ./setup_local_database.sql:/docker-entrypoint-initdb.d/01_setup.sql:ro
+    networks:
+      - trading_network
+    restart: unless-stopped
+    command: >
+      postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200 -c shared_buffers=256MB -c effective_cache_size=1GB -c maintenance_work_mem=64MB -c checkpoint_completion_target=0.9 -c wal_buffers=16MB -c default_statistics_target=100 -c random_page_cost=1.1 -c effective_io_concurrency=200 -c work_mem=4MB -c min_wal_size=1GB -c max_wal_size=4GB
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U trading_admin -d trading_system_production" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache - Production Configuration
+  redis:
+    image: redis:7-alpine
+    container_name: trading_redis_local
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-secure_redis_password_2024}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis_local.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - trading_network
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf --requirepass ${REDIS_PASSWORD:-secure_redis_password_2024}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # Prometheus Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: trading_prometheus_local
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - trading_network
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana Dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: trading_grafana_local
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin_secure_2024}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_DOMAIN: localhost
+      GF_SMTP_ENABLED: "false"
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana_dashboards.py:/etc/grafana/provisioning/dashboards/
+    networks:
+      - trading_network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
+  # Trading System API - Production Mode
+  trading_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trading_api_local
+    environment:
+      # Production Environment
+      DEPLOYMENT_MODE: production
+      TRADING_MODE: production
+
+      # Database Configuration
+      DATABASE_URL: postgresql://trading_admin:${POSTGRES_PASSWORD:-secure_trading_password_2024}@postgres:5432/trading_system_production
+
+      # Redis Configuration
+      REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password_2024}@redis:6379/0
+
+      # Security Configuration
+      JWT_SECRET: ${JWT_SECRET:-production-jwt-secret-key-32-characters-minimum-for-security}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-production-encryption-key-must-be-exactly-32-bytes}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-production-webhook-secret-for-n8n-integration}
+      SECRET_KEY: ${SECRET_KEY:-production-flask-secret-key-for-sessions-security}
+
+      # API Configuration
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_WORKERS: 4
+      API_DEBUG: "false"
+
+      # Trading Configuration - Full Production Features
+      PAPER_TRADING: "false"
+      ENABLE_AUTONOMOUS_TRADING: "true"
+      ENABLE_REAL_TIME_DATA: "true"
+      ENABLE_WEBSOCKETS: "true"
+      ENABLE_NOTIFICATIONS: "true"
+
+      # Performance Configuration
+      MAX_WORKERS: 4
+      POOL_SIZE: 20
+      TIMEOUT: 60
+      BATCH_SIZE: 500
+
+      # Monitoring Configuration
+      PROMETHEUS_PORT: 9091
+      HEALTH_CHECK_INTERVAL: 30
+      LOG_TO_FILE: "true"
+      LOG_LEVEL: INFO
+
+      # CORS for Local Development
+      CORS_ORIGINS: '["http://localhost:3000", "http://localhost:5173", "http://localhost:3001"]'
+
+    ports:
+      - "8000:8000"
+      - "9091:9091" # Prometheus metrics
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./backups:/app/backups
+    networks:
+      - trading_network
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Application
+  trading_frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    container_name: trading_frontend_local
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_WS_URL: ws://localhost:8000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - trading_network
+    restart: unless-stopped
+    depends_on:
+      - trading_api
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  trading_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

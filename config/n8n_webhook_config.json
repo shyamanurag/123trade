@@ -1,0 +1,568 @@
+{
+  "workflows": [
+    {
+      "name": "RBI Policy Decision Workflow",
+      "id": "rbi_policy_workflow",
+      "description": "Processes RBI policy announcements and generates trading signals",
+      "nodes": [
+        {
+          "id": "rbi_webhook",
+          "type": "n8n-nodes-base.webhook",
+          "name": "RBI Webhook",
+          "parameters": {
+            "path": "webhook/rbi-policy",
+            "httpMethod": "POST",
+            "responseMode": "responseNode"
+          },
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "id": "validate_rbi_data",
+          "type": "n8n-nodes-base.function",
+          "name": "Validate RBI Data",
+          "parameters": {
+            "functionCode": "// Validate RBI announcement data\nconst data = items[0].json;\n\n// Required fields validation\nconst requiredFields = ['event_type', 'announcement', 'timestamp'];\nfor (const field of requiredFields) {\n  if (!data[field]) {\n    throw new Error(`Missing required field: ${field}`);\n  }\n}\n\n// Event type validation\nconst validEvents = ['policy_decision', 'minutes_release', 'monetary_policy', 'rate_decision'];\nif (!validEvents.includes(data.event_type)) {\n  throw new Error(`Invalid event type: ${data.event_type}`);\n}\n\n// Add processing metadata\ndata.processed_at = new Date().toISOString();\ndata.source = 'RBI';\ndata.tier = 'TIER_1';\ndata.category = 'MONETARY_POLICY';\n\nreturn [{ json: data }];"
+          },
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "id": "extract_policy_details",
+          "type": "n8n-nodes-base.function",
+          "name": "Extract Policy Details",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\nconst announcement = data.announcement.toLowerCase();\n\n// Extract key policy decisions\nlet policyDirection = 'NEUTRAL';\nlet rateChange = 0;\nlet impactMagnitude = 'MEDIUM';\n\n// Rate change detection\nif (announcement.includes('repo rate') || announcement.includes('policy rate')) {\n  if (announcement.includes('increased') || announcement.includes('hiked') || announcement.includes('raised')) {\n    policyDirection = 'HAWKISH';\n    impactMagnitude = 'HIGH';\n    // Try to extract basis points\n    const bpsMatch = announcement.match(/(\\d+)\\s*basis\\s*points?|bps/i);\n    if (bpsMatch) rateChange = parseInt(bpsMatch[1]);\n  } else if (announcement.includes('reduced') || announcement.includes('cut') || announcement.includes('lowered')) {\n    policyDirection = 'DOVISH';\n    impactMagnitude = 'HIGH';\n    const bpsMatch = announcement.match(/(\\d+)\\s*basis\\s*points?|bps/i);\n    if (bpsMatch) rateChange = -parseInt(bpsMatch[1]);\n  }\n}\n\n// Stance detection\nif (announcement.includes('accommodative')) {\n  policyDirection = 'DOVISH';\n} else if (announcement.includes('neutral')) {\n  policyDirection = 'NEUTRAL';\n} else if (announcement.includes('withdraw') && announcement.includes('accommodation')) {\n  policyDirection = 'HAWKISH';\n}\n\n// Enhanced event object\nconst enhancedEvent = {\n  ...data,\n  policy_direction: policyDirection,\n  rate_change_bps: rateChange,\n  impact_magnitude: impactMagnitude,\n  market_sensitivity: 9.0,\n  symbols_affected: ['NIFTY', 'BANKNIFTY', 'FINNIFTY'],\n  execution_priority: 'IMMEDIATE'\n};\n\nreturn [{ json: enhancedEvent }];"
+          },
+          "position": [
+            680,
+            300
+          ]
+        },
+        {
+          "id": "send_to_trading_system",
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Send to Trading System",
+          "parameters": {
+            "url": "http://localhost:8080/api/events/news",
+            "method": "POST",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Authorization",
+                  "value": "Bearer {{$env.TRADING_API_TOKEN}}"
+                }
+              ]
+            },
+            "sendBody": true,
+            "bodyParameters": {
+              "parameters": []
+            },
+            "jsonParameters": "={{ $json }}"
+          },
+          "position": [
+            900,
+            300
+          ]
+        },
+        {
+          "id": "webhook_response",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "name": "Webhook Response",
+          "parameters": {
+            "responseBody": "={{ { \"status\": \"processed\", \"event_id\": $json.event_id, \"timestamp\": $json.processed_at } }}",
+            "responseCode": 200
+          },
+          "position": [
+            1120,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "rbi_webhook": {
+          "main": [
+            [
+              {
+                "node": "validate_rbi_data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "validate_rbi_data": {
+          "main": [
+            [
+              {
+                "node": "extract_policy_details",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "extract_policy_details": {
+          "main": [
+            [
+              {
+                "node": "send_to_trading_system",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "send_to_trading_system": {
+          "main": [
+            [
+              {
+                "node": "webhook_response",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "name": "NSE Market Events Workflow",
+      "id": "nse_events_workflow",
+      "description": "Processes NSE announcements like circuit filters and market halts",
+      "nodes": [
+        {
+          "id": "nse_webhook",
+          "type": "n8n-nodes-base.webhook",
+          "name": "NSE Webhook",
+          "parameters": {
+            "path": "webhook/nse-events",
+            "httpMethod": "POST"
+          },
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "id": "classify_nse_event",
+          "type": "n8n-nodes-base.function",
+          "name": "Classify NSE Event",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\nconst eventType = data.event_type;\n\nlet eventClassification = {\n  category: 'MARKET_STRUCTURE',\n  tier: 'TIER_2',\n  urgency: 'MEDIUM',\n  trading_action: 'MONITOR'\n};\n\nswitch(eventType) {\n  case 'circuit_filter':\n    eventClassification.tier = 'TIER_1';\n    eventClassification.urgency = 'HIGH';\n    eventClassification.trading_action = 'PAUSE_NEW_TRADES';\n    eventClassification.impact_duration = '15_MINUTES';\n    break;\n    \n  case 'market_halt':\n    eventClassification.tier = 'TIER_1';\n    eventClassification.urgency = 'CRITICAL';\n    eventClassification.trading_action = 'EMERGENCY_EXIT';\n    eventClassification.impact_duration = 'UNKNOWN';\n    break;\n    \n  case 'corporate_actions':\n    eventClassification.tier = 'TIER_3';\n    eventClassification.urgency = 'LOW';\n    eventClassification.trading_action = 'ADJUST_POSITIONS';\n    eventClassification.impact_duration = '1_DAY';\n    break;\n}\n\n// Determine affected symbols\nlet affectedSymbols = ['NIFTY', 'BANKNIFTY'];\nif (data.symbol) {\n  affectedSymbols.push(data.symbol);\n}\nif (data.sector) {\n  // Add sector-specific indices\n  if (data.sector === 'BANKING') affectedSymbols.push('BANKNIFTY');\n  if (data.sector === 'FINANCIAL') affectedSymbols.push('FINNIFTY');\n}\n\nconst processedEvent = {\n  ...data,\n  ...eventClassification,\n  symbols_affected: affectedSymbols,\n  processed_at: new Date().toISOString(),\n  source: 'NSE'\n};\n\nreturn [{ json: processedEvent }];"
+          },
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "id": "check_trading_hours",
+          "type": "n8n-nodes-base.function",
+          "name": "Check Trading Hours",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\nconst now = new Date();\nconst hour = now.getHours();\nconst minute = now.getMinutes();\n\n// IST trading hours: 9:15 AM to 3:30 PM\nconst isMarketOpen = (hour === 9 && minute >= 15) || \n                   (hour > 9 && hour < 15) || \n                   (hour === 15 && minute <= 30);\n\ndata.market_open = isMarketOpen;\ndata.processing_priority = isMarketOpen ? 'IMMEDIATE' : 'DELAYED';\n\n// Adjust urgency based on market hours\nif (!isMarketOpen && data.urgency !== 'CRITICAL') {\n  data.urgency = 'LOW';\n  data.trading_action = 'QUEUE_FOR_OPEN';\n}\n\nreturn [{ json: data }];"
+          },
+          "position": [
+            680,
+            300
+          ]
+        },
+        {
+          "id": "route_by_urgency",
+          "type": "n8n-nodes-base.switch",
+          "name": "Route by Urgency",
+          "parameters": {
+            "rules": {
+              "rules": [
+                {
+                  "conditions": {
+                    "string": [
+                      {
+                        "value1": "={{ $json.urgency }}",
+                        "value2": "CRITICAL"
+                      }
+                    ]
+                  },
+                  "renameOutput": true,
+                  "outputKey": "critical"
+                },
+                {
+                  "conditions": {
+                    "string": [
+                      {
+                        "value1": "={{ $json.urgency }}",
+                        "value2": "HIGH"
+                      }
+                    ]
+                  },
+                  "renameOutput": true,
+                  "outputKey": "high"
+                }
+              ]
+            },
+            "fallbackOutput": "normal"
+          },
+          "position": [
+            900,
+            300
+          ]
+        },
+        {
+          "id": "critical_alert",
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Critical Alert",
+          "parameters": {
+            "url": "http://localhost:8080/api/alerts/critical",
+            "method": "POST",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            "jsonParameters": "={{ $json }}"
+          },
+          "position": [
+            1120,
+            200
+          ]
+        },
+        {
+          "id": "high_priority_event",
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "High Priority Event",
+          "parameters": {
+            "url": "http://localhost:8080/api/events/high-priority",
+            "method": "POST",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            "jsonParameters": "={{ $json }}"
+          },
+          "position": [
+            1120,
+            300
+          ]
+        },
+        {
+          "id": "normal_event",
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Normal Event",
+          "parameters": {
+            "url": "http://localhost:8080/api/events/normal",
+            "method": "POST",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            },
+            "jsonParameters": "={{ $json }}"
+          },
+          "position": [
+            1120,
+            400
+          ]
+        }
+      ],
+      "connections": {
+        "nse_webhook": {
+          "main": [
+            [
+              {
+                "node": "classify_nse_event",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "classify_nse_event": {
+          "main": [
+            [
+              {
+                "node": "check_trading_hours",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "check_trading_hours": {
+          "main": [
+            [
+              {
+                "node": "route_by_urgency",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "route_by_urgency": {
+          "main": [
+            [
+              {
+                "node": "critical_alert",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "high_priority_event",
+                "type": "main",
+                "index": 0
+              }
+            ],
+            [
+              {
+                "node": "normal_event",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "name": "Earnings Calendar Workflow",
+      "id": "earnings_workflow",
+      "description": "Processes earnings announcements for major companies",
+      "nodes": [
+        {
+          "id": "earnings_webhook",
+          "type": "n8n-nodes-base.webhook",
+          "name": "Earnings Webhook",
+          "parameters": {
+            "path": "webhook/earnings",
+            "httpMethod": "POST"
+          },
+          "position": [
+            240,
+            300
+          ]
+        },
+        {
+          "id": "validate_company",
+          "type": "n8n-nodes-base.function",
+          "name": "Validate Company",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\nconst validCompanies = ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'HDFC', 'ITC', 'KOTAKBANK', 'LT', 'AXISBANK'];\n\nif (!data.company || !validCompanies.includes(data.company)) {\n  throw new Error(`Invalid or unsupported company: ${data.company}`);\n}\n\n// Determine company tier and market impact\nconst tier1Companies = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK'];\nconst tier2Companies = ['INFY', 'HDFC', 'ITC', 'KOTAKBANK'];\n\nlet tier = 'TIER_3';\nlet marketImpact = 'MEDIUM';\nlet indexWeight = 'LOW';\n\nif (tier1Companies.includes(data.company)) {\n  tier = 'TIER_1';\n  marketImpact = 'HIGH';\n  indexWeight = 'HIGH';\n} else if (tier2Companies.includes(data.company)) {\n  tier = 'TIER_2';\n  marketImpact = 'MEDIUM';\n  indexWeight = 'MEDIUM';\n}\n\n// Determine affected indices\nlet affectedIndices = ['NIFTY'];\nif (['HDFCBANK', 'ICICIBANK', 'AXISBANK', 'KOTAKBANK'].includes(data.company)) {\n  affectedIndices.push('BANKNIFTY');\n  affectedIndices.push('FINNIFTY');\n}\n\ndata.tier = tier;\ndata.market_impact = marketImpact;\ndata.index_weight = indexWeight;\ndata.affected_indices = affectedIndices;\ndata.category = 'EARNINGS';\ndata.processed_at = new Date().toISOString();\n\nreturn [{ json: data }];"
+          },
+          "position": [
+            460,
+            300
+          ]
+        },
+        {
+          "id": "extract_earnings_data",
+          "type": "n8n-nodes-base.function",
+          "name": "Extract Earnings Data",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\n\n// Extract key earnings metrics\nlet earningsAnalysis = {\n  beat_miss_inline: 'UNKNOWN',\n  surprise_factor: 'UNKNOWN',\n  guidance_tone: 'NEUTRAL',\n  execution_timing: 'NORMAL'\n};\n\n// Analyze earnings vs estimates\nif (data.actual_eps && data.estimated_eps) {\n  const actualEPS = parseFloat(data.actual_eps);\n  const estimatedEPS = parseFloat(data.estimated_eps);\n  const surprisePercent = ((actualEPS - estimatedEPS) / Math.abs(estimatedEPS)) * 100;\n  \n  if (surprisePercent > 10) {\n    earningsAnalysis.beat_miss_inline = 'STRONG_BEAT';\n    earningsAnalysis.surprise_factor = 'STRONG';\n    earningsAnalysis.execution_timing = 'IMMEDIATE';\n  } else if (surprisePercent > 5) {\n    earningsAnalysis.beat_miss_inline = 'BEAT';\n    earningsAnalysis.surprise_factor = 'MODERATE';\n    earningsAnalysis.execution_timing = 'IMMEDIATE';\n  } else if (surprisePercent >= -5) {\n    earningsAnalysis.beat_miss_inline = 'INLINE';\n    earningsAnalysis.surprise_factor = 'LOW';\n    earningsAnalysis.execution_timing = 'DELAYED';\n  } else if (surprisePercent >= -10) {\n    earningsAnalysis.beat_miss_inline = 'MISS';\n    earningsAnalysis.surprise_factor = 'MODERATE';\n    earningsAnalysis.execution_timing = 'IMMEDIATE';\n  } else {\n    earningsAnalysis.beat_miss_inline = 'STRONG_MISS';\n    earningsAnalysis.surprise_factor = 'STRONG';\n    earningsAnalysis.execution_timing = 'IMMEDIATE';\n  }\n  \n  data.surprise_percent = surprisePercent;\n}\n\n// Analyze guidance/commentary\nif (data.management_commentary) {\n  const commentary = data.management_commentary.toLowerCase();\n  if (commentary.includes('positive') || commentary.includes('optimistic') || commentary.includes('strong outlook')) {\n    earningsAnalysis.guidance_tone = 'POSITIVE';\n  } else if (commentary.includes('challenging') || commentary.includes('headwinds') || commentary.includes('cautious')) {\n    earningsAnalysis.guidance_tone = 'NEGATIVE';\n  }\n}\n\n// Create enhanced event\nconst enhancedEvent = {\n  ...data,\n  ...earningsAnalysis,\n  event_id: `EARNINGS_${data.company}_${new Date().getTime()}`,\n  market_sensitivity: data.tier === 'TIER_1' ? 8.5 : data.tier === 'TIER_2' ? 7.0 : 5.5\n};\n\nreturn [{ json: enhancedEvent }];"
+          },
+          "position": [
+            680,
+            300
+          ]
+        },
+        {
+          "id": "determine_trading_action",
+          "type": "n8n-nodes-base.function",
+          "name": "Determine Trading Action",
+          "parameters": {
+            "functionCode": "const data = items[0].json;\n\nlet tradingAction = {\n  recommended_action: 'MONITOR',\n  position_sizing: 'NORMAL',\n  time_horizon: 'INTRADAY',\n  risk_level: 'MEDIUM'\n};\n\n// Determine action based on surprise and tier\nif (data.surprise_factor === 'STRONG' && data.tier === 'TIER_1') {\n  tradingAction.recommended_action = 'AGGRESSIVE_ENTRY';\n  tradingAction.position_sizing = 'LARGE';\n  tradingAction.risk_level = 'HIGH';\n} else if (data.surprise_factor === 'MODERATE' && ['TIER_1', 'TIER_2'].includes(data.tier)) {\n  tradingAction.recommended_action = 'ENTRY';\n  tradingAction.position_sizing = 'NORMAL';\n  tradingAction.risk_level = 'MEDIUM';\n} else if (data.beat_miss_inline === 'INLINE') {\n  tradingAction.recommended_action = 'MONITOR';\n  tradingAction.position_sizing = 'SMALL';\n  tradingAction.risk_level = 'LOW';\n}\n\n// Adjust for guidance\nif (data.guidance_tone === 'POSITIVE' && tradingAction.recommended_action !== 'MONITOR') {\n  tradingAction.position_sizing = tradingAction.position_sizing === 'LARGE' ? 'LARGE' : 'NORMAL';\n} else if (data.guidance_tone === 'NEGATIVE') {\n  tradingAction.risk_level = 'HIGH';\n  if (tradingAction.recommended_action === 'AGGRESSIVE_ENTRY') {\n    tradingAction.recommended_action = 'ENTRY';\n  }\n}\n\n// Set execution window\nif (data.execution_timing === 'IMMEDIATE') {\n  tradingAction.execution_window = '5_MINUTES';\n} else {\n  tradingAction.execution_window = '15_MINUTES';\n}\n\nconst finalEvent = {\n  ...data,\n  ...tradingAction,\n  symbols_affected: data.affected_indices,\n  created_at: new Date().toISOString()\n};\n\nreturn [{ json: finalEvent }];"
+          },
+          "position": [
+            900,
+            300
+          ]
+        },
+        {
+          "id": "send_earnings_event",
+          "type": "n8n-nodes-base.httpRequest",
+          "name": "Send Earnings Event",
+          "parameters": {
+            "url": "http://localhost:8080/api/events/earnings",
+            "method": "POST",
+            "sendHeaders": true,
+            "headerParameters": {
+              "parameters": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                },
+                {
+                  "name": "Authorization",
+                  "value": "Bearer {{$env.TRADING_API_TOKEN}}"
+                }
+              ]
+            },
+            "jsonParameters": "={{ $json }}"
+          },
+          "position": [
+            1120,
+            300
+          ]
+        }
+      ],
+      "connections": {
+        "earnings_webhook": {
+          "main": [
+            [
+              {
+                "node": "validate_company",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "validate_company": {
+          "main": [
+            [
+              {
+                "node": "extract_earnings_data",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "extract_earnings_data": {
+          "main": [
+            [
+              {
+                "node": "determine_trading_action",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        },
+        "determine_trading_action": {
+          "main": [
+            [
+              {
+                "node": "send_earnings_event",
+                "type": "main",
+                "index": 0
+              }
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "environment_variables": {
+    "TRADING_API_TOKEN": "your_secure_api_token_here",
+    "TRADING_SYSTEM_BASE_URL": "http://localhost:8080",
+    "N8N_WEBHOOK_BASE_URL": "https://your-n8n-instance.com"
+  },
+  "webhook_endpoints": {
+    "rbi_announcements": {
+      "url": "https://your-n8n-instance.com/webhook/rbi",
+      "method": "POST",
+      "authentication": "bearer_token",
+      "events": [
+        "policy_decision",
+        "minutes_release"
+      ],
+      "rate_limit": "10_per_minute"
+    },
+    "nse_announcements": {
+      "url": "https://your-n8n-instance.com/webhook/nse",
+      "method": "POST",
+      "authentication": "bearer_token",
+      "events": [
+        "circuit_filter",
+        "market_halt",
+        "corporate_actions"
+      ],
+      "rate_limit": "50_per_minute"
+    },
+    "earnings_calendar": {
+      "url": "https://your-n8n-instance.com/webhook/earnings",
+      "method": "POST",
+      "authentication": "bearer_token",
+      "companies": [
+        "RELIANCE",
+        "TCS",
+        "INFY",
+        "HDFCBANK"
+      ],
+      "rate_limit": "20_per_minute"
+    }
+  },
+  "integration_code": {
+    "trading_system_event_handler": "# Add this to your enhanced_news_impact_scalper.py\n\nasync def process_n8n_event(self, event_data: Dict) -> List[Signal]:\n    \"\"\"Process events from N8N workflows\"\"\"\n    \n    # Create enhanced news event from N8N data\n    enhanced_event = EnhancedNewsEvent(\n        event_id=event_data.get('event_id', f\"N8N_{datetime.now().timestamp()}\"),\n        timestamp=datetime.fromisoformat(event_data.get('processed_at', datetime.now().isoformat())),\n        category=EventCategory(event_data.get('category', 'ECONOMIC_DATA')),\n        tier=EventTier(event_data.get('tier', 'TIER_2')),\n        headline=event_data.get('announcement', 'N8N Event'),\n        symbols_affected=event_data.get('symbols_affected', ['NIFTY']),\n        impact_magnitude=event_data.get('impact_magnitude', 'MEDIUM'),\n        market_sensitivity=to_decimal(str(event_data.get('market_sensitivity', 7.0))),\n        metadata={\n            'source': 'N8N',\n            'processing_priority': event_data.get('execution_timing', 'NORMAL'),\n            'trading_action': event_data.get('recommended_action', 'MONITOR')\n        }\n    )\n    \n    # Process through existing enhanced event system\n    return await self.process_enhanced_news_event(enhanced_event)",
+    "api_endpoint_addition": "# Add this endpoint to your rest_api.py\n\n@app.route('/api/events/n8n', methods=['POST'])\n@jwt_required()\n@async_route\nasync def receive_n8n_event():\n    \"\"\"Receive events from N8N workflows\"\"\"\n    try:\n        event_data = request.get_json()\n        \n        # Validate event data\n        required_fields = ['event_id', 'category', 'tier']\n        for field in required_fields:\n            if field not in event_data:\n                abort(400, description=f'Missing required field: {field}')\n        \n        # Get news impact strategy\n        if orchestrator and 'enhanced_news_impact_scalper' in orchestrator.strategies:\n            news_strategy = orchestrator.strategies['enhanced_news_impact_scalper']\n            \n            # Process event\n            signals = await news_strategy.process_n8n_event(event_data)\n            \n            # Execute signals\n            for signal in signals:\n                await order_manager.execute_signal(signal)\n            \n            return jsonify({\n                'success': True,\n                'event_id': event_data['event_id'],\n                'signals_generated': len(signals),\n                'message': 'N8N event processed successfully'\n            })\n        else:\n            abort(503, description='News impact strategy not available')\n            \n    except Exception as e:\n        logger.error(f'Error processing N8N event: {e}')\n        abort(500)"
+  },
+  "version": "1.0",
+  "webhooks": {
+    "market_data": {
+      "name": "Market Data Webhook",
+      "description": "Receives real-time market data updates",
+      "url": "${TRADING_SYSTEM_URL}/api/events/market-data",
+      "method": "POST",
+      "authentication": {
+        "type": "bearer",
+        "token": "${WEBHOOK_SECRET}"
+      }
+    },
+    "order_updates": {
+      "name": "Order Updates Webhook",
+      "description": "Receives order status updates",
+      "url": "${TRADING_SYSTEM_URL}/api/events/orders",
+      "method": "POST",
+      "authentication": {
+        "type": "bearer",
+        "token": "${WEBHOOK_SECRET}"
+      }
+    },
+    "position_updates": {
+      "name": "Position Updates Webhook",
+      "description": "Receives position updates",
+      "url": "${TRADING_SYSTEM_URL}/api/events/positions",
+      "method": "POST",
+      "authentication": {
+        "type": "bearer",
+        "token": "${WEBHOOK_SECRET}"
+      }
+    },
+    "system_alerts": {
+      "name": "System Alerts Webhook",
+      "description": "Receives system alerts and notifications",
+      "url": "${TRADING_SYSTEM_URL}/api/events/alerts",
+      "method": "POST",
+      "authentication": {
+        "type": "bearer",
+        "token": "${WEBHOOK_SECRET}"
+      }
+    }
+  }
+}
