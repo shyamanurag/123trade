@@ -1,17 +1,66 @@
-# ULTRA-AGGRESSIVE EXCLUSION - MINIMAL BUILD CONTEXT
+# ULTRA-AGGRESSIVE EXCLUSION TO FIX SNAPSHOT FAILURE
+# Exclude large directories that cause build context bloat
 
-# Exclude everything by default, then whitelist only essentials
-*
+# Large Python directories (1.3GB total)
+Lib/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# Allow only essential files
-!app.py
-!requirements.txt
-!src/
-!config/
+# Large build directories
+frontend/node_modules/
+node_modules/
+dist/
+build/
+DLLs/
+Tools/
+Doc/
 
-# But exclude unnecessary subdirectories even from allowed paths
-src/**/__pycache__/
-src/**/*.pyc
-src/**/*.log
-config/**/*.log
-config/**/*.db 
+# Git and IDE
+.git/
+.gitignore
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS and temp files
+.DS_Store
+Thumbs.db
+temp/
+tmp/
+*.tmp
+*.log
+
+# Documentation and misc
+docs/
+*.md
+README*
+CHANGELOG*
+LICENSE*
+.github/
+
+# Database and logs
+*.db
+*.sqlite
+*.sqlite3
+logs/
+backups/
+
+# Test and config
+.pytest_cache/
+.coverage
+.tox/
+*.cfg
+pytest.ini
+
+# Only include essential app files
+# (Docker will copy everything not excluded above) 
