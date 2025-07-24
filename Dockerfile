@@ -1,53 +1,32 @@
-# =====================================================
-# MINIMAL DOCKERFILE FOR FAST DIGITALOCEAN DEPLOYMENT
-# =====================================================
-
-# Frontend build stage - keep minimal
-FROM node:20-alpine AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci --only=production
-COPY frontend/ ./
-RUN npm run build
-
-# =====================================================
-# MINIMAL PYTHON BACKEND - OPTIMIZED FOR SPEED
-# =====================================================
+# ULTRA-MINIMAL SINGLE-STAGE BUILD FOR DIGITALOCEAN
 FROM python:3.11-slim
 
-# Environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH=/app
+# Essential environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app
 
-# MINIMAL system dependencies - only what's absolutely required
+# Install only absolute essentials
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq5 \
-    curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-# Create non-root user
-RUN useradd --create-home --no-log-init --shell /bin/bash app
+    libpq5 curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    useradd --create-home --no-log-init app
 
 # Set working directory
 WORKDIR /app
 
-# Copy and install Python dependencies FIRST (for better caching)
+# Copy and install requirements first
 COPY requirements.txt .
-
-# Install Python packages using pre-built wheels (much faster)
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY . .
+# Copy only essential application files
+COPY app.py .
+COPY src/ ./src/
+COPY config/ ./config/
 
-# Copy built frontend
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-
-# Create required directories and set permissions
-RUN mkdir -p logs config data backups && \
+# Create directories and set permissions in one layer
+RUN mkdir -p logs config data backups frontend/dist && \
     chown -R app:app /app
 
 # Switch to non-root user
@@ -56,9 +35,5 @@ USER app
 # Expose port
 EXPOSE 8000
 
-# Simple health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-# Single command - no fallbacks
+# Simple command
 CMD ["python", "app.py"]

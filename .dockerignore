@@ -1,108 +1,17 @@
-# Reduce Docker build context for faster deployment
+# ULTRA-AGGRESSIVE EXCLUSION - MINIMAL BUILD CONTEXT
 
-# Git and version control
-.git
-.gitignore
-.github/
+# Exclude everything by default, then whitelist only essentials
+*
 
-# Documentation and markdown files
-*.md
-docs/
-Doc/
+# Allow only essential files
+!app.py
+!requirements.txt
+!src/
+!config/
 
-# Node modules and cache
-node_modules/
-frontend/node_modules/
-npm-debug.log*
-.npm
-
-# Python cache and compiled files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-env/
-ENV/
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Logs and databases
-*.log
-logs/
-*.db
-*.sqlite
-*.sqlite3
-
-# Configuration and secrets
-.env
-.env.local
-.env.*.local
-local-production.env
-
-# Backups and temporary files
-backups/
-temp/
-tmp/
-*.tmp
-*.bak
-
-# Windows specific
-DLLs/
-Lib/
-Scripts/
-tcl/
-Tools/
-
-# Package files
-*.tar.gz
-*.zip
-*.rar
-
-# Deployment configs
-docker-compose*.yml
-Dockerfile.backup
-.dockerignore
-
-# Test files and coverage
-.coverage
-.pytest_cache/
-test-*
-*test.py
-coverage/
-
-# Build artifacts
-frontend/dist/
-frontend/build/ 
+# But exclude unnecessary subdirectories even from allowed paths
+src/**/__pycache__/
+src/**/*.pyc
+src/**/*.log
+config/**/*.log
+config/**/*.db 
