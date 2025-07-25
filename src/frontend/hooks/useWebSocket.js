@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Use production WebSocket URL from environment variable
-const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'wss://algoauto-9gx56.ondigitalocean.app/ws';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://algoauto-9gx56.ondigitalocean.app';
+// WebSocket and API configuration
+const WS_BASE_URL = import.meta.env.VITE_WS_URL || 'wss://quantumcrypto-l43mb.ondigitalocean.app/ws';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://quantumcrypto-l43mb.ondigitalocean.app';
 
 // ELIMINATED: Default symbols removed - no hardcoded symbols allowed
 // Original violation: DEFAULT_SYMBOLS = ['RELIANCE', 'TCS', 'NIFTY', 'BANKNIFTY', 'INFY', 'HDFCBANK']

@@ -45,7 +45,7 @@ export default defineConfig({
         host: true
     },
     define: {
-        'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://algoauto-9gx56.ondigitalocean.app'),
+        'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'https://quantumcrypto-l43mb.ondigitalocean.app'),
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
     }
 }) 
