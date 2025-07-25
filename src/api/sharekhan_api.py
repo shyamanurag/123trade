@@ -11,16 +11,38 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel
 import asyncio
 
-# Fixed import paths
+# Import with fallback handling for cloud deployment
+IMPORTS_AVAILABLE = True
+
 try:
     from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
     from src.core.multi_user_sharekhan_manager import UserRole, TradingPermission
     from brokers.sharekhan import ShareKhanOrder
 except ImportError:
-    # Fallback imports
-    from ..core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
-    from ..core.multi_user_sharekhan_manager import UserRole, TradingPermission
-    from ...brokers.sharekhan import ShareKhanOrder
+    try:
+        from ..core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+        from ..core.multi_user_sharekhan_manager import UserRole, TradingPermission
+        from brokers.sharekhan import ShareKhanOrder
+    except ImportError:
+        # Components not available - create minimal fallback
+        IMPORTS_AVAILABLE = False
+        
+        class ShareKhanTradingOrchestrator:
+            @classmethod
+            async def get_instance(cls):
+                return None
+        
+        class UserRole:
+            TRADER = "trader"
+            ADMIN = "admin"
+        
+        class TradingPermission:
+            PLACE_ORDERS = "place_orders"
+            VIEW_PORTFOLIO = "view_portfolio"
+        
+        class ShareKhanOrder:
+            def __init__(self, **kwargs):
+                pass
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +202,7 @@ async def place_order(
     """Place order for authenticated user"""
     try:
         # Check if user has order placement permission
-        if TradingPermission.PLACE_ORDER not in session.permissions:
+        if TradingPermission.PLACE_ORDERS not in session.permissions:
             raise HTTPException(status_code=403, detail="Insufficient permissions to place orders")
         
         # Convert request to order data
