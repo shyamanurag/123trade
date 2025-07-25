@@ -31,14 +31,14 @@ router = APIRouter(prefix="/autonomous")
 async def get_orchestrator():
     """Get orchestrator instance with lazy import and comprehensive error handling"""
     try:
-        from src.core.orchestrator import get_orchestrator as get_orchestrator_instance
-        orchestrator = await get_orchestrator_instance()
+        from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+        orchestrator = await ShareKhanTradingOrchestrator.get_instance()
         return orchestrator
     except ImportError as import_error:
-        logger.error(f"Cannot import orchestrator: {import_error}")
+        logger.error(f"Cannot import ShareKhan orchestrator: {import_error}")
         return None
     except Exception as e:
-        logger.error(f"Error getting orchestrator: {e}")
+        logger.error(f"Error getting ShareKhan orchestrator: {e}")
         return None
 
 @router.get("/status", response_model=TradingStatusResponse)
@@ -149,30 +149,25 @@ async def start_trading(
     try:
         logger.info("🚀 Starting autonomous trading system...")
         
-        # CRITICAL FIX: Create orchestrator on-demand if not available
+        # CRITICAL FIX: Create ShareKhan orchestrator on-demand if not available
         if not orchestrator:
-            logger.warning("❌ Orchestrator not available - creating new instance...")
+            logger.warning("❌ ShareKhan orchestrator not available - creating new instance...")
             try:
-                from src.core.orchestrator import TradingOrchestrator, set_orchestrator_instance
+                from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
                 
-                # Create orchestrator instance directly (bypass get_instance method)
-                logger.info("🔧 Creating orchestrator instance directly...")
-                orchestrator = TradingOrchestrator()
+                # Create ShareKhan orchestrator instance
+                logger.info("🔧 Creating ShareKhan orchestrator instance...")
+                orchestrator = await ShareKhanTradingOrchestrator.get_instance()
                 
-                # Initialize the orchestrator
-                init_success = await orchestrator.initialize()
-                
-                if init_success and orchestrator:
-                    # Store globally for future access
-                    set_orchestrator_instance(orchestrator)
-                    logger.info("✅ Successfully created and initialized orchestrator instance")
+                if orchestrator and orchestrator.is_initialized:
+                    logger.info("✅ Successfully created and initialized ShareKhan orchestrator instance")
                 else:
-                    logger.error("❌ Failed to initialize orchestrator instance")
-                    raise HTTPException(status_code=500, detail="Failed to initialize orchestrator instance")
+                    logger.error("❌ Failed to initialize ShareKhan orchestrator instance")
+                    raise HTTPException(status_code=500, detail="Failed to initialize ShareKhan orchestrator")
                     
             except Exception as create_error:
-                logger.error(f"❌ Failed to create orchestrator: {create_error}")
-                raise HTTPException(status_code=500, detail=f"Failed to create orchestrator: {str(create_error)}")
+                logger.error(f"❌ Failed to create ShareKhan orchestrator: {create_error}")
+                raise HTTPException(status_code=500, detail=f"Failed to create ShareKhan orchestrator: {str(create_error)}")
         
         # CRITICAL FIX: Force complete system initialization
         logger.info("🔄 Forcing complete system initialization...")

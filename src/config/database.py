@@ -270,3 +270,16 @@ async def check_database_health() -> dict:
         health['postgres']['error'] = str(e)
     
     return health 
+
+async def get_async_session() -> AsyncSession:
+    """Get async database session for ShareKhan multi-user management"""
+    try:
+        if db_config.async_session_maker is None:
+            logger.warning("Async session maker not initialized")
+            return None
+        
+        async with db_config.async_session_maker() as session:
+            return session
+    except Exception as e:
+        logger.error(f"Failed to get async session: {e}")
+        return None 

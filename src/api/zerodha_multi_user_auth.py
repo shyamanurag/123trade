@@ -144,6 +144,14 @@ MULTI_USER_AUTH_HTML = """
                 ℹ️ Only User ID and Name required. Default limits will be applied.
             </p>
         </div>
+        
+        <div class="info-box">
+            <h4>🔗 Individual Authentication Links</h4>
+            <p>Each user gets their own authentication link. Click on your user ID below to get your personal auth link:</p>
+            <div id="individual-auth-links">
+                {individual_auth_links}
+            </div>
+        </div>
     </div>
 </body>
 </html>
@@ -278,6 +286,7 @@ async def multi_user_dashboard(request: Request):
         
         # Build user cards HTML
         user_cards_html = ""
+        individual_auth_links_html = ""
         for user_id, user_info in users.items():
             # Check token status
             token_key = f"zerodha:multi:token:{user_id}"
@@ -311,6 +320,12 @@ async def multi_user_dashboard(request: Request):
                 <a href="/zerodha-multi/user/{user_id}"><button>Authenticate</button></a>
             </div>
             """
+            
+            # Generate individual auth link
+            login_url = f"{request.base_url}zerodha-multi/user/{user_id}/login"
+            individual_auth_links_html += f"""
+            <p><strong>User {user_id}:</strong> <a href="{login_url}" target="_blank">{login_url}</a></p>
+            """
         
         if not user_cards_html:
             user_cards_html = "<p>No users registered yet. Add users below.</p>"
@@ -318,7 +333,8 @@ async def multi_user_dashboard(request: Request):
         html_content = MULTI_USER_AUTH_HTML.format(
             master_api_key=master_api_key[:10] + "..." if master_api_key else "Not configured",
             master_user_id=master_user_id or "Not configured",
-            user_cards=user_cards_html
+            user_cards=user_cards_html,
+            individual_auth_links=individual_auth_links_html
         )
         
         await redis_client.close()
@@ -442,48 +458,69 @@ async def user_auth_page(user_id: str, request: Request):
 
 @router.post("/user/{user_id}/login")
 async def user_login(user_id: str, request: Request):
-    """Initiate login for a specific user"""
+    """Initiate login for a specific user with their own API credentials"""
     try:
-        form_data = await request.form()
-        api_key = form_data.get('api_key')
-        api_secret = form_data.get('api_secret')
-        
-        # Import Kite
-        try:
-            from kiteconnect import KiteConnect
-        except ImportError:
-            return RedirectResponse(
-                url=f"/zerodha-multi/user/{user_id}?error=kiteconnect not installed",
-                status_code=302
-            )
-        
-        # Create Kite instance for this user
-        kite = KiteConnect(api_key=api_key)
-        login_url = kite.login_url()
-        
-        # Store credentials temporarily
         redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
         redis_client = await redis.from_url(redis_url)
         
-        session_data = {
-            'api_key': api_key,
-            'api_secret': api_secret,
-            'user_id': user_id
-        }
+        # Get user info
+        users_key = "zerodha:multi:users"
+        users_data = await redis_client.get(users_key)
+        users = json.loads(users_data) if users_data else {}
         
-        await redis_client.setex(
-            f"zerodha:multi:session:{user_id}",
-            timedelta(minutes=10),
-            json.dumps(session_data)
-        )
+        if user_id not in users:
+            await redis_client.close()
+            return RedirectResponse(
+                url=f"/zerodha-multi?error=User {user_id} not found",
+                status_code=302
+            )
         
-        await redis_client.close()
+        # For individual account trading, each user needs their own API credentials
+        # Check if user has API credentials stored
+        user_credentials_key = f"zerodha:user_credentials:{user_id}"
+        credentials_data = await redis_client.get(user_credentials_key)
         
-        # Redirect to Zerodha
-        return RedirectResponse(url=login_url, status_code=302)
+        if credentials_data:
+            # User has API credentials, generate auth URL
+            credentials = json.loads(credentials_data)
+            api_key = credentials.get('api_key')
+            
+            # Import Kite
+            try:
+                from kiteconnect import KiteConnect
+                kite = KiteConnect(api_key=api_key)
+                login_url = kite.login_url()
+                
+                # Store session info
+                await redis_client.setex(
+                    f"zerodha:auth_session:{user_id}",
+                    timedelta(minutes=10),
+                    json.dumps({
+                        'api_secret': credentials.get('api_secret'),
+                        'user_id': user_id,
+                        'timestamp': datetime.now().isoformat()
+                    })
+                )
+                
+                await redis_client.close()
+                return RedirectResponse(url=login_url, status_code=302)
+                
+            except ImportError:
+                await redis_client.close()
+                return RedirectResponse(
+                    url=f"/zerodha-multi/user/{user_id}?error=kiteconnect not installed",
+                    status_code=302
+                )
+        else:
+            # User needs to set up API credentials first
+            await redis_client.close()
+            return RedirectResponse(
+                url=f"/zerodha-multi/user/{user_id}/setup-credentials",
+                status_code=302
+            )
         
     except Exception as e:
-        logger.error(f"User login initiation failed: {e}")
+        logger.error(f"User login failed: {e}")
         return RedirectResponse(
             url=f"/zerodha-multi/user/{user_id}?error={str(e)}",
             status_code=302
@@ -552,7 +589,7 @@ async def process_user_token(user_id: str, request_token: str) -> bool:
         redis_client = await redis.from_url(redis_url)
         
         # Get session data
-        session_data = await redis_client.get(f"zerodha:multi:session:{user_id}")
+        session_data = await redis_client.get(f"zerodha:auth_session:{user_id}")
         if not session_data:
             raise ValueError("Session expired")
         
@@ -591,7 +628,7 @@ async def process_user_token(user_id: str, request_token: str) -> bool:
         await redis_client.set(f"zerodha:multi:creds:{user_id}", json.dumps(user_creds))
         
         # Clean up session
-        await redis_client.delete(f"zerodha:multi:session:{user_id}")
+        await redis_client.delete(f"zerodha:auth_session:{user_id}")
         
         await redis_client.close()
         

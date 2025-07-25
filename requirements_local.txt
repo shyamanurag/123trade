@@ -1,0 +1,34 @@
+# Local Development Requirements
+# Compatible with Python 3.9
+
+# Core API Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+pydantic>=2.11.7
+pydantic-settings>=2.6.0
+python-jose>=3.3.0
+python-multipart==0.0.6
+passlib[bcrypt]==1.7.4
+PyJWT>=2.3.0
+jinja2>=3.0.0
+
+# Database & Caching
+redis>=5.0.1
+sqlalchemy>=2.0.23
+aiofiles==23.2.1
+
+# HTTP & WebSocket
+httpx>=0.25.2
+aiohttp>=3.9.1
+websockets>=12.0
+websocket-client>=1.6.4
+requests==2.31.0
+
+# Development & Monitoring
+python-dotenv>=1.0.0
+rich>=13.7.0
+
+# Data Processing
+pandas>=2.1.4
+numpy>=1.24.3
+pytz>=2023.3 

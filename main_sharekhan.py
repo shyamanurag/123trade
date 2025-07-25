@@ -217,12 +217,7 @@ async def get_orchestrator():
 
 # Include ShareKhan API routes
 from src.api.sharekhan_api import router as sharekhan_router
-from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
-from src.api.sharekhan_webhooks import router as sharekhan_webhook_router
-
 app.include_router(sharekhan_router)
-app.include_router(sharekhan_auth_router, tags=["sharekhan-auth"])
-app.include_router(sharekhan_webhook_router, tags=["sharekhan-webhooks"])
 
 # Health check endpoints
 @app.get("/health")

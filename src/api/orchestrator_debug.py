@@ -1,11 +1,30 @@
 """
-Orchestrator Debug API
-Diagnostic endpoint to test orchestrator initialization
+Orchestrator Debug and Monitoring API
+Provides debugging and monitoring endpoints for the trading orchestrator
+Helps diagnose integration and performance issues
 """
-from fastapi import APIRouter
-from typing import Dict, Any
+
 import logging
+from typing import Dict, Any, List, Optional
+from datetime import datetime, timedelta
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import JSONResponse
+import asyncio
+import json
 import traceback
+from pathlib import Path
+
+# Import models
+try:
+    from src.models.responses import BaseResponse
+except ImportError:
+    from ..models.responses import BaseResponse
+
+# Fixed orchestrator import
+try:
+    from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+except ImportError:
+    from ..core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -22,29 +41,29 @@ async def debug_orchestrator_initialization():
     
     try:
         # Step 1: Test import
-        logger.info("Debug Step 1: Testing import...")
+        logger.info("Debug Step 1: Testing ShareKhan orchestrator import...")
         try:
-            from src.core.orchestrator import TradingOrchestrator
+            from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
             debug_results["step_1_import"]["status"] = "success"
-            logger.info("✅ Import successful")
+            logger.info("✅ ShareKhan orchestrator import successful")
         except Exception as e:
             debug_results["step_1_import"]["status"] = "failed"
             debug_results["step_1_import"]["error"] = str(e)
             debug_results["step_1_import"]["traceback"] = traceback.format_exc()
-            logger.error(f"❌ Import failed: {e}")
+            logger.error(f"❌ ShareKhan orchestrator import failed: {e}")
             return debug_results
         
         # Step 2: Test instance creation
-        logger.info("Debug Step 2: Testing instance creation...")
+        logger.info("Debug Step 2: Testing ShareKhan orchestrator instance creation...")
         try:
-            orchestrator = TradingOrchestrator()
+            orchestrator = await ShareKhanTradingOrchestrator.get_instance()
             debug_results["step_2_create_instance"]["status"] = "success"
-            logger.info("✅ Instance creation successful")
+            logger.info("✅ ShareKhan orchestrator instance creation successful")
         except Exception as e:
             debug_results["step_2_create_instance"]["status"] = "failed"
             debug_results["step_2_create_instance"]["error"] = str(e)
             debug_results["step_2_create_instance"]["traceback"] = traceback.format_exc()
-            logger.error(f"❌ Instance creation failed: {e}")
+            logger.error(f"❌ ShareKhan orchestrator instance creation failed: {e}")
             return debug_results
         
         # Step 3: Test initialization

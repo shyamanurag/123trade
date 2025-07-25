@@ -9,7 +9,7 @@ import asyncio
 import logging
 import time as time_module
 from datetime import datetime, time, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union, Tuple, AsyncGenerator
 import sys
 import os
 import pytz
@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 import redis
 import json
 import re
+import traceback
 
 # Add project root to Python path for imports
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -96,218 +97,6 @@ except ImportError:
             return signals
     signal_deduplicator = DummySignalDeduplicator()
 
-class SimpleTradeEngine:
-    """Simple trade engine for fallback - renamed to avoid conflict"""
-    
-    def __init__(self, zerodha_client=None):
-        self.zerodha_client = zerodha_client
-        self.order_manager = None
-        self.risk_manager = None
-        self.signal_queue = []
-        self.is_initialized = False
-        self.is_running = False
-        self.executed_trades = 0  # CRITICAL FIX: Track executed trades
-        self.logger = logging.getLogger(__name__)
-        
-    async def initialize(self) -> bool:
-        """Initialize trade engine with enhanced fallback system"""
-        try:
-            self.logger.info("🚀 Initializing TradeEngine async components...")
-            
-            # Initialize risk manager
-            self.risk_manager = ProductionRiskManager()
-            await self.risk_manager.initialize()
-            
-            # Initialize order manager with fallback system
-            await self._initialize_order_manager_with_fallback()
-            
-            # Start batch processing
-            self.is_running = True
-            self.is_initialized = True
-            
-            self.logger.info("🚀 Batch signal processor started")
-            self.logger.info("✅ TradeEngine initialization completed successfully")
-            
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"TradeEngine initialization failed: {e}")
-            return False
-            
-    async def process_signals(self, signals: List[Dict]):
-        """Process trading signals and execute orders"""
-        if not signals:
-            return
-            
-        try:
-            self.logger.info(f"📬 Queued {len(signals)} signals for batch processing")
-            
-            # Process each signal
-            for signal in signals:
-                try:
-                    # Try order manager first
-                    if self.order_manager:
-                        await self._process_signal_through_order_manager(signal)
-                    else:
-                        # Fallback to direct Zerodha
-                        await self._process_signal_through_zerodha(signal)
-                    
-                    # CRITICAL FIX: Increment executed trades count
-                    if isinstance(self.executed_trades, int):
-                        self.executed_trades += 1
-                    elif isinstance(self.executed_trades, dict):
-                        trade_id = f"TRADE_{len(self.executed_trades) + 1}"
-                        self.executed_trades[trade_id] = {
-                            'signal': signal,
-                            'executed_at': datetime.now(),
-                            'status': 'executed'
-                        }
-                    
-                    # Process signal
-                    signal['processed'] = True
-                    
-                except Exception as e:
-                    self.logger.error(f"Error processing signal: {e}")
-                    signal['processed'] = False
-                    
-            # Calculate processing time
-            processing_time = len(signals) * 1.0  # Simulate processing time
-            self.logger.info(f"⚡ Processed batch of {len(signals)} signals in {processing_time:.1f}ms")
-                    
-        except Exception as e:
-            self.logger.error(f"Error in batch processing: {e}")
-            
-    async def _process_signal_through_order_manager(self, signal: Dict):
-        """Process signal through order manager"""
-        try:
-            # Create order from signal
-            order = self._create_order_from_signal(signal)
-            
-            # Submit order
-            order_id = await self.order_manager.place_order(order)
-            
-            # Log order placement
-            self.logger.info(f"📋 Order placed: {order_id} for user {signal.get('user_id', 'system')}")
-            
-            # Simulate order execution for paper trading
-            self.logger.info(f"✅ Order executed: {order_id}")
-            
-        except Exception as e:
-            self.logger.error(f"Error processing signal through order manager: {e}")
-            raise
-            
-    async def _process_signal_through_zerodha(self, signal: Dict):
-        """Process signal through direct Zerodha integration"""
-        try:
-            if not self.zerodha_client:
-                # For paper trading, simulate order execution
-                order_id = f"ORDER_{int(time.time())}"
-                self.logger.info(f"🔧 MOCK order placed: {order_id} for {signal.get('symbol', 'UNKNOWN')}")
-                self.logger.info(f"✅ Order executed: {order_id}")
-                return
-                
-            # Create order
-            order = self._create_order_from_signal(signal)
-            
-            # Place order through Zerodha
-            result = await self.zerodha_client.place_order(order)
-            
-            if result.get('success'):
-                order_id = result.get('order_id')
-                self.logger.info(f"📋 Zerodha order placed: {order_id}")
-                self.logger.info(f"✅ Order executed: {order_id}")
-            else:
-                raise Exception(f"Zerodha order failed: {result.get('error')}")
-                
-        except Exception as e:
-            self.logger.error(f"Error processing signal through Zerodha: {e}")
-            raise
-    
-    def _calculate_position_size(self, signal: Dict) -> int:
-        """Calculate position size based on signal confidence and risk management"""
-        try:
-            # Base position size (you can adjust this based on your risk management)
-            base_size = 50  # Base quantity
-            
-            # Adjust based on signal confidence
-            confidence_multiplier = signal.get('confidence', 0.5)
-            
-            # Calculate final position size
-            position_size = int(base_size * confidence_multiplier)
-            
-            # Ensure minimum position size
-            position_size = max(position_size, 1)
-            
-            return position_size
-            
-        except Exception as e:
-            self.logger.error(f"Error calculating position size: {e}")
-            return 0
-            
-    async def get_status(self) -> Dict[str, Any]:
-        """Get trade engine status"""
-        # Handle both integer and dictionary types for executed_trades
-        executed_count = 0
-        if isinstance(self.executed_trades, dict):
-            executed_count = len(self.executed_trades)
-        elif isinstance(self.executed_trades, int):
-            executed_count = self.executed_trades
-        
-        # Handle active_orders if it exists
-        active_count = 0
-        if hasattr(self, 'active_orders') and isinstance(self.active_orders, dict):
-            active_count = len(self.active_orders)
-        
-        return {
-            'initialized': self.is_initialized,
-            'running': self.is_running,
-            'signals_processed': len(self.signal_queue) if isinstance(self.signal_queue, list) else 0,
-            'pending_signals': len([s for s in self.signal_queue if not s.get('processed', False)]) if isinstance(self.signal_queue, list) else 0,
-            'order_manager_available': self.order_manager is not None,
-            'executed_trades': executed_count,  # CRITICAL FIX: Add executed trades count
-            'active_orders': active_count,  # Add active orders count
-            'total_signals_processed': len(self.signal_queue) if isinstance(self.signal_queue, list) else 0  # Total signals processed
-        }
-
-    def _create_order_from_signal(self, signal: Dict) -> Dict:
-        """Create order parameters from signal - FIXED with dynamic product type"""
-        try:
-            # Extract signal parameters
-            symbol = signal.get('symbol', '')
-            action = signal.get('action', 'BUY').upper()
-            quantity = signal.get('quantity', 50)
-            
-            # Create order parameters with DYNAMIC product type
-            order_data = {
-                'symbol': symbol,
-                'quantity': quantity,
-                'action': action,
-                'transaction_type': action,
-                'order_type': 'MARKET',
-                'product': self._get_product_type_for_symbol(symbol),  # FIXED: Dynamic product type
-                'validity': 'DAY',
-                'tag': 'ALGO_TRADE'
-            }
-            
-            # Add price for limit orders
-            if signal.get('order_type') == 'LIMIT':
-                order_data['order_type'] = 'LIMIT'
-                order_data['price'] = signal.get('entry_price')
-            
-            return order_data
-            
-        except Exception as e:
-            self.logger.error(f"Error creating order from signal: {e}")
-            return {}
-    
-    def _get_product_type_for_symbol(self, symbol: str) -> str:
-        """Get appropriate product type for symbol - FIXED for NFO options"""
-        # 🔧 CRITICAL FIX: NFO options require NRML, not CNC
-        if 'CE' in symbol or 'PE' in symbol:
-            return 'NRML'  # Options must use NRML
-        else:
-            return 'CNC'   # Equity can use CNC
-
 class ProductionRiskManager:
     """Production-level risk manager with proper error handling"""
     
@@ -357,34 +146,42 @@ class ProductionRiskManager:
 
 class TradingOrchestrator:
     """
-    Production-level trading orchestrator with shared TrueData connection
+    DEPRECATED: Legacy production-level trading orchestrator 
+    ⚠️ WARNING: This is deprecated in favor of ShareKhanTradingOrchestrator
     """
     
     _instance = None
     _lock = asyncio.Lock()
     
     def __init__(self, config: Optional[Dict] = None):
-        """Initialize orchestrator with TrueData cache and proper fallback system"""
+        """DEPRECATED: Initialize legacy orchestrator - DO NOT USE FOR NEW IMPLEMENTATIONS"""
         self.config = config or {}
         self.strategies: Dict[str, Any] = {}
-        self.active_strategies = []  # Add missing active_strategies list
+        self.active_strategies = []
         self.running = False
-        self.is_running = False  # Add missing is_running attribute
+        self.is_running = False
         self.is_initialized = False
-        self.components = {}  # Add missing components dictionary
+        self.components = {}
         self.logger = logging.getLogger(__name__)
         
-        # CRITICAL FIX: Add missing timezone attribute
+        # CRITICAL: Mark as deprecated
+        self.logger.warning("🚨 DEPRECATED: TradingOrchestrator is deprecated. Use ShareKhanTradingOrchestrator instead.")
+        
+        # Set timezone
         self.ist_timezone = pytz.timezone('Asia/Kolkata')
         
-        # CRITICAL FIX: Add missing market data tracking attributes
-        self.market_data_history = {}  # Required for volume change calculation
-        self.last_data_update = {}     # Required for data transformation
+        # HONEST: No fallback system - set components to None until properly initialized
+        self.trade_engine = None
+        self.market_data = None
+        self.position_tracker = None
+        self.risk_manager = None
+        self.notification_manager = None
         
-        # CRITICAL FIX: Set TrueData skip auto-init for deployment overlap
-        import os
-        os.environ['SKIP_TRUEDATA_AUTO_INIT'] = 'true'
-        self.logger.info("🔧 TrueData auto-init disabled to prevent deployment overlap")
+        # Market data tracking
+        self.market_data_history = {}
+        self.last_data_update = {}
+        
+        self.logger.warning("🚨 Legacy orchestrator initialized - migrate to ShareKhan system")
         
         # Initialize TrueData access
         self.logger.info("🚀 Initializing Trading Orchestrator with simple TrueData access...")
