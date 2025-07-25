@@ -14,9 +14,10 @@ from enum import Enum
 
 try:
     from kiteconnect import KiteConnect, KiteTicker
+    KITE_AVAILABLE = True
 except ImportError:
-    logger = logging.getLogger(__name__)
-    logger.warning("KiteConnect not available - running in mock mode")
+    # KiteConnect not available - we're using ShareKhan instead, silently fallback
+    KITE_AVAILABLE = False
     KiteConnect = None
     KiteTicker = None
 
@@ -479,8 +480,8 @@ class ZerodhaIntegration:
                 self.ticker_connected = True
                 logger.info("✅ Mock WebSocket connection established")
             else:
-                if not KiteTicker or not self.api_key or not self.access_token:
-                    logger.warning("⚠️ WebSocket unavailable - missing KiteTicker or credentials")
+                if not KiteConnect or not self.api_key or not self.access_token:
+                    logger.warning("⚠️ WebSocket unavailable - missing KiteConnect or credentials")
                     return
                     
                 self.ticker = KiteTicker(self.api_key, self.access_token)

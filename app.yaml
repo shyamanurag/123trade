@@ -316,7 +316,7 @@ ingress:
     match:
       path:
         prefix: /
-name: sharekhantrade
+name: sharekhantrade-123
 region: blr
 services:
 - environment_slug: python
@@ -344,23 +344,23 @@ static_sites:
   envs:
   - key: VITE_API_URL
     scope: BUILD_TIME
-    value: https://algoauto-9gx56.ondigitalocean.app
+    value: https://sharekhantrade-123.ondigitalocean.app
   - key: VITE_WS_URL
     scope: BUILD_TIME
-    value: wss://algoauto-9gx56.ondigitalocean.app/ws
+    value: wss://sharekhantrade-123.ondigitalocean.app/ws
   - key: VITE_APP_NAME
     scope: BUILD_TIME
-    value: AlgoAuto Trading
+    value: ShareKhan Trading System
   - key: VITE_APP_VERSION
     scope: BUILD_TIME
-    value: 1.0.0
+    value: 2.0.0
   - key: VITE_APP_ENV
     scope: BUILD_TIME
     value: production
   github:
     branch: main
     deploy_on_push: true
-    repo: shyamanurag/trading-system-new
+    repo: shyamanurag/123trade
   name: frontend
   output_dir: dist
   source_dir: /src/frontend 

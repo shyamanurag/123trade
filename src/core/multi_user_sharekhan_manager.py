@@ -691,6 +691,11 @@ class MultiUserShareKhanManager:
         """Cache user configuration in Redis"""
         try:
             config_dict = asdict(user_config)
+            
+            # Convert enum objects to their values for JSON serialization
+            config_dict['role'] = user_config.role.value
+            config_dict['permissions'] = [perm.value for perm in user_config.permissions]
+            
             # Convert datetime objects to ISO strings
             if config_dict['created_at']:
                 config_dict['created_at'] = config_dict['created_at'].isoformat()
@@ -702,6 +707,7 @@ class MultiUserShareKhanManager:
                 user_config.user_id,
                 json.dumps(config_dict)
             )
+            logger.debug(f"✅ Cached user config for: {user_config.user_id}")
             
         except Exception as e:
             logger.error(f"❌ Failed to cache user config: {e}")
@@ -727,16 +733,20 @@ class MultiUserShareKhanManager:
         """Cache user session in Redis"""
         try:
             session_dict = asdict(session)
+            
+            # Convert enum objects to their values for JSON serialization
+            session_dict['permissions'] = [perm.value for perm in session.permissions]
+            
             # Convert datetime objects to ISO strings
-            session_dict['expires_at'] = session_dict['expires_at'].isoformat()
-            session_dict['last_activity'] = session_dict['last_activity'].isoformat()
+            session_dict['expires_at'] = session.expires_at.isoformat()
+            session_dict['last_activity'] = session.last_activity.isoformat()
             
             await self.redis_client.hset(
                 "sharekhan:sessions",
                 session.session_id,
                 json.dumps(session_dict)
             )
-            await self.redis_client.expire("sharekhan:sessions", 86400)  # 24 hours
+            logger.debug(f"✅ Cached session for: {session.user_id}")
             
         except Exception as e:
             logger.error(f"❌ Failed to cache session: {e}")
