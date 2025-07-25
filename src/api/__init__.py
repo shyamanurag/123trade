@@ -8,6 +8,7 @@ from . import (
     autonomous_trading,
     system_health,
     monitoring,
+    health,  # Enhanced health API
     user_management,
     order_management,
     position_management,
@@ -27,7 +28,8 @@ api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 api_router.include_router(market.router, prefix="/market", tags=["Market Data"])
 api_router.include_router(dashboard_api.router, prefix="/dashboard", tags=["Dashboard"])
 api_router.include_router(autonomous_trading.router, prefix="/trading", tags=["Trading"])
-api_router.include_router(system_health.router, prefix="/health", tags=["System Health"])
+api_router.include_router(system_health.router, prefix="/system-health", tags=["System Health"])
+api_router.include_router(health.router, tags=["Health Monitoring"])  # Enhanced health API
 api_router.include_router(monitoring.router, prefix="/monitoring", tags=["Monitoring"])
 api_router.include_router(user_management.router, prefix="/users", tags=["User Management"])
 api_router.include_router(order_management.router, prefix="/orders", tags=["Order Management"])
