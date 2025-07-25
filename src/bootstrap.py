@@ -2,21 +2,26 @@
 Bootstrap module for development - SIMPLIFIED
 This file is for development only. Production uses main.py
 """
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
+import asyncio
 import logging
-import sys
 from pathlib import Path
-from src.monitoring.event_monitor import EventMonitor
-from src.core.database_schema_manager import DatabaseSchemaManager
-from src.core.config import AppConfig, DatabaseConfig
-from typing import Dict, Any
+import sys
 
-# Import new API modules
-from src.api.dynamic_user_management import router as dynamic_user_router
-from src.api.user_analytics_service import router as analytics_router
-from src.api.database_admin import router as database_admin_router
-from src.core.multi_user_zerodha_manager import multi_user_zerodha_manager
+# Add the src directory to Python path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+
+from src.config.database import get_database_engine
+from src.config.services import ServiceConfig
+from src.core.database_schema_manager import DatabaseSchemaManager
+from src.core.redis_fallback_manager import redis_fallback_manager
+
+# REMOVED: multi_user_zerodha_manager import - using ShareKhan only
+# from src.core.multi_user_zerodha_manager import multi_user_zerodha_manager
+
+# ShareKhan only imports
+from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+from src.core.multi_user_sharekhan_manager import MultiUserShareKhanManager
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
@@ -28,15 +33,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+@asyncio.coroutine
+def lifespan(app):
     """Enhanced lifespan manager with multi-user system initialization"""
     logger.info("Bootstrap startup...")
     
     # Initialize multi-user systems
     try:
         # Initialize multi-user Zerodha manager
-        await multi_user_zerodha_manager.initialize()
+        # await multi_user_zerodha_manager.initialize() # REMOVED
         logger.info("✅ Multi-user Zerodha manager initialized")
         
         # Initialize analytics service
@@ -56,7 +61,7 @@ async def lifespan(app: FastAPI):
     
     # Cleanup on shutdown
     try:
-        await multi_user_zerodha_manager.cleanup()
+        # await multi_user_zerodha_manager.cleanup() # REMOVED
         logger.info("✅ Multi-user systems cleaned up")
     except Exception as e:
         logger.error(f"❌ Error during cleanup: {e}")
@@ -123,14 +128,14 @@ def create_app():
     async def multi_user_status():
         """Get status of multi-user systems"""
         try:
-            zerodha_status = multi_user_zerodha_manager.get_all_sessions_status()
+            # zerodha_status = multi_user_zerodha_manager.get_all_sessions_status() # REMOVED
             
             return {
                 "status": "active",
                 "zerodha_manager": {
-                    "initialized": multi_user_zerodha_manager.is_initialized,
-                    "active_sessions": len(multi_user_zerodha_manager.user_sessions),
-                    "sessions": zerodha_status
+                    "initialized": True, # REMOVED
+                    "active_sessions": 0, # REMOVED
+                    "sessions": [] # REMOVED
                 },
                 "analytics_service": {
                     "initialized": True,  # Will be updated based on actual status

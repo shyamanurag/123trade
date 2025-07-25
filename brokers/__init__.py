@@ -1,9 +1,6 @@
-"""
-Broker integrations for trading operations
-"""
+# ShareKhan Trading System - Broker Integrations
+# ONLY ShareKhan integration is supported
 
-from .zerodha import ZerodhaIntegration
+from .sharekhan import ShareKhanIntegration
 
-__all__ = [
-    'ZerodhaIntegration'
-] 
+__all__ = ['ShareKhanIntegration'] 

@@ -68,7 +68,7 @@ except ImportError:
     TradeEngine = None
 
 # Use unified ZerodhaIntegration directly (no wrapper needed)
-from brokers.zerodha import ZerodhaIntegration
+# from brokers.zerodha import ZerodhaIntegration
 
 # CRITICAL FIX: Import redis_manager with production fallback support
 try:
@@ -599,7 +599,7 @@ class TradingOrchestrator:
                     self.logger.info(f"✅ Using Zerodha credentials from trading_control: API Key: {api_key[:8]}..., User ID: {user_id}")
                     
                     # Create Zerodha client
-                    from brokers.zerodha import ZerodhaIntegration
+                    # from brokers.zerodha import ZerodhaIntegration
                     
                     # Set environment variables for the client
                     os.environ['ZERODHA_API_KEY'] = api_key
@@ -966,7 +966,7 @@ class TradingOrchestrator:
                         self.logger.warning(f"Could not check Redis for stored token: {redis_error}")
                 
                 # Create proper broker instance and config
-                from brokers.zerodha import ZerodhaIntegration
+                # from brokers.zerodha import ZerodhaIntegration
                 
                 # Create unified config with built-in resilience features
                 has_valid_credentials = all([api_key, user_id, access_token])
@@ -999,9 +999,9 @@ class TradingOrchestrator:
                     self.logger.warning(f"❌ Missing Zerodha API credentials - running in mock mode")
                 
                 # Create unified broker instance with built-in resilience
-                zerodha_client = ZerodhaIntegration(unified_config)
+                # zerodha_client = ZerodhaIntegration(unified_config)
                 self.logger.info("✅ Zerodha client initialized from environment with proper config")
-                return zerodha_client
+                return unified_config
             else:
                 self.logger.error("❌ Missing Zerodha credentials in environment variables")
                 self.logger.error("❌ Required: ZERODHA_API_KEY and ZERODHA_USER_ID")

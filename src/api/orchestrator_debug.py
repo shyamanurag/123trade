@@ -95,7 +95,7 @@ async def check_dependencies():
     """Check if required dependencies are available"""
     dependencies = {
         "pydantic_settings": {"available": False, "error": None},
-        "brokers.zerodha": {"available": False, "error": None},
+                    "brokers.sharekhan": {"available": False, "error": None},
         "strategies.momentum_surfer": {"available": False, "error": None},
         "src.core.config": {"available": False, "error": None}
     }
@@ -107,25 +107,21 @@ async def check_dependencies():
     except Exception as e:
         dependencies["pydantic_settings"]["error"] = str(e)
     
-    # Test brokers.zerodha
+    # Test core modules
     try:
-        from brokers.zerodha import ZerodhaIntegration
-        dependencies["brokers.zerodha"]["available"] = True
+        from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+        dependencies["src.core.sharekhan_orchestrator"]["available"] = True
     except Exception as e:
-        dependencies["brokers.zerodha"]["error"] = str(e)
-    
-    # Test strategies.momentum_surfer
+        dependencies["src.core.sharekhan_orchestrator"]["error"] = str(e)
+
+    # Test ShareKhan integration
     try:
-        from strategies.momentum_surfer import EnhancedMomentumSurfer
-        dependencies["strategies.momentum_surfer"]["available"] = True
+        from brokers.sharekhan import ShareKhanIntegration
+        dependencies["brokers.sharekhan"]["available"] = True
     except Exception as e:
-        dependencies["strategies.momentum_surfer"]["error"] = str(e)
-    
-    # Test src.core.config
-    try:
-        from src.core.config import settings
-        dependencies["src.core.config"]["available"] = True
-    except Exception as e:
-        dependencies["src.core.config"]["error"] = str(e)
+        dependencies["brokers.sharekhan"]["error"] = str(e)
+
+    # REMOVED: Zerodha testing - no longer supported
+    # brokers.zerodha testing has been removed as system now uses ShareKhan only
     
     return dependencies 

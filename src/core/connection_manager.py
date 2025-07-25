@@ -227,8 +227,16 @@ class ConnectionManager:
         try:
             logger.info("Initializing Zerodha connection...")
             
-            # Import ZerodhaIntegration from the correct location
-            from brokers.zerodha import ZerodhaIntegration
+            # REMOVED: ZerodhaIntegration import - now using ShareKhan only
+            # from brokers.zerodha import ZerodhaIntegration
+            
+            # Use ShareKhan integration instead
+            try:
+                from brokers.sharekhan import ShareKhanIntegration
+                logger.info("✅ ShareKhan integration available")
+            except ImportError as e:
+                logger.warning(f"⚠️ ShareKhan integration not available: {e}")
+                ShareKhanIntegration = None
             
             # Get access token from environment or Redis
             access_token = os.getenv('ZERODHA_ACCESS_TOKEN')
@@ -305,17 +313,27 @@ class ConnectionManager:
             else:
                 logger.warning(f"❌ Missing Zerodha API credentials - running in mock mode")
             
-            zerodha = ZerodhaIntegration(zerodha_config)
-            await zerodha.initialize()
-            
-            self.connections['zerodha'] = {
-                'instance': zerodha,
-                'status': ConnectionStatus.CONNECTED,
-                'last_check': datetime.now()
-            }
-            
-            logger.info("✅ Zerodha connection initialized successfully")
-            return True
+            # Check if ShareKhanIntegration is available before initializing
+            if ShareKhanIntegration:
+                zerodha = ShareKhanIntegration(zerodha_config)
+                await zerodha.initialize()
+                
+                self.connections['zerodha'] = {
+                    'instance': zerodha,
+                    'status': ConnectionStatus.CONNECTED,
+                    'last_check': datetime.now()
+                }
+                
+                logger.info("✅ Zerodha connection initialized successfully")
+                return True
+            else:
+                logger.error("❌ ShareKhan integration not available, cannot initialize Zerodha.")
+                self.connections['zerodha'] = {
+                    'instance': None,
+                    'status': ConnectionStatus.ERROR,
+                    'error': 'ShareKhan integration not available'
+                }
+                return False
             
         except Exception as e:
             logger.error(f"❌ Failed to initialize Zerodha: {e}")
