@@ -4,16 +4,16 @@ alerts:
 envs:
 - key: APP_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://sharekhantrade-123.ondigitalocean.app
+  value: https://quantumcrypto-l43mb.ondigitalocean.app
 - key: FRONTEND_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://sharekhantrade-123.ondigitalocean.app
+  value: https://quantumcrypto-l43mb.ondigitalocean.app
 - key: VITE_API_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://sharekhantrade-123.ondigitalocean.app
+  value: https://quantumcrypto-l43mb.ondigitalocean.app
 - key: VITE_WS_URL
   scope: RUN_AND_BUILD_TIME
-  value: wss://sharekhantrade-123.ondigitalocean.app/ws
+  value: wss://quantumcrypto-l43mb.ondigitalocean.app/ws
 - key: VITE_APP_NAME
   scope: RUN_AND_BUILD_TIME
   value: ShareKhan Trading System
@@ -37,7 +37,7 @@ envs:
   value: postgresql://doadmin:AVNS_tZlUKP7ygb0Nk6D6be-@app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.com:25060/defaultdb?sslmode=require
 - key: DATABASE_HOST
   scope: RUN_AND_BUILD_TIME
-  value: app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.com
+  value: app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.app
 - key: DATABASE_PORT
   scope: RUN_AND_BUILD_TIME
   value: "25060"
@@ -115,10 +115,10 @@ envs:
   value: wh_sec_K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A_live
 - key: CORS_ORIGINS
   scope: RUN_AND_BUILD_TIME
-  value: '["*"]'
+  value: '["https://quantumcrypto-l43mb.ondigitalocean.app", "http://localhost:3000", "http://localhost:5173", "*"]'
 - key: TRUSTED_HOSTS
   scope: RUN_AND_BUILD_TIME
-  value: '["*"]'
+  value: '["quantumcrypto-l43mb.ondigitalocean.app", "*.ondigitalocean.app", "localhost", "*"]'
 - key: ENABLE_CORS
   scope: RUN_AND_BUILD_TIME
   value: "true"
@@ -316,7 +316,7 @@ ingress:
     match:
       path:
         prefix: /
-name: sharekhantrade-123
+name: quantumcrypto
 region: blr
 services:
 - environment_slug: python
@@ -344,10 +344,10 @@ static_sites:
   envs:
   - key: VITE_API_URL
     scope: BUILD_TIME
-    value: https://sharekhantrade-123.ondigitalocean.app
+    value: https://quantumcrypto-l43mb.ondigitalocean.app
   - key: VITE_WS_URL
     scope: BUILD_TIME
-    value: wss://sharekhantrade-123.ondigitalocean.app/ws
+    value: wss://quantumcrypto-l43mb.ondigitalocean.app/ws
   - key: VITE_APP_NAME
     scope: BUILD_TIME
     value: ShareKhan Trading System
