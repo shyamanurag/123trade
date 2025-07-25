@@ -4,22 +4,22 @@ alerts:
 envs:
 - key: APP_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://algoauto-9gx56.ondigitalocean.app
+  value: https://sharekhantrade-123.ondigitalocean.app
 - key: FRONTEND_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://algoauto-9gx56.ondigitalocean.app
+  value: https://sharekhantrade-123.ondigitalocean.app
 - key: VITE_API_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://algoauto-9gx56.ondigitalocean.app
+  value: https://sharekhantrade-123.ondigitalocean.app
 - key: VITE_WS_URL
   scope: RUN_AND_BUILD_TIME
-  value: wss://algoauto-9gx56.ondigitalocean.app/ws
+  value: wss://sharekhantrade-123.ondigitalocean.app/ws
 - key: VITE_APP_NAME
   scope: RUN_AND_BUILD_TIME
-  value: AlgoAuto Trading
+  value: ShareKhan Trading System
 - key: VITE_APP_VERSION
   scope: RUN_AND_BUILD_TIME
-  value: 1.0.0
+  value: 2.0.0
 - key: VITE_APP_ENV
   scope: RUN_AND_BUILD_TIME
   value: production
@@ -34,10 +34,10 @@ envs:
   value: "true"
 - key: DATABASE_URL
   scope: RUN_AND_BUILD_TIME
-  value: postgresql://doadmin:AVNS_LpaPpsdL4CtOii03MnN@app-81cd3b75-f46c-49f9-8f76-09040fd8fc68-do-user-23093341-0.k.db.ondigitalocean.com:25060/defaultdb?sslmode=require
+  value: postgresql://doadmin:AVNS_tZlUKP7ygb0Nk6D6be-@app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.com:25060/defaultdb?sslmode=require
 - key: DATABASE_HOST
   scope: RUN_AND_BUILD_TIME
-  value: app-81cd3b75-f46c-49f9-8f76-09040fd8fc68-do-user-23093341-0.k.db.ondigitalocean.com
+  value: app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.com
 - key: DATABASE_PORT
   scope: RUN_AND_BUILD_TIME
   value: "25060"
@@ -49,22 +49,22 @@ envs:
   value: doadmin
 - key: DATABASE_PASSWORD
   scope: RUN_AND_BUILD_TIME
-  value: AVNS_LpaPpsdL4CtOii03MnN
+  value: AVNS_tZlUKP7ygb0Nk6D6be-
 - key: DATABASE_SSL
   scope: RUN_AND_BUILD_TIME
   value: require
 - key: REDIS_URL
   scope: RUN_AND_BUILD_TIME
-  value: rediss://default:AVNS_TSCy17L6f9z0CdWgcvW@redis-cache-do-user-23093341-0.k.db.ondigitalocean.com:25061
+  value: rediss://default:AVNS_wlAv-G38MVYHWXm4DuR@db-valkey-blr1-21204-do-user-23093341-0.g.db.ondigitalocean.com:25061
 - key: REDIS_HOST
   scope: RUN_AND_BUILD_TIME
-  value: redis-cache-do-user-23093341-0.k.db.ondigitalocean.com
+  value: db-valkey-blr1-21204-do-user-23093341-0.g.db.ondigitalocean.com
 - key: REDIS_PORT
   scope: RUN_AND_BUILD_TIME
   value: "25061"
 - key: REDIS_PASSWORD
   scope: RUN_AND_BUILD_TIME
-  value: AVNS_TSCy17L6f9z0CdWgcvW
+  value: AVNS_wlAv-G38MVYHWXm4DuR
 - key: REDIS_USERNAME
   scope: RUN_AND_BUILD_TIME
   value: default
@@ -74,54 +74,39 @@ envs:
 - key: REDIS_DB
   scope: RUN_AND_BUILD_TIME
   value: "0"
-- key: TRUEDATA_USERNAME
+- key: SHAREKHAN_API_KEY
   scope: RUN_AND_BUILD_TIME
-  value: tdwsp697
-- key: TRUEDATA_PASSWORD
+  value: 3yraoHgX8z7fpLnKTyXoZKx8ugtLaOBq
+- key: SHAREKHAN_SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: shyam@697
-- key: TRUEDATA_LIVE_PORT
+  value: XxmjJwQ6KM6PrCc5ryRPQYU2KYQz9qz0
+- key: SHAREKHAN_CUSTOMER_ID
   scope: RUN_AND_BUILD_TIME
-  value: "8084"
-- key: TRUEDATA_URL
+  value: Sanurag1977
+- key: SHAREKHAN_VERSION_ID
   scope: RUN_AND_BUILD_TIME
-  value: push.truedata.in
-- key: TRUEDATA_LOG_LEVEL
+  value: ""
+- key: SHAREKHAN_BASE_URL
   scope: RUN_AND_BUILD_TIME
-  value: INFO
-- key: TRUEDATA_IS_SANDBOX
+  value: https://api.sharekhan.com
+- key: SHAREKHAN_WS_URL
   scope: RUN_AND_BUILD_TIME
-  value: "false"
-- key: TRUEDATA_DATA_TIMEOUT
+  value: wss://wspush.sharekhan.com
+- key: SHAREKHAN_LOGIN_URL
   scope: RUN_AND_BUILD_TIME
-  value: "60"
-- key: TRUEDATA_RETRY_ATTEMPTS
+  value: https://newtrade.sharekhan.com/skweb/login/trading-api
+- key: SHAREKHAN_FEED_URL
   scope: RUN_AND_BUILD_TIME
-  value: "3"
-- key: TRUEDATA_RETRY_DELAY
+  value: wss://wspush.sharekhan.com
+- key: SHAREKHAN_DATA_URL
   scope: RUN_AND_BUILD_TIME
-  value: "5"
-- key: TRUEDATA_MAX_CONNECTION_ATTEMPTS
-  scope: RUN_AND_BUILD_TIME
-  value: "3"
-- key: ZERODHA_CLIENT_ID
-  scope: RUN_AND_BUILD_TIME
-  value: QSW899
-- key: ZERODHA_API_KEY
-  scope: RUN_AND_BUILD_TIME
-  value: vc9ft4zpknynpm3u
-- key: ZERODHA_API_SECRET
-  scope: RUN_AND_BUILD_TIME
-  value: 0nwjb2cncw9stf3m5cre73rqc3bc5xsc
-- key: ZERODHA_USER_ID
-  scope: RUN_AND_BUILD_TIME
-  value: QSW899
-- key: ZERODHA_SANDBOX_MODE
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
+  value: https://api.sharekhan.com/feed
 - key: JWT_SECRET
   scope: RUN_AND_BUILD_TIME
   value: K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A
+- key: SECRET_KEY
+  scope: RUN_AND_BUILD_TIME
+  value: sk-prod-2025-trading-system-secret-key-change-this
 - key: ENCRYPTION_KEY
   scope: RUN_AND_BUILD_TIME
   value: lulCrXu3nDX6I18WYuPpWcIrgf2IUGAGLS93ZDwczpQ
@@ -130,7 +115,10 @@ envs:
   value: wh_sec_K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A_live
 - key: CORS_ORIGINS
   scope: RUN_AND_BUILD_TIME
-  value: '["https://algoauto-9gx56.ondigitalocean.app", "http://localhost:3000", "http://localhost:5173"]'
+  value: '["*"]'
+- key: TRUSTED_HOSTS
+  scope: RUN_AND_BUILD_TIME
+  value: '["*"]'
 - key: ENABLE_CORS
   scope: RUN_AND_BUILD_TIME
   value: "true"
@@ -151,15 +139,18 @@ envs:
   value: /app
 - key: PYTHON_VERSION
   scope: RUN_AND_BUILD_TIME
-  value: 3.11.2
-- key: API_HOST
+  value: 3.10.12
+- key: HOST
   scope: RUN_AND_BUILD_TIME
   value: 0.0.0.0
-- key: API_PORT
+- key: PORT
   scope: RUN_AND_BUILD_TIME
   value: "8000"
 - key: ROOT_PATH
   scope: RUN_AND_BUILD_TIME
+- key: TRADING_MODE
+  scope: RUN_AND_BUILD_TIME
+  value: paper
 - key: PAPER_TRADING
   scope: RUN_AND_BUILD_TIME
   value: "true"
@@ -169,6 +160,27 @@ envs:
 - key: AUTONOMOUS_TRADING_ENABLED
   scope: RUN_AND_BUILD_TIME
   value: "true"
+- key: RISK_PER_TRADE_PERCENT
+  scope: RUN_AND_BUILD_TIME
+  value: "1.0"
+- key: DEFAULT_STOP_LOSS_PERCENT
+  scope: RUN_AND_BUILD_TIME
+  value: "2.0"
+- key: MAX_POSITION_SIZE
+  scope: RUN_AND_BUILD_TIME
+  value: "100000"
+- key: DAILY_LOSS_LIMIT
+  scope: RUN_AND_BUILD_TIME
+  value: "50000"
+- key: MAX_ORDERS_PER_MINUTE
+  scope: RUN_AND_BUILD_TIME
+  value: "10"
+- key: API_RATE_LIMIT_PER_MINUTE
+  scope: RUN_AND_BUILD_TIME
+  value: "1000"
+- key: WEBSOCKET_CONNECTIONS_LIMIT
+  scope: RUN_AND_BUILD_TIME
+  value: "10"
 - key: MAX_CONNECTIONS
   scope: RUN_AND_BUILD_TIME
   value: "20"
@@ -187,6 +199,27 @@ envs:
 - key: WS_CONNECTION_TIMEOUT
   scope: RUN_AND_BUILD_TIME
   value: "60"
+- key: ENABLE_WEBSOCKETS
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_REAL_TIME_DATA
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_ORDER_MANAGEMENT
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_POSITION_TRACKING
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_RISK_MANAGEMENT
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_STRATEGIES
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: ENABLE_NOTIFICATIONS
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
 - key: ENABLE_METRICS
   scope: RUN_AND_BUILD_TIME
   value: "true"
@@ -196,12 +229,36 @@ envs:
 - key: HEALTH_CHECK_INTERVAL
   scope: RUN_AND_BUILD_TIME
   value: "30"
+- key: DEFAULT_TRADING_MODE
+  scope: RUN_AND_BUILD_TIME
+  value: paper
+- key: MOCK_DATA
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: LOG_TO_FILE
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: DATA_DIRECTORY
+  scope: RUN_AND_BUILD_TIME
+  value: data
+- key: LOGS_DIRECTORY
+  scope: RUN_AND_BUILD_TIME
+  value: logs
+- key: BACKUP_DIRECTORY
+  scope: RUN_AND_BUILD_TIME
+  value: backups
+- key: TEMP_DIRECTORY
+  scope: RUN_AND_BUILD_TIME
+  value: temp
 - key: ADMIN_USERNAME
   scope: RUN_AND_BUILD_TIME
   value: admin
 - key: ADMIN_PASSWORD
   scope: RUN_AND_BUILD_TIME
   value: admin123
+- key: ADMIN_EMAIL
+  scope: RUN_AND_BUILD_TIME
+  value: admin@yourdomain.com
 features:
 - buildpack-stack=ubuntu-22
 ingress:
@@ -223,7 +280,19 @@ ingress:
       preserve_path_prefix: true
     match:
       path:
+        prefix: /readiness
+  - component:
+      name: api
+      preserve_path_prefix: true
+    match:
+      path:
         prefix: /docs
+  - component:
+      name: api
+      preserve_path_prefix: true
+    match:
+      path:
+        prefix: /redoc
   - component:
       name: api
       preserve_path_prefix: true
@@ -235,32 +304,38 @@ ingress:
       preserve_path_prefix: true
     match:
       path:
+        prefix: /webhooks
+  - component:
+      name: api
+      preserve_path_prefix: true
+    match:
+      path:
         prefix: /ws
   - component:
       name: frontend
     match:
       path:
         prefix: /
-name: algoauto
+name: sharekhantrade
 region: blr
 services:
 - environment_slug: python
   github:
     branch: main
     deploy_on_push: true
-    repo: shyamanurag/trading-system-new
+    repo: shyamanurag/123trade
   health_check:
     failure_threshold: 3
-    http_path: /ready
-    initial_delay_seconds: 40
+    http_path: /health
+    initial_delay_seconds: 60
     period_seconds: 10
     success_threshold: 2
-    timeout_seconds: 5
+    timeout_seconds: 10
   http_port: 8000
   instance_count: 1
   instance_size_slug: apps-s-1vcpu-1gb
   name: api
-  run_command: gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
+  run_command: gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
   source_dir: /
 static_sites:
 - build_command: npm ci && npm run build
