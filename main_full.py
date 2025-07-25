@@ -1,6 +1,7 @@
 """
 Trading System Main Application - Full Version
 Complete ShareKhan trading system with all features
+Optimized for both local and cloud deployment
 """
 
 import os
@@ -13,12 +14,13 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 
-# Load environment
+# Load environment variables with fallbacks for cloud deployment
 try:
     from dotenv import load_dotenv
     load_dotenv('config/local_deployment.env')
     load_dotenv('config/sharekhan_credentials.env')
-except ImportError:
+except (ImportError, FileNotFoundError):
+    # Environment variables will be set by cloud platform
     pass
 
 # Setup logging
@@ -34,10 +36,17 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware
+# CORS middleware with cloud-friendly origins
+allowed_origins = ["*"] if os.getenv("DEBUG", "false").lower() == "true" else [
+    "https://your-domain.com",  # Replace with your actual domain
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -54,12 +63,12 @@ async def startup_event():
     logger.info("Starting Full Trading System...")
     
     try:
-        # Initialize ShareKhan orchestrator
+        # Initialize ShareKhan orchestrator with cloud deployment handling
         from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
         global_orchestrator = await ShareKhanTradingOrchestrator.get_instance()
         logger.info("ShareKhan orchestrator initialized successfully")
     except Exception as e:
-        logger.warning(f"Orchestrator initialization issue: {e}")
+        logger.warning(f"Orchestrator initialization issue (continuing anyway): {e}")
         global_orchestrator = None
 
 # Include API routes with error handling
@@ -94,6 +103,9 @@ except Exception as e:
 @app.get("/", response_class=HTMLResponse)
 async def root():
     """Enhanced main dashboard"""
+    environment = os.getenv('ENVIRONMENT', 'development')
+    is_cloud = environment == 'production'
+    
     sharekhan_status = "Configured" if os.getenv('SHAREKHAN_API_KEY') else "Not configured"
     customer_configured = bool(os.getenv('SHAREKHAN_CUSTOMER_ID') and os.getenv('SHAREKHAN_CUSTOMER_ID') != 'YOUR_SHAREKHAN_CLIENT_ID')
     
@@ -101,7 +113,7 @@ async def root():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>ShareKhan Trading System - Full Version</title>
+        <title>ShareKhan Trading System - {'Cloud Deployment' if is_cloud else 'Local Development'}</title>
         <style>
             body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }}
             .container {{ max-width: 1200px; margin: 0 auto; padding: 20px; }}
@@ -131,6 +143,7 @@ async def root():
             <div class="header">
                 <h1>ShareKhan Trading System</h1>
                 <p style="font-size: 1.2em;">Full-Featured Professional Trading Platform</p>
+                <p style="font-size: 1em; opacity: 0.9;">{'🌐 Cloud Deployment' if is_cloud else '💻 Local Development'}</p>
             </div>
             
             <div class="status-grid">
@@ -138,7 +151,7 @@ async def root():
                     <h3><span class="status-indicator status-online"></span>System Status</h3>
                     <p><strong>Application:</strong> Running Successfully</p>
                     <p><strong>Version:</strong> 2.0.0 Full System</p>
-                    <p><strong>Environment:</strong> Local Development</p>
+                    <p><strong>Environment:</strong> {'Production Cloud' if is_cloud else 'Local Development'}</p>
                 </div>
                 
                 <div class="status-card status-{'success' if customer_configured else 'warning'}">
@@ -218,15 +231,16 @@ async def system_status():
         "status": "running",
         "version": "2.0.0",
         "timestamp": datetime.now().isoformat(),
-        "environment": "local_development",
+        "environment": os.getenv('ENVIRONMENT', 'development'),
+        "deployment_type": "cloud" if os.getenv('ENVIRONMENT') == 'production' else "local",
         "components": {
             "fastapi": True,
             "sharekhan_api": bool(os.getenv('SHAREKHAN_API_KEY')),
             "sharekhan_secret": bool(os.getenv('SHAREKHAN_SECRET_KEY')),
             "customer_id_configured": bool(os.getenv('SHAREKHAN_CUSTOMER_ID') and os.getenv('SHAREKHAN_CUSTOMER_ID') != 'YOUR_SHAREKHAN_CLIENT_ID'),
             "orchestrator": global_orchestrator is not None,
-            "database": "sqlite",
-            "redis": "optional",
+            "database": os.getenv('DATABASE_URL', 'sqlite'),
+            "redis": "configured" if os.getenv('REDIS_URL') else "optional",
             "websockets": True,
             "order_management": True,
             "position_tracking": True,
@@ -249,16 +263,23 @@ async def system_status():
 
 @app.get("/api/health")
 async def health_check():
-    """Basic health check endpoint"""
+    """Health check endpoint for cloud deployment monitoring"""
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "version": "2.0.0"
+        "version": "2.0.0",
+        "environment": os.getenv('ENVIRONMENT', 'development')
     }
+
+# Cloud deployment readiness check
+@app.get("/readiness")
+async def readiness_check():
+    """Readiness probe for cloud deployment"""
+    return {"status": "ready", "timestamp": datetime.now().isoformat()}
 
 if __name__ == "__main__":
     import uvicorn
-    print("Starting Full ShareKhan Trading System...")
-    print("URL: http://localhost:8000")
-    print("API Docs: http://localhost:8000/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    print(f"Starting Full ShareKhan Trading System on port {port}...")
+    print(f"Environment: {os.getenv('ENVIRONMENT', 'development')}")
+    uvicorn.run(app, host="0.0.0.0", port=port)

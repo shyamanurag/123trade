@@ -1,0 +1,43 @@
+"""
+ShareKhan Trading System - Cloud Deployment Entry Point
+This file serves as the entry point for cloud deployments (Heroku, DigitalOcean, etc.)
+"""
+
+import os
+import sys
+from pathlib import Path
+
+# Add src to Python path for cloud deployment
+src_path = str(Path(__file__).parent / "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+# Add project root to Python path
+project_root = str(Path(__file__).parent)
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+# Load environment variables
+try:
+    from dotenv import load_dotenv
+    load_dotenv('config/local_deployment.env')
+    load_dotenv('config/sharekhan_credentials.env')
+    
+    # Set essential environment variables for cloud deployment
+    os.environ.setdefault('DATABASE_URL', os.getenv('DATABASE_URL', 'sqlite:///./trading_system_local.db'))
+    os.environ.setdefault('REDIS_URL', os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
+    os.environ.setdefault('ENVIRONMENT', 'production')
+    os.environ.setdefault('DEBUG', 'false')
+    
+except ImportError:
+    # dotenv not available in cloud environment
+    pass
+
+# Import the main application
+from main_full import app
+
+# This is what cloud platforms will import
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port) 
