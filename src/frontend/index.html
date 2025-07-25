@@ -3,20 +3,131 @@
 
 <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/sk-logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Trading System</title>
-    <meta name="description" content="Advanced AI-powered trading system with real-time market analysis" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <meta name="description"
+        content="ShareKhan Professional Trading Platform - Advanced trading tools, real-time market data, and comprehensive analytics" />
+    <meta name="keywords" content="ShareKhan, trading, stocks, investment, market data, portfolio management" />
+    <meta name="author" content="ShareKhan Trading System" />
+
+    <!-- Preconnect to improve performance -->
+    <link rel="preconnect" href="https://quantumcrypto-l43mb.ondigitalocean.app">
+
+    <!-- Progressive Web App -->
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ShareKhan Trading Platform" />
+    <meta property="og:description"
+        content="Professional trading platform with real-time market data and advanced analytics" />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="ShareKhan Trading Platform" />
+    <meta property="twitter:description"
+        content="Professional trading platform with real-time market data and advanced analytics" />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <title>ShareKhan Trading Platform</title>
+
+    <style>
+        /* Critical CSS for initial load */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .app-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 1.5rem;
+        }
+
+        .loading-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div id="root"></div>
-    <script type="module" src="./index.jsx"></script>
+    <div id="root">
+        <!-- Loading screen while React loads -->
+        <div class="app-loading">
+            <div class="loading-logo">SK</div>
+            <div class="loading-text">
+                <h1>ShareKhan Trading Platform</h1>
+                <p>Loading your trading environment...</p>
+            </div>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Service Worker for PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 
 </html>

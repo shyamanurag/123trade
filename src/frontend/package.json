@@ -1,39 +1,27 @@
 {
-    "name": "ai-trading-frontend",
-    "private": true,
-    "version": "0.1.1",
-    "description": "React frontend for Trading System API",
+    "name": "sharekhan-trading-frontend",
+    "version": "2.0.0",
     "type": "module",
-    "dependencies": {
-        "@emotion/react": "^11.11.1",
-        "@emotion/styled": "^11.11.0",
-        "@mui/icons-material": "^5.14.19",
-        "@mui/material": "^5.14.20",
-        "@vitejs/plugin-react": "^4.2.0",
-        "axios": "^1.6.2",
-        "date-fns": "^2.30.0",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-router-dom": "^6.20.1",
-        "recharts": "^2.10.3",
-        "socket.io-client": "^4.7.2",
-        "vite": "^5.0.0"
-    },
-    "devDependencies": {
-        "@types/react": "^18.2.0",
-        "@types/react-dom": "^18.2.0",
-        "eslint": "^8.55.0",
-        "eslint-plugin-react": "^7.33.0",
-        "eslint-plugin-react-hooks": "^4.6.0",
-        "eslint-plugin-react-refresh": "^0.4.5",
-        "terser": "^5.24.0"
-    },
     "scripts": {
         "dev": "vite",
         "build": "vite build --mode production",
         "preview": "vite preview",
-        "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-        "serve": "vite preview --port 3000 --host"
+        "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+    },
+    "dependencies": {
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.20.1"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.37",
+        "@types/react-dom": "^18.2.15",
+        "@vitejs/plugin-react": "^4.1.1",
+        "eslint": "^8.53.0",
+        "eslint-plugin-react": "^7.33.2",
+        "eslint-plugin-react-hooks": "^4.6.0",
+        "eslint-plugin-react-refresh": "^0.4.4",
+        "vite": "^5.0.0"
     },
     "browserslist": {
         "production": [
@@ -46,13 +34,5 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
-    },
-    "engines": {
-        "node": "18.19.0",
-        "npm": ">=8.0.0"
-    },
-    "main": "vite.config.js",
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+    }
 }

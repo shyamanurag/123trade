@@ -1,5 +1,3 @@
-import { Refresh } from '@mui/icons-material';
-import { Alert, Box, Button, Typography } from '@mui/material';
 import React from 'react';
 
 class ErrorBoundary extends React.Component {
@@ -9,87 +7,65 @@ class ErrorBoundary extends React.Component {
     }
 
     static getDerivedStateFromError(error) {
+        // Update state so the next render will show the fallback UI
         return { hasError: true };
     }
 
     componentDidCatch(error, errorInfo) {
+        // Log the error to console or error reporting service
+        console.error('ErrorBoundary caught an error:', error, errorInfo);
+
         this.setState({
             error: error,
             errorInfo: errorInfo
         });
 
-        // Log error details
-        console.error('React Error Boundary caught an error:', error, errorInfo);
-
-        // Special handling for React error #31 (object rendering)
-        if (error.message && error.message.includes('Objects are not valid as a React child')) {
-            console.error('REACT ERROR #31: Attempted to render object as React child');
-            console.error('This often happens when trying to render objects like: {connected, username, symbols_active}');
-            console.error('Fix: Convert object to string or render individual properties');
-        }
+        // You can also log the error to an error reporting service
+        // logErrorToService(error, errorInfo);
     }
+
+    handleRetry = () => {
+        this.setState({ hasError: false, error: null, errorInfo: null });
+    };
 
     render() {
         if (this.state.hasError) {
-            const isObjectRenderingError = this.state.error?.message?.includes('Objects are not valid as a React child');
-
             return (
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                    <Alert severity="error" sx={{ mb: 2 }}>
-                        <Typography variant="h6" gutterBottom>
-                            Frontend Error Detected
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>
-                            A rendering error occurred. This is usually caused by:
-                        </Typography>
-                        <Box component="ul" sx={{ textAlign: 'left', mb: 2 }}>
-                            <li>Invalid data format from API</li>
-                            <li>Object rendered as React child (Error #31)</li>
-                            <li>Network connectivity issues</li>
-                        </Box>
+                <div className="error-boundary">
+                    <div className="error-container">
+                        <div className="error-icon">⚠️</div>
+                        <h2 className="error-title">Something went wrong</h2>
+                        <p className="error-description">
+                            We're sorry, but something unexpected happened. Please try refreshing the page.
+                        </p>
 
-                        {isObjectRenderingError && (
-                            <Alert severity="warning" sx={{ mb: 2, textAlign: 'left' }}>
-                                <Typography variant="subtitle2" gutterBottom>
-                                    🔧 React Error #31 Detected
-                                </Typography>
-                                <Typography variant="body2">
-                                    This error occurs when trying to display an object directly in React.
-                                    Likely cause: TrueData status information being rendered incorrectly.
-                                    <br />
-                                    <strong>Quick Fix:</strong> Try the "Retry Component" button below.
-                                </Typography>
-                            </Alert>
-                        )}
-
-                        {this.state.error && (
-                            <Typography variant="caption" sx={{ fontFamily: 'monospace', display: 'block', mb: 2 }}>
-                                Error: {this.state.error.message}
-                            </Typography>
-                        )}
-
-                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                            <Button
-                                variant="outlined"
-                                startIcon={<Refresh />}
-                                onClick={() => {
-                                    this.setState({ hasError: false, error: null, errorInfo: null });
-                                }}
-                                sx={{ mt: 1 }}
+                        <div className="error-actions">
+                            <button
+                                className="btn btn-primary"
+                                onClick={this.handleRetry}
                             >
-                                Retry Component
-                            </Button>
-                            <Button
-                                variant="contained"
-                                startIcon={<Refresh />}
+                                Try Again
+                            </button>
+                            <button
+                                className="btn btn-secondary"
                                 onClick={() => window.location.reload()}
-                                sx={{ mt: 1 }}
                             >
-                                Reload Application
-                            </Button>
-                        </Box>
-                    </Alert>
-                </Box>
+                                Refresh Page
+                            </button>
+                        </div>
+
+                        {process.env.NODE_ENV === 'development' && (
+                            <details className="error-details">
+                                <summary>Error Details (Development)</summary>
+                                <pre className="error-stack">
+                                    {this.state.error && this.state.error.toString()}
+                                    <br />
+                                    {this.state.errorInfo.componentStack}
+                                </pre>
+                            </details>
+                        )}
+                    </div>
+                </div>
             );
         }
 
