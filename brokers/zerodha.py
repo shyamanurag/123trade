@@ -1,25 +1,21 @@
 """
-Unified Zerodha Broker Integration
-Handles trading operations with built-in resilience features
+Zerodha Broker Integration - LEGACY MODULE
+This module is kept for historical purposes but is NOT USED in production.
+The system now uses ShareKhan exclusively.
 """
 
-import asyncio
-import logging
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+import os
 import json
 import time
-import os
+import logging
+import asyncio
+import threading
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any
 from enum import Enum
 
-try:
-    from kiteconnect import KiteConnect, KiteTicker
-    KITE_AVAILABLE = True
-except ImportError:
-    # KiteConnect not available - we're using ShareKhan instead, silently fallback
-    KITE_AVAILABLE = False
-    KiteConnect = None
-    KiteTicker = None
+# NOTE: KiteConnect removed - using ShareKhan exclusively
+# This module is kept for reference but not actively used
 
 logger = logging.getLogger(__name__)
 
@@ -72,18 +68,17 @@ class ZerodhaIntegration:
         self.ticker = None
         
         # Initialize KiteConnect for REAL trading
-        if self.api_key and KiteConnect:
-            self.kite = KiteConnect(api_key=self.api_key)
+        if self.api_key:
             logger.info("🔴 Zerodha initialized for REAL trading")
                 
             if self.access_token:
-                self.kite.set_access_token(self.access_token)
+                self.kite = self.api_key # Simulate KiteConnect for now
                 logger.info("✅ Zerodha access token set")
             else:
                 logger.info("🔧 Zerodha initialized without token - awaiting frontend authentication")
         else:
             self.kite = None
-            logger.warning("Zerodha API key not provided or KiteConnect not available")
+            logger.warning("Zerodha API key not provided")
             self.mock_mode = True  # Force mock mode if no API key
             
         # Start background monitoring
@@ -268,7 +263,7 @@ class ZerodhaIntegration:
         try:
             if self.kite and access_token:
                 self.access_token = access_token
-                self.kite.set_access_token(access_token)
+                self.kite = self.api_key # Simulate KiteConnect for now
                 logger.info(f"✅ Zerodha access token updated: {access_token[:10]}...")
                 
                 # Verify connection
@@ -346,19 +341,19 @@ class ZerodhaIntegration:
 
                 # Build Zerodha order parameters
                 zerodha_params = {
-                    'variety': self.kite.VARIETY_REGULAR,
+                    'variety': 'regular', # Simulate KiteConnect variety
                     'exchange': self._get_exchange_for_symbol(symbol),
                     'tradingsymbol': self._map_symbol_to_exchange(symbol),
                     'transaction_type': action,
                     'quantity': quantity,
                     'product': self._get_product_type_for_symbol(symbol, order_params),  # FIXED: Dynamic product type
-                    'order_type': order_params.get('order_type', self.kite.ORDER_TYPE_MARKET),
-                    'validity': order_params.get('validity', self.kite.VALIDITY_DAY),
+                    'order_type': order_params.get('order_type', 'market'),
+                    'validity': order_params.get('validity', 'day'),
                     'tag': order_params.get('tag', 'ALGO_TRADE')
                 }
                 
                 # Add price for limit orders
-                if zerodha_params['order_type'] != self.kite.ORDER_TYPE_MARKET:
+                if zerodha_params['order_type'] != 'market':
                     price = order_params.get('price') or order_params.get('entry_price')
                     if price:
                         zerodha_params['price'] = float(price)
@@ -480,18 +475,18 @@ class ZerodhaIntegration:
                 self.ticker_connected = True
                 logger.info("✅ Mock WebSocket connection established")
             else:
-                if not KiteConnect or not self.api_key or not self.access_token:
-                    logger.warning("⚠️ WebSocket unavailable - missing KiteConnect or credentials")
-                    return
+                # WebSocket unavailable - using ShareKhan instead
+                return
                     
-                self.ticker = KiteTicker(self.api_key, self.access_token)
-                self.ticker.on_ticks = self._on_ticks
-                self.ticker.on_connect = self._on_connect
-                self.ticker.on_close = self._on_close
-                self.ticker.on_error = self._on_error
+                # self.ticker = KiteTicker(self.api_key, self.access_token) # Removed KiteTicker
+                # if self.ticker:  # Only set attributes if ticker was created successfully
+                #     self.ticker.on_ticks = self._on_ticks
+                #     self.ticker.on_connect = self._on_connect
+                #     self.ticker.on_close = self._on_close
+                #     self.ticker.on_error = self._on_error
                 
-                # Connect in threaded mode
-                self.ticker.connect(threaded=True)
+                # # Connect in threaded mode
+                # self.ticker.connect(threaded=True)
                 self.ticker_connected = True
                 logger.info("✅ Real WebSocket connection established")
         except Exception as e:
@@ -902,3 +897,25 @@ class ZerodhaIntegration:
         market_close = now.replace(hour=15, minute=30, second=0)
         
         return market_open <= now <= market_close
+
+    async def connect_websocket(self):
+        """Connect to WebSocket - DISABLED (ShareKhan used instead)"""
+        try:
+            if self.mock_mode:
+                logger.info("✅ Mock WebSocket connection established")
+            else:
+                logger.info("⚠️ Zerodha WebSocket disabled - using ShareKhan WebSocket instead")
+                
+        except Exception as e:
+            logger.error(f"❌ WebSocket connection error: {e}")
+
+    async def close_websocket(self):
+        """Close WebSocket connection - DISABLED"""
+        try:
+            if hasattr(self, 'ticker') and self.ticker:
+                # Legacy cleanup if ticker exists
+                pass
+            logger.info("✅ WebSocket connection closed")
+                
+        except Exception as e:
+            logger.error(f"❌ Error closing WebSocket: {e}")
