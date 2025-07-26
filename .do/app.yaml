@@ -1,0 +1,29 @@
+name: trade123
+region: blr
+
+services:
+- name: api
+  source_dir: /
+  github:
+    repo: shyamanurag/123trade
+    branch: main
+    deploy_on_push: true
+  run_command: gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --timeout 120
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
+  http_port: 8000
+  health_check:
+    http_path: /health
+
+static_sites:
+- name: frontend
+  source_dir: /src/frontend
+  github:
+    repo: shyamanurag/123trade
+    branch: main
+    deploy_on_push: true
+  build_command: npm ci && npm run build
+  output_dir: dist
+  environment_slug: node-js
+  catchall_document: index.html 
