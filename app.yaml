@@ -338,29 +338,12 @@ services:
   run_command: gunicorn main_full:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
   source_dir: /
 static_sites:
-- build_command: npm ci && npm run build
-  catchall_document: index.html
-  environment_slug: node-js
-  envs:
-  - key: VITE_API_URL
-    scope: BUILD_TIME
-    value: https://quantumcrypto-l43mb.ondigitalocean.app
-  - key: VITE_WS_URL
-    scope: BUILD_TIME
-    value: wss://quantumcrypto-l43mb.ondigitalocean.app/ws
-  - key: VITE_APP_NAME
-    scope: BUILD_TIME
-    value: ShareKhan Trading System
-  - key: VITE_APP_VERSION
-    scope: BUILD_TIME
-    value: 2.0.0
-  - key: VITE_APP_ENV
-    scope: BUILD_TIME
-    value: production
+- name: frontend
   github:
     branch: main
     deploy_on_push: true
     repo: shyamanurag/123trade
-  name: frontend
-  output_dir: dist
-  source_dir: /src/frontend 
+  source_dir: /src/frontend/dist
+  output_dir: .
+  catchall_document: index.html
+  environment_slug: node-js 
