@@ -8,24 +8,6 @@ envs:
 - key: FRONTEND_URL
   scope: RUN_AND_BUILD_TIME
   value: https://quantumcrypto-l43mb.ondigitalocean.app
-- key: VITE_API_URL
-  scope: RUN_AND_BUILD_TIME
-  value: https://quantumcrypto-l43mb.ondigitalocean.app
-- key: VITE_WS_URL
-  scope: RUN_AND_BUILD_TIME
-  value: wss://quantumcrypto-l43mb.ondigitalocean.app/ws
-- key: VITE_APP_NAME
-  scope: RUN_AND_BUILD_TIME
-  value: ShareKhan Trading System
-- key: VITE_APP_VERSION
-  scope: RUN_AND_BUILD_TIME
-  value: 2.0.0
-- key: VITE_APP_ENV
-  scope: RUN_AND_BUILD_TIME
-  value: production
-- key: NODE_ENV
-  scope: RUN_AND_BUILD_TIME
-  value: production
 - key: ENVIRONMENT
   scope: RUN_AND_BUILD_TIME
   value: production
