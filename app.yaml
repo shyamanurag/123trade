@@ -276,7 +276,14 @@ services:
   run_command: gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
   source_dir: /
 static_sites:
-- build_command: cd src/frontend && npm ci && npm run build
+- name: frontend
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: shyamanurag/123trade
+  source_dir: /src/frontend
+  build_command: npm ci && npm run build
+  output_dir: dist
   catchall_document: index.html
   environment_slug: node-js
   envs:
@@ -294,11 +301,4 @@ static_sites:
     value: 2.0.0
   - key: VITE_APP_ENV
     scope: BUILD_TIME
-    value: production
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: shyamanurag/123trade
-  name: frontend
-  output_dir: dist
-  source_dir: /src/frontend 
+    value: production 
