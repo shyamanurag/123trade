@@ -178,80 +178,8 @@ logger.info(f"✅ Loaded API routes: {routes_loaded}")
 
 # CORE ENDPOINTS - PRODUCTION READY
 
-@app.get("/", response_class=HTMLResponse)
-async def homepage():
-    """Production dashboard homepage"""
-    return HTMLResponse(f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>ShareKhan Trading System - Production</title>
-        <style>
-            body {{ font-family: 'Segoe UI', Arial, sans-serif; margin: 0; 
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
-            .container {{ max-width: 1000px; margin: 0 auto; padding: 40px 20px; }}
-            .header {{ text-align: center; margin-bottom: 40px; }}
-            .header h1 {{ font-size: 3em; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }}
-            .status-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }}
-            .status-card {{ background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; backdrop-filter: blur(10px); }}
-            .nav-buttons {{ display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin: 30px 0; }}
-            .btn {{ padding: 12px 24px; background: rgba(255,255,255,0.2); color: white; text-decoration: none; 
-                    border-radius: 8px; font-weight: bold; transition: all 0.3s; }}
-            .btn:hover {{ background: rgba(255,255,255,0.3); transform: translateY(-2px); }}
-            .success {{ color: #28a745; }}
-            .warning {{ color: #ffc107; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🚀 ShareKhan Trading System</h1>
-                <p>Production Environment - All Systems Operational</p>
-                <p><strong>Version:</strong> 2.0.0 | <strong>Status:</strong> <span class="success">✅ Running</span></p>
-            </div>
-            
-            <div class="status-grid">
-                <div class="status-card">
-                    <h3>📊 System Status</h3>
-                    <p><strong>Environment:</strong> Production</p>
-                    <p><strong>Deployment:</strong> DigitalOcean</p>
-                    <p><strong>Health:</strong> <span class="success">Operational</span></p>
-                    <p><strong>Routes Loaded:</strong> {len(routes_loaded)}</p>
-                </div>
-                
-                <div class="status-card">
-                    <h3>🔧 Configuration</h3>
-                    <p><strong>ShareKhan API:</strong> {os.getenv('SHAREKHAN_API_KEY', 'Not Set')[:8] + '...' if os.getenv('SHAREKHAN_API_KEY') else 'Not Configured'}</p>
-                    <p><strong>Trading Mode:</strong> {os.getenv('TRADING_MODE', 'paper').upper()}</p>
-                    <p><strong>CORS:</strong> <span class="success">Enabled</span></p>
-                </div>
-                
-                <div class="status-card">
-                    <h3>🎯 Features</h3>
-                    <p><strong>Real-time Data:</strong> Available</p>
-                    <p><strong>Order Management:</strong> Active</p>
-                    <p><strong>Risk Management:</strong> Enabled</p>
-                    <p><strong>WebSocket:</strong> Ready</p>
-                </div>
-            </div>
-            
-            <div class="nav-buttons">
-                <a href="/docs" class="btn">📚 API Documentation</a>
-                <a href="/redoc" class="btn">📖 API Reference</a>
-                <a href="/api/system/status" class="btn">🏥 System Status</a>
-                <a href="/health" class="btn">💓 Health Check</a>
-                <a href="/api/autonomous/status" class="btn">🤖 Trading Status</a>
-                <a href="/api/performance/metrics" class="btn">📈 Performance</a>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <p><strong>Current Time:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
-                <p><small>ShareKhan Trading System v2.0.0 - Production Ready</small></p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """)
+# REMOVED: Root route handler to allow React frontend to handle root path
+# The DigitalOcean ingress rules will now properly route "/" to the frontend static site
 
 @app.get("/health")
 async def health_check():
