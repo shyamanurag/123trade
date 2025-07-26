@@ -9,6 +9,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List
 from datetime import datetime
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,39 +28,15 @@ except (ImportError, FileNotFoundError):
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app
-app = FastAPI(
-    title="ShareKhan Trading System",
-    description="Full-Featured Trading System with ShareKhan Integration",
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
-
-# CORS middleware with cloud-friendly origins
-allowed_origins = ["*"] if os.getenv("DEBUG", "false").lower() == "true" else [
-    "https://your-domain.com",  # Replace with your actual domain
-    "http://localhost:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000"
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Global orchestrator instance
 global_orchestrator = None
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize the trading system on startup"""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize and cleanup the trading system"""
     global global_orchestrator
     
+    # Startup
     logger.info("Starting Full Trading System...")
     
     try:
@@ -70,6 +47,48 @@ async def startup_event():
     except Exception as e:
         logger.warning(f"Orchestrator initialization issue (continuing anyway): {e}")
         global_orchestrator = None
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down trading system...")
+    if global_orchestrator:
+        try:
+            # Add any cleanup logic here if needed
+            pass
+        except Exception as e:
+            logger.error(f"Error during shutdown: {e}")
+
+# Create FastAPI app
+app = FastAPI(
+    title="ShareKhan Trading System",
+    description="Full-Featured Trading System with ShareKhan Integration",
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
+)
+
+# CORS middleware with cloud-friendly origins
+allowed_origins = ["*"] if os.getenv("DEBUG", "false").lower() == "true" else [
+    "https://quantumcrypto-l43mb.ondigitalocean.app",  # Actual DigitalOcean domain
+    "https://*.ondigitalocean.app",  # Any DigitalOcean app domain
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000"
+]
+
+# For production, allow all origins to avoid CORS issues in cloud deployment
+if os.getenv('ENVIRONMENT') == 'production':
+    allowed_origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Include API routes with error handling
 try:
