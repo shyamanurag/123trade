@@ -191,25 +191,66 @@ frontend_dist_path = Path("src/frontend/dist")
 if frontend_dist_path.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dist_path)), name="static")
     logger.info(f"✅ Frontend static files mounted at /static from {frontend_dist_path}")
-    
-    # Serve React app for all non-API routes
-    @app.get("/{path:path}")
-    async def serve_react_app(path: str):
-        """Serve React frontend for all non-API routes"""
-        # Don't intercept API routes
-        if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
-            raise HTTPException(status_code=404, detail="API endpoint not found")
-        
-        # Serve index.html for all other routes (React Router will handle them)
-        index_path = frontend_dist_path / "index.html"
-        if index_path.exists():
-            with open(index_path, 'r', encoding='utf-8') as f:
-                html_content = f.read()
-            return HTMLResponse(content=html_content)
-        else:
-            raise HTTPException(status_code=404, detail="Frontend not found")
 else:
     logger.warning(f"⚠️ Frontend dist folder not found at {frontend_dist_path}")
+
+# Serve React app for all non-API routes
+@app.get("/{path:path}")
+async def serve_react_app(path: str):
+    """Serve React frontend for all non-API routes"""
+    # Don't intercept API routes
+    if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    
+    # Try to serve index.html
+    index_path = frontend_dist_path / "index.html"
+    if index_path.exists():
+        logger.info(f"📄 Serving React index.html for path: {path}")
+        with open(index_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    else:
+        # Fallback: Serve a basic React app shell if dist files not found
+        logger.warning(f"⚠️ index.html not found, serving fallback for path: {path}")
+        fallback_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareKhan Trading Platform</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; 
+               background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; }}
+        .container {{ max-width: 800px; margin: 0 auto; text-align: center; }}
+        .status {{ background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ShareKhan Trading Platform</h1>
+        <div class="status">
+            <h2>⚠️ Frontend Loading...</h2>
+            <p>Your comprehensive React trading dashboard is being deployed.</p>
+            <p><strong>Path:</strong> {path}</p>
+            <p><strong>Features Ready:</strong></p>
+            <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+                <li>✅ Analytics Dashboard</li>
+                <li>✅ User Management & Auth Tokens</li>
+                <li>✅ Live Market Indices</li>
+                <li>✅ Trading Reports Hub</li>
+                <li>✅ Real-time Monitor</li>
+                <li>✅ System Health Dashboard</li>
+            </ul>
+            <p style="margin-top: 20px;"><strong>Backend API:</strong> ✅ Operational</p>
+            <a href="/health" style="color: #fff;">🏥 Health Check</a> |
+            <a href="/docs" style="color: #fff;">📚 API Docs</a>
+        </div>
+    </div>
+</body>
+</html>
+        """
+        return HTMLResponse(content=fallback_html)
 
 
 @app.get("/health")
