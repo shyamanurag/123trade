@@ -4,7 +4,7 @@ import requests
 import time
 
 def check_frontend_status():
-    url = "https://quantumcrypto-l43mb.ondigitalocean.app/"
+    url = "https://trade123-l3zp7.ondigitalocean.app/"
     
     try:
         response = requests.get(url, timeout=10)

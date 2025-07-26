@@ -7,7 +7,7 @@ def diagnose_deployment():
     print("🚨 URGENT DIAGNOSIS: Why React Frontend Not Deploying")
     print("=" * 60)
     
-    url = "https://quantumcrypto-l43mb.ondigitalocean.app/"
+    url = "https://trade123-l3zp7.ondigitalocean.app/"
     
     try:
         # Test root path

@@ -45,7 +45,7 @@ UPDATE users SET broker_user_id = 'MASTER_USER_001' WHERE broker_user_id IS NULL
 
 ### 1. Verify the Fix:
 ```bash
-curl https://algoauto-9gx56.ondigitalocean.app/api/v1/autonomous/status
+curl https://trade123-l3zp7.ondigitalocean.app/api/v1/autonomous/status
 ```
 
 ### 2. Expected Results:

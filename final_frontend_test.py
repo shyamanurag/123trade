@@ -4,7 +4,7 @@ import requests
 import time
 
 def test_react_frontend():
-    base_url = "https://quantumcrypto-l43mb.ondigitalocean.app"
+    base_url = "https://trade123-l3zp7.ondigitalocean.app"
     
     print("🚀 FINAL COMPREHENSIVE REACT FRONTEND TEST")
     print("=" * 60)
@@ -73,7 +73,7 @@ def test_react_frontend():
     return False
 
 def test_api_endpoints():
-    base_url = "https://quantumcrypto-l43mb.ondigitalocean.app"
+    base_url = "https://trade123-l3zp7.ondigitalocean.app"
     
     print("\n🔍 Testing API endpoints to confirm backend is working:")
     
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     if success:
         print("\n🎉 SUCCESS: Your comprehensive React trading dashboard is live!")
-        print("🔗 Visit: https://quantumcrypto-l43mb.ondigitalocean.app/")
+        print("🔗 Visit: https://trade123-l3zp7.ondigitalocean.app/")
         print("\n✅ Available features:")
         print("  - Analytics Dashboard")
         print("  - User Performance Dashboard") 

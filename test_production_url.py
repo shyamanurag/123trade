@@ -8,7 +8,7 @@ import requests
 import json
 from datetime import datetime
 
-PRODUCTION_URL = "https://quantumcrypto-l43mb.ondigitalocean.app"
+PRODUCTION_URL = "https://trade123-l3zp7.ondigitalocean.app"
 
 def test_endpoint(endpoint, method="GET"):
     """Test a specific endpoint"""

@@ -16,7 +16,7 @@ api:
     burst_limit: 100
   cors:
     allowed_origins:
-      - https://algoauto-9gx56.ondigitalocean.app
+      - https://trade123-l3zp7.ondigitalocean.app
       - ${FRONTEND_URL}
     allowed_methods:
       - GET

@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
 # Your DigitalOcean domain
-BASE_URL = "https://quantumcrypto-l43mb.ondigitalocean.app"
+BASE_URL = "https://trade123-l3zp7.ondigitalocean.app"
 
 class DeploymentTester:
     def __init__(self):

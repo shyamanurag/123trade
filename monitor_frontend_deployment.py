@@ -9,7 +9,7 @@ import time
 from datetime import datetime
 import re
 
-URL = "https://quantumcrypto-l43mb.ondigitalocean.app/"
+URL = "https://trade123-l3zp7.ondigitalocean.app/"
 
 def check_frontend_status():
     """Check if we're getting React frontend or backend HTML"""
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         success = monitor_deployment()
         if success:
             print("\n🎯 NEXT STEPS:")
-            print("1. Visit: https://quantumcrypto-l43mb.ondigitalocean.app/")
+            print("1. Visit: https://trade123-l3zp7.ondigitalocean.app/")
             print("2. You should see the React trading platform")
             print("3. Login and access all trading features")
             print("4. Real-time data, analytics, user management available")

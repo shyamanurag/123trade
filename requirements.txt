@@ -37,9 +37,15 @@ pyyaml>=6.0
 python-slugify>=6.0.0
 pytz>=2022.1
 
-# Security & Encryption
+# Security & Encryption - ENHANCED FOR JWT AUTH
 cryptography>=41.0.7
 bcrypt>=4.0.1
+pyjwt>=2.8.0
+passlib[bcrypt]>=1.7.4
+
+# Authentication & Authorization (NEW)
+python-jose[cryptography]>=3.3.0
+python-multipart>=0.0.5
 
 # Testing
 pytest>=7.0.0
@@ -51,8 +57,16 @@ flake8>=5.0.0
 
 # Additional Production Dependencies
 email-validator>=2.0.0
-python-multipart>=0.0.5
 jinja2>=3.1.0
 
 # ShareKhan Integration (our primary broker)
 # Note: ShareKhan API integration is handled through custom implementation
+
+# Frontend Support Dependencies (NEW)
+# For serving static files and handling CORS
+starlette>=0.27.0
+orjson>=3.9.0
+
+# UUID and Date Handling (NEW)
+uuid>=1.30
+python-dateutil>=2.8.0

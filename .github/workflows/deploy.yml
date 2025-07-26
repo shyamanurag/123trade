@@ -160,7 +160,7 @@ jobs:
         else
           echo "🚀 All tests passed!"
           echo "DigitalOcean App Platform will automatically deploy from main branch"
-          echo "Your app: https://algoauto-9gx56.ondigitalocean.app"
+          echo "Your app: https://trade123-l3zp7.ondigitalocean.app"
         fi
 
     - name: Deploy to DigitalOcean App Platform

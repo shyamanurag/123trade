@@ -103,7 +103,7 @@ The ingress rules in `app.yaml` route traffic between them.
 ### If Import Errors Occur:
 1. Check PYTHONPATH is set to `/app` in app.yaml
 2. Verify all `__init__.py` files exist
-3. Use debug endpoint: `https://algoauto-9gx56.ondigitalocean.app/debug/import-error`
+3. Use debug endpoint: `https://trade123-l3zp7.ondigitalocean.app/debug/import-error`
 
 ### If Health Checks Fail:
 1. Check logs with `--access-logfile -` and `--error-logfile -`

@@ -43,9 +43,9 @@ ME: '/auth/me'
 
 #### Frontend configuration:
 ```javascript
-WS_MARKET_DATA: 'wss://algoauto-9gx56.ondigitalocean.app/ws/market-data'
-WS_ORDERS: 'wss://algoauto-9gx56.ondigitalocean.app/ws/orders'
-WS_POSITIONS: 'wss://algoauto-9gx56.ondigitalocean.app/ws/positions'
+WS_MARKET_DATA: 'wss://trade123-l3zp7.ondigitalocean.app/ws/market-data'
+WS_ORDERS: 'wss://trade123-l3zp7.ondigitalocean.app/ws/orders'
+WS_POSITIONS: 'wss://trade123-l3zp7.ondigitalocean.app/ws/positions'
 ```
 
 #### Backend provides:

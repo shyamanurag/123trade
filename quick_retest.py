@@ -3,7 +3,7 @@
 import requests
 
 def quick_retest():
-    base_url = "https://quantumcrypto-l43mb.ondigitalocean.app"
+    base_url = "https://trade123-l3zp7.ondigitalocean.app"
     
     print("🔍 QUICK RETEST - Current Status")
     print("=" * 40)

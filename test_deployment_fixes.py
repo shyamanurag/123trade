@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 import sys
 
-BASE_URL = "https://algoauto-9gx56.ondigitalocean.app"
+BASE_URL = "https://trade123-l3zp7.ondigitalocean.app"
 
 def test_endpoint(endpoint, method="GET", data=None, expected_success=True):
     """Test a single endpoint and return results"""

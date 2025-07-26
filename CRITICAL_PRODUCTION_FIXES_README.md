@@ -84,8 +84,8 @@ After applying the fixes:
 
 2. **Test Key Endpoints:**
    ```bash
-   curl https://algoauto-9gx56.ondigitalocean.app/health
-   curl https://algoauto-9gx56.ondigitalocean.app/api/v1/autonomous/status
+   curl https://trade123-l3zp7.ondigitalocean.app/health
+   curl https://trade123-l3zp7.ondigitalocean.app/api/v1/autonomous/status
    ```
 
 3. **Verify Database Schema:**

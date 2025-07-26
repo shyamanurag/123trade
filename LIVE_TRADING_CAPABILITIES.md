@@ -23,7 +23,7 @@ These are all the features that **REQUIRED live data flow** and are now **FULLY 
 # Test live market data
 python -c "
 import requests
-data = requests.get('https://algoauto-9gx56.ondigitalocean.app/api/v1/market-data').json()
+data = requests.get('https://trade123-l3zp7.ondigitalocean.app/api/v1/market-data').json()
 print(f'Live symbols: {data[\"symbol_count\"]}')
 "
 
@@ -33,7 +33,7 @@ import requests
 symbols = ['BANKNIFTY-I', 'MARUTI', 'RELIANCE']
 for symbol in symbols:
     try:
-        data = requests.get(f'https://algoauto-9gx56.ondigitalocean.app/api/v1/market-data/{symbol}').json()
+        data = requests.get(f'https://trade123-l3zp7.ondigitalocean.app/api/v1/market-data/{symbol}').json()
         print(f'{symbol}: ₹{data.get(\"current_price\", \"N/A\")}')
     except: pass
 "
@@ -164,7 +164,7 @@ python monitor_live_trading.py
 python test_live_trading_features.py
 
 # Browser-based monitoring
-# Visit: https://algoauto-9gx56.ondigitalocean.app
+# Visit: https://trade123-l3zp7.ondigitalocean.app
 # Open browser console and run: testLiveDataFlow()
 ```
 

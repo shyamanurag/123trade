@@ -3,19 +3,19 @@
 ## ⏰ **6:00 AM - 9:00 AM IST (Pre-Market Setup)**
 
 ### 1. **Zerodha Token Refresh** (CRITICAL - Do this first!)
-- [ ] Visit: https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/start-trading
+- [ ] Visit: https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/start-trading
 - [ ] Click "Start Trading" button
 - [ ] Wait for "Authentication successful" message
 - [ ] System will show "Ready for autonomous trading"
 
 ### 2. **System Health Check**
-- [ ] Check Trading Control Center: https://algoauto-9gx56.ondigitalocean.app
+- [ ] Check Trading Control Center: https://trade123-l3zp7.ondigitalocean.app
 - [ ] Verify "Scheduler ACTIVE" status
 - [ ] Confirm "Auto-Start ENABLED"
 - [ ] Check "Market CLOSED" (should change to OPEN at 9:15 AM)
 
 ### 3. **Elite Recommendations Review**
-- [ ] Visit: https://algoauto-9gx56.ondigitalocean.app/elite-trades
+- [ ] Visit: https://trade123-l3zp7.ondigitalocean.app/elite-trades
 - [ ] Review overnight recommendations
 - [ ] Note high-confidence trades (>85%)
 - [ ] Check risk/reward ratios
@@ -85,11 +85,11 @@
 
 ## 📱 **Quick Access Links**
 
-- **Trading Control Center**: https://algoauto-9gx56.ondigitalocean.app
-- **Daily Token Refresh**: https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/start-trading
-- **Elite Trades**: https://algoauto-9gx56.ondigitalocean.app/elite-trades
-- **Live Trades**: https://algoauto-9gx56.ondigitalocean.app/live-trades
-- **Risk Dashboard**: https://algoauto-9gx56.ondigitalocean.app/risk-dashboard
+- **Trading Control Center**: https://trade123-l3zp7.ondigitalocean.app
+- **Daily Token Refresh**: https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/start-trading
+- **Elite Trades**: https://trade123-l3zp7.ondigitalocean.app/elite-trades
+- **Live Trades**: https://trade123-l3zp7.ondigitalocean.app/live-trades
+- **Risk Dashboard**: https://trade123-l3zp7.ondigitalocean.app/risk-dashboard
 
 ## 🎯 **Success Metrics to Watch**
 

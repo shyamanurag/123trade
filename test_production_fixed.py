@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Production URL
-PRODUCTION_URL = "https://algoauto-9gx56.ondigitalocean.app"
+PRODUCTION_URL = "https://trade123-l3zp7.ondigitalocean.app"
 
 def test_system_status():
     """Test system status endpoint"""

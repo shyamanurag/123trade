@@ -39,7 +39,7 @@ This document provides **production-ready solutions** for the three critical dep
 ### **Testing**
 ```bash
 # Test dashboard without crashes
-curl -s https://algoauto-9gx56.ondigitalocean.app/api/v1/dashboard
+curl -s https://trade123-l3zp7.ondigitalocean.app/api/v1/dashboard
 ```
 
 ---
@@ -70,9 +70,9 @@ curl -s https://algoauto-9gx56.ondigitalocean.app/api/v1/dashboard
 ```
 
 ### **Access Points**
-- **Web Interface**: `https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/`
-- **API Status**: `https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/status`
-- **Test Connection**: `https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/test-connection`
+- **Web Interface**: `https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/`
+- **API Status**: `https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/status`
+- **Test Connection**: `https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/test-connection`
 
 ### **Usage Instructions**
 1. Navigate to `/auth/zerodha/` on your deployment
@@ -158,12 +158,12 @@ SKIP_TRUEDATA_AUTO_INIT: 'true'
 # 2. Redeploy application
 
 # 3. Force disconnect via API
-curl -X POST https://algoauto-9gx56.ondigitalocean.app/api/v1/truedata/force-disconnect
+curl -X POST https://trade123-l3zp7.ondigitalocean.app/api/v1/truedata/force-disconnect
 
 # 4. Wait 30 seconds for cleanup
 
 # 5. Manual reconnect
-curl -X POST https://algoauto-9gx56.ondigitalocean.app/api/v1/truedata/deployment-safe-connect
+curl -X POST https://trade123-l3zp7.ondigitalocean.app/api/v1/truedata/deployment-safe-connect
 
 # 6. Re-enable auto-connect
 SKIP_TRUEDATA_AUTO_INIT: 'false'
@@ -198,10 +198,10 @@ SKIP_TRUEDATA_AUTO_INIT: 'true'
 git push origin main
 
 # 3. Manually connect TrueData
-curl -X POST https://algoauto-9gx56.ondigitalocean.app/api/v1/truedata/deployment-safe-connect
+curl -X POST https://trade123-l3zp7.ondigitalocean.app/api/v1/truedata/deployment-safe-connect
 
 # 4. Verify connection
-curl -s https://algoauto-9gx56.ondigitalocean.app/api/v1/truedata/status
+curl -s https://trade123-l3zp7.ondigitalocean.app/api/v1/truedata/status
 
 # 5. Re-enable auto-connect for next deployment
 SKIP_TRUEDATA_AUTO_INIT: 'false'
@@ -214,16 +214,16 @@ SKIP_TRUEDATA_AUTO_INIT: 'false'
 ### **Health Check Endpoints**
 ```bash
 # Overall system health
-curl -s https://algoauto-9gx56.ondigitalocean.app/health/ready/json
+curl -s https://trade123-l3zp7.ondigitalocean.app/health/ready/json
 
 # TrueData specific status  
-curl -s https://algoauto-9gx56.ondigitalocean.app/api/v1/truedata/deployment-status
+curl -s https://trade123-l3zp7.ondigitalocean.app/api/v1/truedata/deployment-status
 
 # Dashboard functionality
-curl -s https://algoauto-9gx56.ondigitalocean.app/api/v1/dashboard
+curl -s https://trade123-l3zp7.ondigitalocean.app/api/v1/dashboard
 
 # Zerodha authentication
-curl -s https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/status
+curl -s https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/status
 ```
 
 ### **Log Monitoring**

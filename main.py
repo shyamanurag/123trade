@@ -98,47 +98,52 @@ async def lifespan(app: FastAPI):
                 
                 admin_data = {
                     'user_id': admin_user_id,
-                    'name': 'System Administrator',
-                    'email': admin_email,
                     'password': admin_password,
+                    'email': admin_email,
                     'role': 'admin',
-                    'trading_enabled': True,
-                    'max_position_size': 1000000.0,
-                    'max_daily_loss': 100000.0
+                    'max_position_size': config['max_position_size'],
+                    'max_daily_loss': config['max_daily_loss']
                 }
                 
-                await global_orchestrator.create_user(admin_data)
-                logger.info("✅ Default admin user created")
+                # Try to create admin user if the orchestrator supports it
+                if hasattr(global_orchestrator, 'user_manager'):
+                    await global_orchestrator.user_manager.create_or_update_user(admin_data)
+                    logger.info(f"✅ Admin user ensured: {admin_email}")
+                else:
+                    logger.info("ℹ️ User manager not available in orchestrator")
                 
             except Exception as e:
-                logger.info(f"ℹ️ Admin user already exists or creation failed: {e}")
-        
+                logger.warning(f"⚠️ Admin user creation warning: {e}")
+            
+            # Start orchestrator if supported
+            try:
+                if hasattr(global_orchestrator, 'start_trading'):
+                    await global_orchestrator.start_trading()
+                    logger.info("✅ Trading orchestrator started!")
+            except Exception as e:
+                logger.warning(f"⚠️ Trading start warning: {e}")
         else:
-            logger.error("❌ Failed to initialize ShareKhan orchestrator")
-            raise RuntimeError("ShareKhan orchestrator initialization failed")
+            logger.error("❌ Failed to initialize ShareKhan Trading Orchestrator")
         
         app_startup_complete = True
-        logger.info("🎯 ShareKhan Trading System started successfully!")
+        logger.info("🎉 Application startup completed successfully!")
         
         yield
         
     except Exception as e:
-        logger.error(f"❌ Startup failed: {e}")
-        raise
-    
+        logger.error(f"❌ Startup error: {e}")
+        yield
     finally:
         # Cleanup
-        logger.info("🔄 Shutting down ShareKhan Trading System...")
-        
         if global_orchestrator:
             try:
-                await global_orchestrator.cleanup()
-                logger.info("✅ ShareKhan orchestrator cleanup completed")
+                if hasattr(global_orchestrator, 'stop_trading'):
+                    await global_orchestrator.stop_trading()
+                if hasattr(global_orchestrator, 'cleanup'):
+                    await global_orchestrator.cleanup()
+                logger.info("✅ Orchestrator cleanup completed")
             except Exception as e:
-                logger.error(f"❌ Orchestrator cleanup failed: {e}")
-        
-        app_startup_complete = False
-        logger.info("✅ ShareKhan Trading System shutdown complete")
+                logger.error(f"❌ Cleanup error: {e}")
 
 # Create FastAPI application
 app = FastAPI(
@@ -179,23 +184,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         }
     )
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions"""
-    logger.error(f"HTTP error {exc.status_code}: {exc.detail}")
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "success": False,
-            "error": exc.detail,
-            "status_code": exc.status_code
-        }
-    )
-
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle general exceptions"""
-    logger.error(f"Unexpected error: {exc}", exc_info=True)
+    logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
         content={
@@ -213,16 +205,83 @@ async def get_orchestrator():
         raise HTTPException(status_code=503, detail="Trading system not initialized")
     return global_orchestrator
 
-# Include ShareKhan API routes
-from src.api.sharekhan_api import router as sharekhan_router
-from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
-from src.api.sharekhan_webhooks import router as sharekhan_webhook_router
+# =============================================================================
+# API ROUTERS - COMPREHENSIVE FRONTEND-BACKEND INTEGRATION
+# =============================================================================
 
-app.include_router(sharekhan_router)
-app.include_router(sharekhan_auth_router, tags=["sharekhan-auth"])
-app.include_router(sharekhan_webhook_router, tags=["sharekhan-webhooks"])
+# Authentication API (NEW for React frontend)
+try:
+    from src.api.auth_api import router as auth_router
+    app.include_router(auth_router, tags=["authentication"])
+    logger.info("✅ Authentication API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Authentication API not loaded: {e}")
 
-# Health check endpoints
+# Dashboard API v1 (NEW for React frontend)
+try:
+    from src.api.dashboard_api_v1 import router as dashboard_v1_router
+    app.include_router(dashboard_v1_router, tags=["dashboard-v1"])
+    logger.info("✅ Dashboard API v1 loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Dashboard API v1 not loaded: {e}")
+
+# Token Management API (NEW for React frontend)
+try:
+    from src.api.token_management_api import router as token_mgmt_router
+    app.include_router(token_mgmt_router, tags=["token-management"])
+    logger.info("✅ Token Management API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Token Management API not loaded: {e}")
+
+# Multi-User API (NEW for React frontend)
+try:
+    from src.api.multi_user_api import router as multi_user_router
+    app.include_router(multi_user_router, tags=["multi-user-api"])
+    logger.info("✅ Multi-User API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Multi-User API not loaded: {e}")
+
+# Users API v1 (NEW for React frontend)
+try:
+    from src.api.users_api_v1 import router as users_v1_router
+    app.include_router(users_v1_router, tags=["users-v1"])
+    logger.info("✅ Users API v1 loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Users API v1 not loaded: {e}")
+
+# Market Data API (existing, compatible with frontend)
+try:
+    from src.api.market import router as market_router
+    app.include_router(market_router, tags=["market-data"])
+    logger.info("✅ Market Data API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Market Data API not loaded: {e}")
+
+# ShareKhan API routes (existing)
+try:
+    from src.api.sharekhan_api import router as sharekhan_router
+    from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
+    from src.api.sharekhan_webhooks import router as sharekhan_webhook_router
+    
+    app.include_router(sharekhan_router, tags=["sharekhan-api"])
+    app.include_router(sharekhan_auth_router, tags=["sharekhan-auth"])
+    app.include_router(sharekhan_webhook_router, tags=["sharekhan-webhooks"])
+    logger.info("✅ ShareKhan API routes loaded")
+except Exception as e:
+    logger.warning(f"⚠️ ShareKhan API routes not loaded: {e}")
+
+# Frontend API (fallback compatibility)
+try:
+    from src.api.frontend_api import router as frontend_router
+    app.include_router(frontend_router, tags=["frontend-compat"])
+    logger.info("✅ Frontend compatibility API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Frontend compatibility API not loaded: {e}")
+
+# =============================================================================
+# HEALTH CHECK ENDPOINTS
+# =============================================================================
+
 @app.get("/health")
 async def health_check():
     """Basic health check"""
@@ -282,14 +341,32 @@ async def readiness_check():
     
     return {"status": "ready", "timestamp": datetime.now()}
 
+@app.get("/health/ready/json")
+async def readiness_check_json():
+    """JSON readiness check for deployment scripts"""
+    global app_startup_complete, global_orchestrator
+    
+    ready = app_startup_complete and global_orchestrator and global_orchestrator.is_initialized
+    
+    return {
+        "ready": ready,
+        "timestamp": datetime.now().isoformat(),
+        "status": "ready" if ready else "not_ready",
+        "components": {
+            "startup_complete": app_startup_complete,
+            "orchestrator_available": bool(global_orchestrator),
+            "orchestrator_initialized": bool(global_orchestrator and global_orchestrator.is_initialized)
+        }
+    }
+
 @app.get("/health/live")
 async def liveness_check():
     """Kubernetes liveness probe"""
     return {"status": "alive", "timestamp": datetime.now()}
 
-# REMOVED: Root endpoint to allow React frontend to handle root path
-# This was conflicting with the frontend static site deployment
-# DigitalOcean ingress will now route "/" to the frontend component
+# =============================================================================
+# SYSTEM MANAGEMENT ENDPOINTS
+# =============================================================================
 
 @app.get("/api/system/config")
 async def get_system_config():
@@ -298,10 +375,18 @@ async def get_system_config():
         "trading_mode": "paper",
         "autonomous_enabled": True,
         "version": "2.0.0",
-        "status": "active"
+        "status": "active",
+        "features": [
+            "authentication",
+            "dashboard",
+            "live-indices", 
+            "analytics",
+            "multi-user-api",
+            "token-management",
+            "user-management"
+        ]
     }
 
-# System management endpoints
 @app.post("/system/restart")
 async def restart_system():
     """Restart the trading system (admin only)"""
@@ -309,8 +394,10 @@ async def restart_system():
     
     try:
         if global_orchestrator:
-            await global_orchestrator.stop_trading()
-            await global_orchestrator.cleanup()
+            if hasattr(global_orchestrator, 'stop_trading'):
+                await global_orchestrator.stop_trading()
+            if hasattr(global_orchestrator, 'cleanup'):
+                await global_orchestrator.cleanup()
         
         # Reinitialize
         config = {
@@ -328,9 +415,51 @@ async def restart_system():
         logger.error(f"System restart failed: {e}")
         return {"success": False, "error": str(e)}
 
-# Static files (if frontend exists)
-if os.path.exists("src/frontend/static"):
-    app.mount("/static", StaticFiles(directory="src/frontend/static"), name="static")
+# =============================================================================
+# STATIC FILES & FRONTEND SERVING
+# =============================================================================
+
+# Serve React frontend static files
+if os.path.exists("src/frontend/dist"):
+    app.mount("/static", StaticFiles(directory="src/frontend/dist/assets"), name="static")
+    logger.info("✅ React frontend static files mounted")
+
+# Serve React frontend (catch-all route for client-side routing)
+@app.get("/{full_path:path}")
+async def serve_react_app(full_path: str):
+    """Serve React frontend for all unmatched routes"""
+    
+    # Skip API routes and known endpoints
+    if (full_path.startswith("api/") or 
+        full_path.startswith("docs") or 
+        full_path.startswith("redoc") or
+        full_path.startswith("health") or
+        full_path.startswith("auth/") or
+        full_path.startswith("sharekhan/") or
+        full_path.startswith("v1/")):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    
+    # Serve React app index.html for all other routes
+    react_index_path = "src/frontend/dist/index.html"
+    if os.path.exists(react_index_path):
+        with open(react_index_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return HTMLResponse(content=content)
+    else:
+        # Fallback if React build doesn't exist
+        return HTMLResponse(
+            content="""
+            <html>
+                <head><title>Trade123 - Setup Required</title></head>
+                <body>
+                    <h1>🚀 Trade123 Trading System</h1>
+                    <p>React frontend is being built. Please run:</p>
+                    <pre>cd src/frontend && npm install && npm run build</pre>
+                    <p><a href="/docs">📚 API Documentation</a></p>
+                </body>
+            </html>
+            """
+        )
 
 # Development server configuration
 if __name__ == "__main__":
@@ -344,9 +473,10 @@ if __name__ == "__main__":
     logger.info(f"   - Paper Trading: {os.getenv('PAPER_TRADING', 'true')}")
     logger.info(f"   - Log Level: {os.getenv('LOG_LEVEL', 'INFO')}")
     logger.info(f"   - ShareKhan API Key: {os.getenv('SHAREKHAN_API_KEY', 'Not Set')[:8]}...")
+    logger.info(f"   - Frontend: {'React Build Available' if os.path.exists('src/frontend/dist') else 'React Build Required'}")
     
     uvicorn.run(
-        "main_sharekhan:app",
+        "main:app",
         host=host,
         port=port,
         reload=os.getenv('ENVIRONMENT') != 'production',

@@ -2,7 +2,7 @@
 
 ## The URL Problem
 
-When creating a fresh DigitalOcean app, you won't know the final URL until after the first deployment. The URLs in the codebase (`algoauto-9gx56.ondigitalocean.app`) are from a previous deployment and won't work.
+When creating a fresh DigitalOcean app, you won't know the final URL until after the first deployment. The URLs in the codebase (`trade123-l3zp7.ondigitalocean.app`) are from the current deployment.
 
 ## Solution Steps
 

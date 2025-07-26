@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 
 class ApiTester {
-    constructor(baseUrl = 'https://algoauto-9gx56.ondigitalocean.app') {
+    constructor(baseUrl = 'https://trade123-l3zp7.ondigitalocean.app') {
         this.baseUrl = baseUrl;
         this.authToken = null;
         this.testResults = [];

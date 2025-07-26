@@ -2,7 +2,7 @@
 
 ## 🎉 Deployment Successful!
 
-**URL**: https://algoauto-9gx56.ondigitalocean.app  
+**URL**: https://trade123-l3zp7.ondigitalocean.app  
 **Status**: All backend fixes deployed and working
 
 ## ✅ What's Working:
@@ -34,7 +34,7 @@ All direct endpoints are working:
 
 The Zerodha token has expired. To get a new token:
 
-1. Visit: https://algoauto-9gx56.ondigitalocean.app/auth/zerodha/
+1. Visit: https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/
 2. Click "Get Zerodha Login URL"
 3. Login to Zerodha
 4. Copy the request_token from the redirect URL

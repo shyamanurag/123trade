@@ -4,7 +4,7 @@ import requests
 import time
 
 def test_frontend():
-    url = "https://quantumcrypto-l43mb.ondigitalocean.app/"
+    url = "https://trade123-l3zp7.ondigitalocean.app/"
     
     print("🚀 FINAL FRONTEND TEST")
     print("=" * 50)

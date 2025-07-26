@@ -301,8 +301,8 @@ try:
     if cors_origins_env == "[]":
         # Default allowed origins - localhost only in development
         allowed_origins = [
-            "https://algoauto-9gx56.ondigitalocean.app",
-            "https://algoauto-dashboard.ondigitalocean.app"
+                    "https://trade123-l3zp7.ondigitalocean.app",
+        "https://trade123-l3zp7.ondigitalocean.app"
         ]
         
         # Add localhost URLs only in development
@@ -392,7 +392,7 @@ if False and os.getenv('ENVIRONMENT') == 'production':
     app.add_middleware(
         TrustedHostMiddleware,
         allowed_hosts=[
-            "algoauto-9gx56.ondigitalocean.app",
+                            "trade123-l3zp7.ondigitalocean.app",
             "*.ondigitalocean.app",
             "localhost",
             "127.0.0.1",

@@ -2,7 +2,7 @@
 
 **Date**: 2025-07-03  
 **Time**: 01:46 UTC (Updated: 02:00 UTC)  
-**Target**: https://algoauto-9gx56.ondigitalocean.app  
+**Target**: https://trade123-l3zp7.ondigitalocean.app  
 **Market Status**: CLOSED  
 **Zerodha Auth**: ✅ AUTHENTICATED (Token: xXkTfIytomux6QZCEd0LOyHYWamtxtLH)
 

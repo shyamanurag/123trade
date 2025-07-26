@@ -8,7 +8,7 @@ import json
 from datetime import datetime
 
 # Your actual DigitalOcean domain
-BASE_URL = "https://quantumcrypto-l43mb.ondigitalocean.app"
+BASE_URL = "https://trade123-l3zp7.ondigitalocean.app"
 
 def test_endpoint(url, endpoint_name):
     """Test a single endpoint"""

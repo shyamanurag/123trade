@@ -48,7 +48,7 @@ goto :end
 echo Git status:
 git status
 echo.
-echo Deployment URL: https://algoauto-9gx56.ondigitalocean.app
+echo Deployment URL: https://trade123-l3zp7.ondigitalocean.app
 goto :end
 
 :help
