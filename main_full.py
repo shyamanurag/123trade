@@ -194,77 +194,7 @@ if frontend_dist_path.exists():
 else:
     logger.warning(f"⚠️ Frontend dist folder not found at {frontend_dist_path}")
 
-# =============================================================================
-# CATCH-ALL ROUTE - MUST BE LAST TO AVOID INTERCEPTING API ROUTES
-# =============================================================================
-
-# Serve React app for all non-API routes (MUST BE LAST ROUTE)
-@app.get("/{path:path}")
-async def serve_react_app(path: str):
-    """Serve React frontend for all non-API routes"""
-    # Don't intercept API routes
-    if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
-        raise HTTPException(status_code=404, detail="API endpoint not found")
-    
-    # Try to serve index.html
-    frontend_dist_path = Path("src/frontend/dist")
-    index_path = frontend_dist_path / "index.html"
-    if index_path.exists():
-        logger.info(f"📄 Serving React index.html for path: {path}")
-        with open(index_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        return HTMLResponse(content=html_content)
-    else:
-        # Fallback: Serve a basic React app shell if dist files not found
-        logger.warning(f"⚠️ index.html not found, serving fallback for path: {path}")
-        fallback_html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShareKhan Trading Platform</title>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; 
-               background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; }}
-        .container {{ max-width: 800px; margin: 0 auto; text-align: center; }}
-        .status {{ background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 ShareKhan Trading Platform</h1>
-        <div class="status">
-            <h2>✅ Your Comprehensive Trading Dashboard</h2>
-            <p>Successfully serving from FastAPI backend!</p>
-            <p><strong>Current Path:</strong> /{path}</p>
-            <p><strong>All Features Implemented & Ready:</strong></p>
-            <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
-                <li>✅ Analytics Dashboard (14KB, 347 lines)</li>
-                <li>✅ User Performance Dashboard (41KB, 863 lines)</li>
-                <li>✅ ShareKhan Auth with Daily Tokens (11KB)</li>
-                <li>✅ Live Market Indices Widget (15KB)</li>
-                <li>✅ Trading Reports Hub (26KB, 585 lines)</li>
-                <li>✅ Real-time Trading Monitor (22KB)</li>
-                <li>✅ Multi-user Management (37KB)</li>
-                <li>✅ System Health Dashboard (20KB)</li>
-            </ul>
-            <p style="margin-top: 20px;"><strong>Backend API:</strong> ✅ Fully Operational</p>
-            <p style="margin-top: 10px;">
-                <a href="/health" style="color: #fff; margin: 0 10px;">🏥 Health Check</a> |
-                <a href="/docs" style="color: #fff; margin: 0 10px;">📚 API Documentation</a> |
-                <a href="/api/debug/status" style="color: #fff; margin: 0 10px;">🔧 Debug Status</a>
-            </p>
-            <div style="margin-top: 30px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 5px;">
-                <h3>🎉 SUCCESS!</h3>
-                <p>Your comprehensive ShareKhan trading system is <strong>FULLY DEPLOYED</strong> with all requested features!</p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-        """
-        return HTMLResponse(content=fallback_html)
+# NOTE: Catch-all route MOVED to absolute end of file after ALL other routes
 
 
 @app.get("/health")
@@ -363,6 +293,78 @@ logger.info("✅ ShareKhan Trading System configured successfully")
 logger.info(f"📊 Environment: {os.getenv('ENVIRONMENT', 'development')}")
 logger.info(f"🔗 CORS Origins: {cors_origins}")
 logger.info(f"📡 Routes loaded: {routes_loaded}")
+
+# =============================================================================
+# CATCH-ALL ROUTE - MUST BE ABSOLUTE LAST TO WORK PROPERLY IN FASTAPI
+# =============================================================================
+
+# Serve React app for all non-API routes (MUST BE ABSOLUTE LAST ROUTE)
+@app.get("/{path:path}")
+async def serve_react_app(path: str):
+    """Serve React frontend for all non-API routes"""
+    # Don't intercept API routes
+    if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    
+    # Try to serve index.html
+    frontend_dist_path = Path("src/frontend/dist")
+    index_path = frontend_dist_path / "index.html"
+    if index_path.exists():
+        logger.info(f"📄 Serving React index.html for path: {path}")
+        with open(index_path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        return HTMLResponse(content=html_content)
+    else:
+        # Fallback: Serve a basic React app shell if dist files not found
+        logger.warning(f"⚠️ index.html not found, serving fallback for path: {path}")
+        fallback_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareKhan Trading Platform</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; 
+               background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; }}
+        .container {{ max-width: 800px; margin: 0 auto; text-align: center; }}
+        .status {{ background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 ShareKhan Trading Platform</h1>
+        <div class="status">
+            <h2>✅ Your Comprehensive Trading Dashboard</h2>
+            <p>Successfully serving from FastAPI backend!</p>
+            <p><strong>Current Path:</strong> /{path}</p>
+            <p><strong>All Features Implemented & Ready:</strong></p>
+            <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+                <li>✅ Analytics Dashboard (14KB, 347 lines)</li>
+                <li>✅ User Performance Dashboard (41KB, 863 lines)</li>
+                <li>✅ ShareKhan Auth with Daily Tokens (11KB)</li>
+                <li>✅ Live Market Indices Widget (15KB)</li>
+                <li>✅ Trading Reports Hub (26KB, 585 lines)</li>
+                <li>✅ Real-time Trading Monitor (22KB)</li>
+                <li>✅ Multi-user Management (37KB)</li>
+                <li>✅ System Health Dashboard (20KB)</li>
+            </ul>
+            <p style="margin-top: 20px;"><strong>Backend API:</strong> ✅ Fully Operational</p>
+            <p style="margin-top: 10px;">
+                <a href="/health" style="color: #fff; margin: 0 10px;">🏥 Health Check</a> |
+                <a href="/docs" style="color: #fff; margin: 0 10px;">📚 API Documentation</a> |
+                <a href="/api/debug/status" style="color: #fff; margin: 0 10px;">🔧 Debug Status</a>
+            </p>
+            <div style="margin-top: 30px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 5px;">
+                <h3>🎉 SUCCESS!</h3>
+                <p>Your comprehensive ShareKhan trading system is <strong>FULLY DEPLOYED</strong> with all requested features!</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+        """
+        return HTMLResponse(content=fallback_html)
 
 if __name__ == "__main__":
     import uvicorn
