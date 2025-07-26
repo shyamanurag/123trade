@@ -287,123 +287,19 @@ async def liveness_check():
     """Kubernetes liveness probe"""
     return {"status": "alive", "timestamp": datetime.now()}
 
-# Root endpoint
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    """Root endpoint with system information"""
-    global global_orchestrator, app_startup_complete
-    
-    orchestrator_status = "Not Available"
-    if global_orchestrator:
-        if global_orchestrator.is_initialized:
-            orchestrator_status = "Running" if global_orchestrator.is_running else "Initialized"
-        else:
-            orchestrator_status = "Initializing"
-    
-    html_content = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>ShareKhan Trading System</title>
-        <style>
-            body {{ font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }}
-            .container {{ background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-            .status {{ padding: 10px; margin: 10px 0; border-radius: 5px; }}
-            .status.healthy {{ background: #d4edda; color: #155724; }}
-            .status.warning {{ background: #fff3cd; color: #856404; }}
-            .status.error {{ background: #f8d7da; color: #721c24; }}
-            .feature {{ background: #e3f2fd; padding: 15px; margin: 10px 0; border-radius: 5px; }}
-            .api-links {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }}
-            .api-link {{ background: #007bff; color: white; padding: 15px; text-align: center; border-radius: 5px; text-decoration: none; }}
-            .api-link:hover {{ background: #0056b3; }}
-            .highlight {{ background: #fff3cd; padding: 20px; border-radius: 5px; border-left: 4px solid #ffc107; }}
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🚀 ShareKhan Trading System</h1>
-            
-            <div class="highlight">
-                <h2>🎯 Complete Architecture Replacement</h2>
-                <p><strong>Old:</strong> TrueData (Market Data) + Zerodha (Trading) = Dual provider complexity</p>
-                <p><strong>New:</strong> ShareKhan API only = Unified simplicity</p>
-                <ul>
-                    <li>✅ Single API for trading and market data</li>
-                    <li>✅ Multi-user support with individual permissions</li>
-                    <li>✅ Real-time WebSocket data streaming</li>
-                    <li>✅ Comprehensive risk management</li>
-                    <li>✅ Autonomous trading strategies</li>
-                </ul>
-            </div>
-            
-            <div class="status {'healthy' if app_startup_complete else 'warning'}">
-                <h3>System Status</h3>
-                <p><strong>Startup:</strong> {'Complete' if app_startup_complete else 'In Progress'}</p>
-                <p><strong>Orchestrator:</strong> {orchestrator_status}</p>
-                <p><strong>Timestamp:</strong> {datetime.now()}</p>
-            </div>
-            
-            <h2>🔧 Key Features</h2>
-            
-            <div class="feature">
-                <h3>Multi-User Trading</h3>
-                <p>Role-based access control with individual trading limits and permissions</p>
-            </div>
-            
-            <div class="feature">
-                <h3>Unified ShareKhan Integration</h3>
-                <p>Single API for all trading operations and market data - no more dual provider complexity</p>
-            </div>
-            
-            <div class="feature">
-                <h3>Real-time Market Data</h3>
-                <p>WebSocket streaming with Redis caching for high-performance data delivery</p>
-            </div>
-            
-            <div class="feature">
-                <h3>Autonomous Trading</h3>
-                <p>Multiple strategies with risk management and performance analytics</p>
-            </div>
-            
-            <h2>📡 API Access</h2>
-            
-            <div class="api-links">
-                <a href="/api/v1/sharekhan/auth/login-page" class="api-link">🔐 Login Interface</a>
-                <a href="/docs" class="api-link">📚 API Documentation</a>
-                <a href="/health/detailed" class="api-link">🏥 System Health</a>
-                <a href="/api/v1/sharekhan/system/status" class="api-link">📊 System Status</a>
-            </div>
-            
-            <h2>🚀 Getting Started</h2>
-            <ol>
-                <li><strong>Authenticate:</strong> Use the login interface to get an access token</li>
-                <li><strong>Setup ShareKhan:</strong> Configure your ShareKhan API credentials</li>
-                <li><strong>Subscribe to Data:</strong> Subscribe to market data for your instruments</li>
-                <li><strong>Start Trading:</strong> Place orders or enable autonomous trading</li>
-            </ol>
-            
-            <h2>🔗 Environment Configuration</h2>
-            <div class="feature">
-                <h4>Required Environment Variables:</h4>
-                <ul>
-                    <li><code>SHAREKHAN_API_KEY</code> - Your ShareKhan API key</li>
-                    <li><code>SHAREKHAN_SECRET_KEY</code> - Your ShareKhan secret key</li>
-                    <li><code>REDIS_URL</code> - Redis connection URL</li>
-                    <li><code>ADMIN_USER_ID</code> - Default admin username (optional)</li>
-                    <li><code>ADMIN_PASSWORD</code> - Default admin password (optional)</li>
-                </ul>
-            </div>
-            
-            <div class="feature">
-                <h4>Migration from Old System:</h4>
-                <p>This replaces the entire TrueData + Zerodha architecture. All previous endpoints are now unified under ShareKhan API.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return HTMLResponse(content=html_content)
+# REMOVED: Root endpoint to allow React frontend to handle root path
+# This was conflicting with the frontend static site deployment
+# DigitalOcean ingress will now route "/" to the frontend component
+
+@app.get("/api/system/config")
+async def get_system_config():
+    """Get system configuration information"""
+    return {
+        "trading_mode": "paper",
+        "autonomous_enabled": True,
+        "version": "2.0.0",
+        "status": "active"
+    }
 
 # System management endpoints
 @app.post("/system/restart")
