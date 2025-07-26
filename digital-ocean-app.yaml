@@ -16,7 +16,7 @@ envs:
   value: wss://trade123-l3zp7.ondigitalocean.app/ws
 - key: VITE_APP_NAME
   scope: RUN_AND_BUILD_TIME
-  value: ShareKhan Trading System
+  value: Trade123
 - key: VITE_APP_VERSION
   scope: RUN_AND_BUILD_TIME
   value: 2.0.0
@@ -50,7 +50,7 @@ envs:
 - key: DATABASE_PASSWORD
   scope: RUN_AND_BUILD_TIME
   value: "placeholder-set-in-digitalocean-env"
-- key: DATABASE_SSL
+- key: DATABASE_SSLMODE
   scope: RUN_AND_BUILD_TIME
   value: require
 - key: REDIS_URL
@@ -65,265 +65,148 @@ envs:
 - key: REDIS_PASSWORD
   scope: RUN_AND_BUILD_TIME
   value: "placeholder-set-in-digitalocean-env"
-- key: REDIS_USERNAME
-  scope: RUN_AND_BUILD_TIME
-  value: default
-- key: REDIS_SSL
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: REDIS_DB
-  scope: RUN_AND_BUILD_TIME
-  value: "0"
 - key: SHAREKHAN_API_KEY
   scope: RUN_AND_BUILD_TIME
-  value: 3yraoHgX8z7fpLnKTyXoZKx8ugtLaOBq
+  value: "placeholder-set-in-digitalocean-env"
 - key: SHAREKHAN_SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: XxmjJwQ6KM6PrCc5ryRPQYU2KYQz9qz0
+  value: "placeholder-set-in-digitalocean-env"
 - key: SHAREKHAN_CUSTOMER_ID
   scope: RUN_AND_BUILD_TIME
-  value: Sanurag1977
-- key: SHAREKHAN_VERSION_ID
+  value: "placeholder-set-in-digitalocean-env"
+- key: ZERODHA_API_KEY
   scope: RUN_AND_BUILD_TIME
-  value: ""
-- key: SHAREKHAN_BASE_URL
+  value: "placeholder-set-in-digitalocean-env"
+- key: ZERODHA_API_SECRET
   scope: RUN_AND_BUILD_TIME
-  value: https://api.sharekhan.com
-- key: SHAREKHAN_WS_URL
+  value: "placeholder-set-in-digitalocean-env"
+- key: TRUEDATA_LOGIN
   scope: RUN_AND_BUILD_TIME
-  value: wss://wspush.sharekhan.com
-- key: SHAREKHAN_LOGIN_URL
+  value: "placeholder-set-in-digitalocean-env"
+- key: TRUEDATA_PASSWORD
   scope: RUN_AND_BUILD_TIME
-  value: https://newtrade.sharekhan.com/skweb/login/trading-api
-- key: SHAREKHAN_FEED_URL
+  value: "placeholder-set-in-digitalocean-env"
+- key: LOG_LEVEL
   scope: RUN_AND_BUILD_TIME
-  value: wss://wspush.sharekhan.com
-- key: SHAREKHAN_DATA_URL
-  scope: RUN_AND_BUILD_TIME
-  value: https://api.sharekhan.com/feed
-- key: JWT_SECRET
-  scope: RUN_AND_BUILD_TIME
-  value: K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A
+  value: INFO
 - key: SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: sk-prod-2025-trading-system-secret-key-change-this
-- key: ENCRYPTION_KEY
+  value: "placeholder-set-in-digitalocean-env"
+- key: PYTHONPATH
   scope: RUN_AND_BUILD_TIME
-  value: lulCrXu3nDX6I18WYuPpWcIrgf2IUGAGLS93ZDwczpQ
-- key: WEBHOOK_SECRET
+  value: /app
+- key: TZ
   scope: RUN_AND_BUILD_TIME
-  value: wh_sec_K5ewmaPLwWLzqcFa2ne6dLpk_5YbUa1NC-xR9N8ig74TnENXKUnnK1UTs3xcaE8IRIEMYRVSCN-co2vEPTeq9A_live
+  value: Asia/Kolkata
+- key: PAPER_TRADING
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: MAX_POSITION_SIZE
+  scope: RUN_AND_BUILD_TIME
+  value: "100000"
+- key: MAX_DAILY_LOSS
+  scope: RUN_AND_BUILD_TIME
+  value: "10000"
+- key: EMAIL_NOTIFICATIONS
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: SMS_NOTIFICATIONS
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: AUTO_START_TRADING
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: DEBUG
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: ENABLE_SCHEDULER
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
+- key: SCHEDULER_BUFFER_MINUTES
+  scope: RUN_AND_BUILD_TIME
+  value: "5"
+- key: MAX_WORKERS
+  scope: RUN_AND_BUILD_TIME
+  value: "4"
+- key: AUTONOMOUS_TRADING_ENABLED
+  scope: RUN_AND_BUILD_TIME
+  value: "false"
+- key: ENABLE_CORS
+  scope: RUN_AND_BUILD_TIME
+  value: "true"
 - key: CORS_ORIGINS
   scope: RUN_AND_BUILD_TIME
   value: '["https://trade123-l3zp7.ondigitalocean.app", "http://localhost:3000", "http://localhost:5173", "*"]'
 - key: TRUSTED_HOSTS
   scope: RUN_AND_BUILD_TIME
-      value: '["trade123-l3zp7.ondigitalocean.app", "*.ondigitalocean.app", "localhost", "*"]'
-- key: ENABLE_CORS
+  value: '["trade123-l3zp7.ondigitalocean.app", "*.ondigitalocean.app", "localhost", "*"]'
+- key: ZERODHA_MULTI_USER_ENABLED
   scope: RUN_AND_BUILD_TIME
   value: "true"
-- key: LOG_LEVEL
-  scope: RUN_AND_BUILD_TIME
-  value: INFO
-- key: LOG_FORMAT
-  scope: RUN_AND_BUILD_TIME
-  value: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-- key: DEBUG
+- key: ENABLE_WEBHOOK_NOTIFICATIONS
   scope: RUN_AND_BUILD_TIME
   value: "false"
-- key: API_DEBUG
+- key: WEBHOOK_URL
   scope: RUN_AND_BUILD_TIME
-  value: "false"
-- key: PYTHONPATH
+  value: ""
+- key: EMAIL_FROM
   scope: RUN_AND_BUILD_TIME
-  value: /app
-- key: PYTHON_VERSION
+  value: "trading@trade123.com"
+- key: EMAIL_HOST
   scope: RUN_AND_BUILD_TIME
-  value: 3.10.12
-- key: HOST
+  value: ""
+- key: EMAIL_PORT
   scope: RUN_AND_BUILD_TIME
-  value: 0.0.0.0
-- key: PORT
+  value: "587"
+- key: EMAIL_USERNAME
   scope: RUN_AND_BUILD_TIME
-  value: "8000"
-- key: ROOT_PATH
+  value: ""
+- key: EMAIL_PASSWORD
   scope: RUN_AND_BUILD_TIME
-- key: TRADING_MODE
-  scope: RUN_AND_BUILD_TIME
-  value: paper
-- key: PAPER_TRADING
+  value: ""
+- key: EMAIL_USE_TLS
   scope: RUN_AND_BUILD_TIME
   value: "true"
-- key: PAPER_TRADING_ENABLED
+- key: BACKUP_ENABLED
   scope: RUN_AND_BUILD_TIME
   value: "true"
-- key: AUTONOMOUS_TRADING_ENABLED
+- key: BACKUP_INTERVAL_HOURS
+  scope: RUN_AND_BUILD_TIME
+  value: "24"
+- key: BACKUP_RETENTION_DAYS
+  scope: RUN_AND_BUILD_TIME
+  value: "7"
+- key: PRODUCTION_MODE
   scope: RUN_AND_BUILD_TIME
   value: "true"
-- key: RISK_PER_TRADE_PERCENT
+- key: HEALTH_CHECK_URL
   scope: RUN_AND_BUILD_TIME
-  value: "1.0"
-- key: DEFAULT_STOP_LOSS_PERCENT
+  value: https://trade123-l3zp7.ondigitalocean.app/health
+- key: ENABLE_PERFORMANCE_MONITORING
   scope: RUN_AND_BUILD_TIME
-  value: "2.0"
-- key: MAX_POSITION_SIZE
-  scope: RUN_AND_BUILD_TIME
-  value: "100000"
-- key: DAILY_LOSS_LIMIT
-  scope: RUN_AND_BUILD_TIME
-  value: "50000"
-- key: MAX_ORDERS_PER_MINUTE
-  scope: RUN_AND_BUILD_TIME
-  value: "10"
-- key: API_RATE_LIMIT_PER_MINUTE
-  scope: RUN_AND_BUILD_TIME
-  value: "1000"
-- key: WEBSOCKET_CONNECTIONS_LIMIT
-  scope: RUN_AND_BUILD_TIME
-  value: "10"
-- key: MAX_CONNECTIONS
-  scope: RUN_AND_BUILD_TIME
-  value: "20"
-- key: POOL_SIZE
-  scope: RUN_AND_BUILD_TIME
-  value: "10"
-- key: CACHE_TTL
-  scope: RUN_AND_BUILD_TIME
-  value: "300"
-- key: WS_MAX_CONNECTIONS
-  scope: RUN_AND_BUILD_TIME
-  value: "1000"
-- key: WS_HEARTBEAT_INTERVAL
-  scope: RUN_AND_BUILD_TIME
-  value: "30"
-- key: WS_CONNECTION_TIMEOUT
+  value: "true"
+- key: MONITORING_INTERVAL_SECONDS
   scope: RUN_AND_BUILD_TIME
   value: "60"
-- key: ENABLE_WEBSOCKETS
+- key: JWT_SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_REAL_TIME_DATA
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_ORDER_MANAGEMENT
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_POSITION_TRACKING
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_RISK_MANAGEMENT
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_STRATEGIES
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_NOTIFICATIONS
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_METRICS
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: ENABLE_HEALTH_CHECKS
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: HEALTH_CHECK_INTERVAL
-  scope: RUN_AND_BUILD_TIME
-  value: "30"
-- key: DEFAULT_TRADING_MODE
-  scope: RUN_AND_BUILD_TIME
-  value: paper
-- key: MOCK_DATA
-  scope: RUN_AND_BUILD_TIME
-  value: "false"
-- key: LOG_TO_FILE
-  scope: RUN_AND_BUILD_TIME
-  value: "true"
-- key: DATA_DIRECTORY
-  scope: RUN_AND_BUILD_TIME
-  value: data
-- key: LOGS_DIRECTORY
-  scope: RUN_AND_BUILD_TIME
-  value: logs
-- key: BACKUP_DIRECTORY
-  scope: RUN_AND_BUILD_TIME
-  value: backups
-- key: TEMP_DIRECTORY
-  scope: RUN_AND_BUILD_TIME
-  value: temp
-- key: ADMIN_USERNAME
-  scope: RUN_AND_BUILD_TIME
-  value: admin
-- key: ADMIN_PASSWORD
-  scope: RUN_AND_BUILD_TIME
-  value: admin123
-- key: ADMIN_EMAIL
-  scope: RUN_AND_BUILD_TIME
-  value: admin@yourdomain.com
+  value: "placeholder-set-in-digitalocean-env"
 features:
 - buildpack-stack=ubuntu-22
-ingress:
-  rules:
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /api
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /health
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /readiness
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /docs
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /redoc
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /auth
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /webhooks
-  - component:
-      name: api
-      preserve_path_prefix: true
-    match:
-      path:
-        prefix: /ws
-  - component:
-      name: frontend
-    match:
-      path:
-        prefix: /
-name: quantumcrypto
+name: trade123
 region: blr
 services:
-- environment_slug: python
+- name: api
+  environment_slug: python
   github:
     branch: main
     deploy_on_push: true
     repo: shyamanurag/123trade
+  source_dir: /
+  run_command: gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
+  http_port: 8000
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-1gb
   health_check:
     failure_threshold: 3
     http_path: /health
@@ -331,14 +214,15 @@ services:
     period_seconds: 10
     success_threshold: 2
     timeout_seconds: 10
-  http_port: 8000
-  instance_count: 1
-  instance_size_slug: apps-s-1vcpu-1gb
-  name: api
-  run_command: gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} --timeout 120 --access-logfile - --error-logfile -
-  source_dir: /
 static_sites:
-- build_command: cd src/frontend && npm ci && npm run build
+- name: frontend
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: shyamanurag/123trade
+  source_dir: /src/frontend
+  build_command: npm ci && npm run build
+  output_dir: dist
   catchall_document: index.html
   environment_slug: node-js
   envs:
@@ -356,11 +240,4 @@ static_sites:
     value: 2.0.0
   - key: VITE_APP_ENV
     scope: BUILD_TIME
-    value: production
-  github:
-    branch: main
-    deploy_on_push: true
-    repo: shyamanurag/123trade
-  name: frontend
-  output_dir: dist
-  source_dir: /src/frontend 
+    value: production 
