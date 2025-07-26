@@ -43,6 +43,7 @@ try:
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.middleware.gzip import GZipMiddleware
     from fastapi.responses import HTMLResponse, JSONResponse
+    from fastapi.staticfiles import StaticFiles
     logger.info("✅ FastAPI imported successfully")
 except ImportError as e:
     logger.error(f"❌ FastAPI import failed: {e}")
@@ -180,6 +181,36 @@ logger.info(f"✅ Loaded API routes: {routes_loaded}")
 
 # REMOVED: Root route handler to allow React frontend to handle root path
 # The DigitalOcean ingress rules will now properly route "/" to the frontend static site
+
+# FRONTEND SERVING - Since DigitalOcean static site is not working, serve React from FastAPI
+import os
+from pathlib import Path
+
+# Mount React frontend static files
+frontend_dist_path = Path("src/frontend/dist")
+if frontend_dist_path.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_dist_path)), name="static")
+    logger.info(f"✅ Frontend static files mounted at /static from {frontend_dist_path}")
+    
+    # Serve React app for all non-API routes
+    @app.get("/{path:path}")
+    async def serve_react_app(path: str):
+        """Serve React frontend for all non-API routes"""
+        # Don't intercept API routes
+        if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
+            raise HTTPException(status_code=404, detail="API endpoint not found")
+        
+        # Serve index.html for all other routes (React Router will handle them)
+        index_path = frontend_dist_path / "index.html"
+        if index_path.exists():
+            with open(index_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+        else:
+            raise HTTPException(status_code=404, detail="Frontend not found")
+else:
+    logger.warning(f"⚠️ Frontend dist folder not found at {frontend_dist_path}")
+
 
 @app.get("/health")
 async def health_check():
