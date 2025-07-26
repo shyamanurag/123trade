@@ -343,7 +343,6 @@ static_sites:
     branch: main
     deploy_on_push: true
     repo: shyamanurag/123trade
-  source_dir: /src/frontend/dist
+  source_dir: /static
   output_dir: .
-  catchall_document: index.html
-  environment_slug: node-js 
+  catchall_document: index.html 
