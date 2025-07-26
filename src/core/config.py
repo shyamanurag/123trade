@@ -199,8 +199,12 @@ except Exception as e:
 # Fail fast if localhost detected in production
 if IS_PRODUCTION:
     # Check if we have a proper DATABASE_URL (DigitalOcean provides this)
-    has_proper_db_url = settings.DATABASE_URL and 'ondigitalocean.com' in settings.DATABASE_URL
-    has_proper_db_host = settings.DB_HOST != "localhost" and settings.DB_HOST != "127.0.0.1"
+    # Use environment variable directly to avoid FieldInfo issues
+    database_url_env = os.getenv('DATABASE_URL', '')
+    db_host_env = os.getenv('DB_HOST', 'localhost')
+    
+    has_proper_db_url = database_url_env and 'ondigitalocean.com' in database_url_env
+    has_proper_db_host = db_host_env != "localhost" and db_host_env != "127.0.0.1"
     
     # Only fail if we don't have either a proper DATABASE_URL or DB_HOST
     if not has_proper_db_url and not has_proper_db_host:
@@ -209,8 +213,12 @@ if IS_PRODUCTION:
         raise ValueError(error_msg)
     
     # Check Redis configuration
-    has_proper_redis_url = settings.REDIS_URL and 'ondigitalocean.com' in settings.REDIS_URL
-    has_proper_redis_host = settings.REDIS_HOST != "localhost" and settings.REDIS_HOST != "127.0.0.1"
+    # Use environment variables directly to avoid FieldInfo issues
+    redis_url_env = os.getenv('REDIS_URL', '')
+    redis_host_env = os.getenv('REDIS_HOST', 'localhost')
+    
+    has_proper_redis_url = redis_url_env and 'ondigitalocean.com' in redis_url_env
+    has_proper_redis_host = redis_host_env != "localhost" and redis_host_env != "127.0.0.1"
     
     if not has_proper_redis_url and not has_proper_redis_host:
         error_msg = "CRITICAL: No proper Redis configuration found in production. Set REDIS_URL or REDIS_HOST environment variables!"
