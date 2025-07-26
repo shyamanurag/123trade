@@ -212,4 +212,5 @@ logs/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp # Allow dist folder for DigitalOcean deployment
+!src/frontend/dist/
