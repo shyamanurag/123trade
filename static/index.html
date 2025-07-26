@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareKhan Trading Platform - Live Dashboard</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><i class="fas fa-chart-line"></i> ShareKhan Trading</h1>
+        </div>
+        <div class="nav-links">
+            <a href="#dashboard" class="nav-link active">Dashboard</a>
+            <a href="#reports" class="nav-link">Reports</a>
+            <a href="#indices" class="nav-link">Live Indices</a>
+            <a href="#users" class="nav-link">Users</a>
+            <a href="#settings" class="nav-link">Settings</a>
+        </div>
+        <div class="user-info">
+            <span id="userToken">Auth Token: <span id="authStatus">Connecting...</span></span>
+            <button id="refreshToken" class="btn-auth">Refresh</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section active">
+            <div class="dashboard-header">
+                <h2>Live Trading Dashboard</h2>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <span class="status-dot online"></span>
+                        <span>API Connected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot online"></span>
+                        <span>Real-time Data</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot" id="tokenStatus">pending</span>
+                        <span>Daily Token</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- Live Market Indices -->
+                <div class="widget indices-widget">
+                    <h3><i class="fas fa-chart-bar"></i> Live Market Indices</h3>
+                    <div id="indicesContainer">
+                        <div class="index-item">
+                            <span class="index-name">NIFTY 50</span>
+                            <span class="index-value" id="nifty50">Loading...</span>
+                            <span class="index-change" id="nifty50Change">+0.00%</span>
+                        </div>
+                        <div class="index-item">
+                            <span class="index-name">BANK NIFTY</span>
+                            <span class="index-value" id="banknifty">Loading...</span>
+                            <span class="index-change" id="bankniftyChange">+0.00%</span>
+                        </div>
+                        <div class="index-item">
+                            <span class="index-name">SENSEX</span>
+                            <span class="index-value" id="sensex">Loading...</span>
+                            <span class="index-change" id="sensexChange">+0.00%</span>
+                        </div>
+                    </div>
+                    <button class="btn-refresh" onclick="refreshIndices()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="widget stats-widget">
+                    <h3><i class="fas fa-tachometer-alt"></i> Today's Stats</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Users</span>
+                            <span class="stat-value" id="totalUsers">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Active Trades</span>
+                            <span class="stat-value" id="activeTrades">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total P&L</span>
+                            <span class="stat-value" id="totalPnl">₹0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Success Rate</span>
+                            <span class="stat-value" id="successRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="widget activity-widget">
+                    <h3><i class="fas fa-clock"></i> Recent Activity</h3>
+                    <div id="activityList">
+                        <div class="activity-item">
+                            <span class="time">Just now</span>
+                            <span class="action">System initialized</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Chart -->
+                <div class="widget chart-widget">
+                    <h3><i class="fas fa-chart-line"></i> Performance Analytics</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="page-section">
+            <h2>Trading Reports & Analytics</h2>
+
+            <div class="reports-toolbar">
+                <div class="date-filters">
+                    <label>From:</label>
+                    <input type="date" id="reportDateFrom">
+                    <label>To:</label>
+                    <input type="date" id="reportDateTo">
+                    <button class="btn-primary" onclick="generateReport()">Generate Report</button>
+                </div>
+            </div>
+
+            <div class="reports-grid">
+                <!-- User Performance Report -->
+                <div class="report-widget">
+                    <h3><i class="fas fa-users"></i> User Performance Report</h3>
+                    <div class="report-controls">
+                        <select id="userSelect">
+                            <option value="all">All Users</option>
+                        </select>
+                        <button onclick="loadUserReport()">Load Report</button>
+                    </div>
+                    <div id="userReportTable">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Trades</th>
+                                    <th>P&L</th>
+                                    <th>Success Rate</th>
+                                    <th>Last Active</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userReportBody">
+                                <tr>
+                                    <td colspan="5">Loading user data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Trade Details Report -->
+                <div class="report-widget">
+                    <h3><i class="fas fa-exchange-alt"></i> Trade Details</h3>
+                    <div id="tradeDetailsTable">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Symbol</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>P&L</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradeDetailsBody">
+                                <tr>
+                                    <td colspan="6">Loading trade data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts -->
+                <div class="report-widget">
+                    <h3><i class="fas fa-chart-pie"></i> Analytics Overview</h3>
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Indices Section -->
+        <section id="indices" class="page-section">
+            <h2>Live Market Indices & Data</h2>
+
+            <div class="indices-grid">
+                <div class="indices-main">
+                    <h3>Major Indices</h3>
+                    <div id="majorIndices">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="indices-watchlist">
+                    <h3>Watchlist</h3>
+                    <div class="watchlist-controls">
+                        <input type="text" id="symbolInput" placeholder="Enter symbol (e.g., RELIANCE)">
+                        <button onclick="addToWatchlist()">Add</button>
+                    </div>
+                    <div id="watchlistContainer">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="indices-details">
+                    <h3>Market Details</h3>
+                    <div id="marketDetails">
+                        <div class="detail-item">
+                            <span>Market Status:</span>
+                            <span id="marketStatus">Loading...</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Last Update:</span>
+                            <span id="lastUpdate">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users" class="page-section">
+            <h2>User Management & Auth Tokens</h2>
+
+            <div class="users-controls">
+                <button class="btn-primary" onclick="addUser()">Add New User</button>
+                <button class="btn-secondary" onclick="refreshAllTokens()">Refresh All Tokens</button>
+                <input type="text" id="userSearch" placeholder="Search users..." onkeyup="searchUsers()">
+            </div>
+
+            <div class="users-grid">
+                <div class="users-list">
+                    <h3>Active Users</h3>
+                    <div id="usersList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="user-details">
+                    <h3>User Details</h3>
+                    <div id="userDetailsPanel">
+                        <p>Select a user to view details</p>
+                    </div>
+                </div>
+
+                <div class="auth-tokens">
+                    <h3>Daily Auth Tokens</h3>
+                    <div id="authTokensList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="page-section">
+            <h2>System Settings</h2>
+
+            <div class="settings-grid">
+                <div class="settings-group">
+                    <h3>ShareKhan API Configuration</h3>
+                    <div class="form-group">
+                        <label>API Key:</label>
+                        <input type="password" id="apiKey" placeholder="Enter API Key">
+                    </div>
+                    <div class="form-group">
+                        <label>Secret Key:</label>
+                        <input type="password" id="secretKey" placeholder="Enter Secret Key">
+                    </div>
+                    <div class="form-group">
+                        <label>Customer ID:</label>
+                        <input type="text" id="customerId" placeholder="Enter Customer ID">
+                    </div>
+                    <button class="btn-primary" onclick="saveApiConfig()">Save Configuration</button>
+                </div>
+
+                <div class="settings-group">
+                    <h3>System Health</h3>
+                    <div id="systemHealth">
+                        <div class="health-item">
+                            <span>Database:</span>
+                            <span id="dbStatus">Checking...</span>
+                        </div>
+                        <div class="health-item">
+                            <span>Redis:</span>
+                            <span id="redisStatus">Checking...</span>
+                        </div>
+                        <div class="health-item">
+                            <span>ShareKhan API:</span>
+                            <span id="apiStatus">Checking...</span>
+                        </div>
+                    </div>
+                    <button class="btn-secondary" onclick="checkSystemHealth()">Refresh Health</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/charts.js"></script>
+</body>
+
+</html>

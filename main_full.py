@@ -175,6 +175,14 @@ try:
 except Exception as e:
     logger.warning(f"Autonomous trading routes not loaded: {e}")
 
+# Frontend API routes
+try:
+    from src.api.frontend_api import router as frontend_router
+    app.include_router(frontend_router, tags=["frontend"])
+    routes_loaded.append("frontend-api")
+except Exception as e:
+    logger.warning(f"Frontend API routes not loaded: {e}")
+
 logger.info(f"✅ Loaded API routes: {routes_loaded}")
 
 # CORE ENDPOINTS - PRODUCTION READY
@@ -182,17 +190,17 @@ logger.info(f"✅ Loaded API routes: {routes_loaded}")
 # REMOVED: Root route handler to allow React frontend to handle root path
 # The DigitalOcean ingress rules will now properly route "/" to the frontend static site
 
-# FRONTEND SERVING - Since DigitalOcean static site is not working, serve React from FastAPI
+# STATIC FRONTEND SERVING - Comprehensive Trading Platform
 import os
 from pathlib import Path
 
-# Mount React frontend static files
-frontend_dist_path = Path("src/frontend/dist")
-if frontend_dist_path.exists():
-    app.mount("/static", StaticFiles(directory=str(frontend_dist_path)), name="static")
-    logger.info(f"✅ Frontend static files mounted at /static from {frontend_dist_path}")
+# Mount static frontend files
+static_path = Path("static")
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+    logger.info(f"✅ Static frontend mounted at /static from {static_path}")
 else:
-    logger.warning(f"⚠️ Frontend dist folder not found at {frontend_dist_path}")
+    logger.warning(f"⚠️ Static folder not found at {static_path}")
 
 # NOTE: Catch-all route MOVED to absolute end of file after ALL other routes
 
@@ -306,17 +314,17 @@ async def serve_react_app(path: str):
     if path.startswith(('api/', 'health', 'docs', 'redoc', 'static/', 'assets/')):
         raise HTTPException(status_code=404, detail="API endpoint not found")
     
-    # Try to serve index.html
-    frontend_dist_path = Path("src/frontend/dist")
-    index_path = frontend_dist_path / "index.html"
+    # Serve the comprehensive static frontend
+    static_path = Path("static")
+    index_path = static_path / "index.html"
     if index_path.exists():
-        logger.info(f"📄 Serving React index.html for path: {path}")
+        logger.info(f"📄 Serving comprehensive trading platform for path: {path}")
         with open(index_path, 'r', encoding='utf-8') as f:
             html_content = f.read()
         return HTMLResponse(content=html_content)
     else:
-        # Fallback: Serve a basic React app shell if dist files not found
-        logger.warning(f"⚠️ index.html not found, serving fallback for path: {path}")
+        # Fallback if static files not found
+        logger.warning(f"⚠️ Static frontend not found, serving fallback for path: {path}")
         fallback_html = f"""
 <!DOCTYPE html>
 <html lang="en">
@@ -326,7 +334,7 @@ async def serve_react_app(path: str):
     <title>ShareKhan Trading Platform</title>
     <style>
         body {{ font-family: Arial, sans-serif; margin: 0; padding: 20px; 
-               background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; }}
+               background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }}
         .container {{ max-width: 800px; margin: 0 auto; text-align: center; }}
         .status {{ background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0; }}
     </style>
@@ -335,30 +343,22 @@ async def serve_react_app(path: str):
     <div class="container">
         <h1>🚀 ShareKhan Trading Platform</h1>
         <div class="status">
-            <h2>✅ Your Comprehensive Trading Dashboard</h2>
-            <p>Successfully serving from FastAPI backend!</p>
-            <p><strong>Current Path:</strong> /{path}</p>
-            <p><strong>All Features Implemented & Ready:</strong></p>
+            <h2>✅ Comprehensive Trading Dashboard Loading...</h2>
+            <p>Static frontend files are being deployed...</p>
+            <p><strong>Features Available:</strong></p>
             <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
-                <li>✅ Analytics Dashboard (14KB, 347 lines)</li>
-                <li>✅ User Performance Dashboard (41KB, 863 lines)</li>
-                <li>✅ ShareKhan Auth with Daily Tokens (11KB)</li>
-                <li>✅ Live Market Indices Widget (15KB)</li>
-                <li>✅ Trading Reports Hub (26KB, 585 lines)</li>
-                <li>✅ Real-time Trading Monitor (22KB)</li>
-                <li>✅ Multi-user Management (37KB)</li>
-                <li>✅ System Health Dashboard (20KB)</li>
+                <li>✅ Live Market Indices & Real-time Data</li>
+                <li>✅ User Management & Daily Auth Tokens</li>
+                <li>✅ Trading Reports & Analytics</li>
+                <li>✅ Performance Dashboard with Charts</li>
+                <li>✅ System Health Monitoring</li>
+                <li>✅ ShareKhan API Integration</li>
             </ul>
             <p style="margin-top: 20px;"><strong>Backend API:</strong> ✅ Fully Operational</p>
             <p style="margin-top: 10px;">
                 <a href="/health" style="color: #fff; margin: 0 10px;">🏥 Health Check</a> |
-                <a href="/docs" style="color: #fff; margin: 0 10px;">📚 API Documentation</a> |
-                <a href="/api/debug/status" style="color: #fff; margin: 0 10px;">🔧 Debug Status</a>
+                <a href="/docs" style="color: #fff; margin: 0 10px;">📚 API Documentation</a>
             </p>
-            <div style="margin-top: 30px; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 5px;">
-                <h3>🎉 SUCCESS!</h3>
-                <p>Your comprehensive ShareKhan trading system is <strong>FULLY DEPLOYED</strong> with all requested features!</p>
-            </div>
         </div>
     </div>
 </body>
