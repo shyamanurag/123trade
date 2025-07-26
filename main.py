@@ -16,7 +16,6 @@ import time
 
 from fastapi import FastAPI, APIRouter, Request, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError, HTTPException
@@ -162,10 +161,9 @@ app.add_middleware(
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# Security middleware for production
-if os.getenv('ENVIRONMENT') == 'production':
-    allowed_hosts = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+# Security middleware disabled to prevent host header issues in production
+# TrustedHostMiddleware can cause "Invalid host header" errors in cloud deployments
+logger.info("TrustedHostMiddleware disabled for cloud deployment compatibility")
 
 # Exception handlers
 @app.exception_handler(RequestValidationError)
