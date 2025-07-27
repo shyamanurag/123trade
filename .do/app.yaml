@@ -19,8 +19,8 @@ static_sites:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
-  build_command: cd src/frontend && npm install && npm run build && mkdir -p ../../dist && cp -r dist/* ../../dist/
-  output_dir: dist
+  build_command: cd src/frontend && npm install && npm run build && ls -la dist && mkdir -p /workspace/dist && cp -r dist/* /workspace/dist/ && ls -la /workspace/dist
+  output_dir: /workspace/dist
   environment_slug: node-js
   catchall_document: index.html
 envs:
