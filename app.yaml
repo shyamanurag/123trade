@@ -88,11 +88,20 @@ services:
   instance_size_slug: basic-xxs
   http_port: 8080
   routes:
-  - path: /
-    name: api
   - path: /api
     name: api
   - path: /docs
     name: api
   - path: /health
-    name: api 
+    name: api
+static_sites:
+- name: frontend
+  source_dir: /
+  github:
+    repo: shyamanurag/123trade
+    branch: main
+    deploy_on_push: true
+  output_dir: /
+  routes:
+  - path: /
+    name: frontend 
