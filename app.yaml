@@ -89,4 +89,10 @@ services:
   http_port: 8080
   routes:
   - path: /
+    name: api
+  - path: /api
+    name: api
+  - path: /docs
+    name: api
+  - path: /health
     name: api 
