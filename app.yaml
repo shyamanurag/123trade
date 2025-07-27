@@ -86,17 +86,4 @@ services:
   environment_slug: python
   instance_count: 1
   instance_size_slug: basic-xxs
-  http_port: 8080
-static_sites:
-- name: frontend
-  source_dir: /src/frontend
-  github:
-    repo: shyamanurag/123trade
-    branch: main
-    deploy_on_push: true
-  build_command: npm ci && npm run build
-  output_dir: dist
-  environment_slug: node-js
-  routes:
-  - path: /
-    name: frontend 
+  http_port: 8080 
