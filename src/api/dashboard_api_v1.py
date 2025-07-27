@@ -3,279 +3,232 @@ Dashboard API v1 Endpoints for React Frontend
 Provides dashboard data, analytics, and system metrics
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
-import random
-import logging
-
+import asyncio
 from .auth_api import get_current_user
 
-logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/v1", tags=["dashboard"])
-
-def generate_mock_dashboard_data() -> Dict[str, Any]:
-    """Generate mock dashboard data for demonstration"""
-    
-    # Generate realistic mock data
-    base_portfolio_value = 500000
-    todays_change = random.uniform(-2, 3)
-    todays_pnl = base_portfolio_value * (todays_change / 100)
-    
-    return {
-        "metrics": {
-            "portfolio_value": base_portfolio_value + random.uniform(-10000, 20000),
-            "portfolio_change": round(todays_change, 2),
-            "todays_pnl": round(todays_pnl, 2),
-            "pnl_percentage": round(todays_change, 2),
-            "active_positions": random.randint(5, 15),
-            "positions_change": random.randint(-2, 5),
-            "connected_users": random.randint(3, 8)
-        },
-        "recent_trades": [
-            {
-                "id": f"trade_{i}",
-                "symbol": random.choice(["NIFTY50", "BANKNIFTY", "RELIANCE", "INFY", "TCS"]),
-                "side": random.choice(["BUY", "SELL"]),
-                "quantity": random.randint(1, 100),
-                "price": random.uniform(100, 3000),
-                "timestamp": (datetime.now() - timedelta(minutes=random.randint(1, 120))).isoformat(),
-                "status": random.choice(["COMPLETED", "PENDING", "CANCELLED"])
-            }
-            for i in range(5)
-        ],
-        "alerts": [
-            {
-                "id": f"alert_{i}",
-                "title": random.choice([
-                    "Market Volatility Alert",
-                    "Position Limit Warning", 
-                    "System Update Available",
-                    "Risk Threshold Exceeded"
-                ]),
-                "message": random.choice([
-                    "High volatility detected in NIFTY50",
-                    "Position size approaching daily limit",
-                    "System maintenance scheduled",
-                    "Risk parameters need review"
-                ]),
-                "priority": random.choice(["high", "medium", "low"]),
-                "timestamp": (datetime.now() - timedelta(minutes=random.randint(1, 60))).isoformat()
-            }
-            for i in range(3)
-        ],
-        "performance_data": {
-            "daily_pnl": [
-                {
-                    "date": (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d"),
-                    "pnl": random.uniform(-5000, 8000)
-                }
-                for i in range(30, 0, -1)
-            ],
-            "portfolio_growth": [
-                {
-                    "date": (datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d"),
-                    "value": base_portfolio_value + random.uniform(-20000, 30000)
-                }
-                for i in range(30, 0, -1)
-            ]
-        }
-    }
+router = APIRouter(prefix="/api", tags=["dashboard"])
 
 @router.get("/dashboard")
-async def get_dashboard_data(current_user: Dict[str, Any] = Depends(get_current_user)):
-    """Get comprehensive dashboard data"""
+async def get_dashboard_data(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    """
+    Get comprehensive dashboard data including:
+    - Portfolio metrics
+    - Recent trades
+    - System alerts
+    - Performance data
+    """
     try:
-        logger.info(f"Dashboard data requested by user: {current_user['email']}")
+        # Import orchestrator to get real data
+        from ..main import global_orchestrator
         
-        dashboard_data = generate_mock_dashboard_data()
+        # Get real portfolio metrics
+        portfolio_data = {}
+        if hasattr(global_orchestrator, 'get_portfolio_summary'):
+            portfolio_data = await global_orchestrator.get_portfolio_summary(current_user.id)
+        
+        # Get real trading metrics
+        trading_metrics = {}
+        if hasattr(global_orchestrator, 'get_trading_metrics'):
+            trading_metrics = await global_orchestrator.get_trading_metrics(current_user.id)
+        
+        # Get recent trades
+        recent_trades = []
+        if hasattr(global_orchestrator, 'get_recent_trades'):
+            recent_trades = await global_orchestrator.get_recent_trades(current_user.id, limit=10)
+        
+        # Get system alerts
+        alerts = []
+        if hasattr(global_orchestrator, 'get_system_alerts'):
+            alerts = await global_orchestrator.get_system_alerts(current_user.id)
+        
+        # Get performance data
+        performance_data = []
+        if hasattr(global_orchestrator, 'get_performance_history'):
+            performance_data = await global_orchestrator.get_performance_history(
+                current_user.id, 
+                days=7
+            )
+        
+        # Compile comprehensive dashboard response
+        dashboard_data = {
+            "metrics": {
+                "portfolio_value": portfolio_data.get("total_value", 0),
+                "portfolio_change": portfolio_data.get("day_change_percent", 0),
+                "todays_pnl": trading_metrics.get("todays_pnl", 0),
+                "pnl_percentage": trading_metrics.get("pnl_percentage", 0),
+                "active_positions": portfolio_data.get("active_positions", 0),
+                "positions_change": trading_metrics.get("positions_change", 0),
+                "connected_users": global_orchestrator.get_connected_users_count() if hasattr(global_orchestrator, 'get_connected_users_count') else 0
+            },
+            "recent_trades": recent_trades,
+            "alerts": alerts,
+            "performance_data": performance_data,
+            "last_updated": datetime.utcnow().isoformat(),
+            "user_info": {
+                "id": current_user.id,
+                "username": current_user.username,
+                "role": current_user.role
+            }
+        }
+        
+        return dashboard_data
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch dashboard data: {str(e)}"
+        )
+
+@router.get("/market/data")
+async def get_market_data(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    """Get real-time market data"""
+    try:
+        from ..main import global_orchestrator
+        
+        market_data = {}
+        if hasattr(global_orchestrator, 'get_market_data'):
+            market_data = await global_orchestrator.get_market_data()
         
         return {
-            "success": True,
-            "data": dashboard_data,
-            "timestamp": datetime.now().isoformat(),
-            "user": current_user["email"]
+            "market_data": market_data,
+            "timestamp": datetime.utcnow().isoformat()
         }
         
     except Exception as e:
-        logger.error(f"Dashboard data error: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch dashboard data"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch market data: {str(e)}"
         )
 
-@router.get("/market-data")
-async def get_market_data(symbol: Optional[str] = None):
-    """Get market data for symbols"""
-    try:
-        if symbol:
-            # Return data for specific symbol
-            return {
-                "symbol": symbol,
-                "price": random.uniform(100, 3000),
-                "change": random.uniform(-5, 5),
-                "change_percent": random.uniform(-2, 2),
-                "volume": random.randint(10000, 100000),
-                "high": random.uniform(100, 3000),
-                "low": random.uniform(100, 3000),
-                "timestamp": datetime.now().isoformat()
-            }
-        else:
-            # Return multiple symbols
-            symbols = ["NIFTY50", "BANKNIFTY", "SENSEX", "RELIANCE", "INFY", "TCS"]
-            return {
-                "symbols": [
-                    {
-                        "symbol": sym,
-                        "price": random.uniform(100, 3000),
-                        "change": random.uniform(-5, 5),
-                        "change_percent": random.uniform(-2, 2),
-                        "volume": random.randint(10000, 100000),
-                        "timestamp": datetime.now().isoformat()
-                    }
-                    for sym in symbols
-                ],
-                "symbol_count": len(symbols),
-                "timestamp": datetime.now().isoformat()
-            }
-            
-    except Exception as e:
-        logger.error(f"Market data error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch market data"
-        )
-
-@router.get("/market-data/indices")
-async def get_live_indices():
+@router.get("/market/indices")
+async def get_live_indices(current_user: User = Depends(get_current_user)) -> List[Dict[str, Any]]:
     """Get live market indices data"""
     try:
-        indices = [
-            {
-                "symbol": "NIFTY50",
-                "name": "NIFTY 50",
-                "price": 19850.45 + random.uniform(-100, 100),
-                "change": random.uniform(-50, 50),
-                "change_percent": random.uniform(-1, 1),
-                "volume": random.randint(100000, 1000000),
-                "high": 19950.75,
-                "low": 19780.20,
-                "timestamp": datetime.now().isoformat()
-            },
-            {
-                "symbol": "BANKNIFTY", 
-                "name": "BANK NIFTY",
-                "price": 44320.80 + random.uniform(-200, 200),
-                "change": random.uniform(-150, 150),
-                "change_percent": random.uniform(-0.5, 0.5),
-                "volume": random.randint(50000, 500000),
-                "high": 44580.90,
-                "low": 44120.50,
-                "timestamp": datetime.now().isoformat()
-            },
-            {
-                "symbol": "SENSEX",
-                "name": "SENSEX",
-                "price": 66795.14 + random.uniform(-300, 300),
-                "change": random.uniform(-200, 200),
-                "change_percent": random.uniform(-0.8, 0.8),
-                "volume": random.randint(80000, 800000),
-                "high": 67120.25,
-                "low": 66540.80,
-                "timestamp": datetime.now().isoformat()
-            }
-        ]
+        from ..main import global_orchestrator
         
-        return {
-            "indices": indices,
-            "count": len(indices),
-            "timestamp": datetime.now().isoformat(),
-            "market_status": "OPEN" if 9 <= datetime.now().hour < 16 else "CLOSED"
-        }
+        indices = []
+        if hasattr(global_orchestrator, 'get_live_indices'):
+            indices = await global_orchestrator.get_live_indices()
+        
+        return indices
         
     except Exception as e:
-        logger.error(f"Indices data error: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch indices data"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch live indices: {str(e)}"
         )
 
 @router.get("/trades")
 async def get_trades(
     limit: int = 50,
     offset: int = 0,
-    current_user: Dict[str, Any] = Depends(get_current_user)
-):
-    """Get trade history"""
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """Get user's trading history"""
     try:
-        trades = [
-            {
-                "id": f"trade_{i}",
-                "symbol": random.choice(["NIFTY50", "BANKNIFTY", "RELIANCE", "INFY", "TCS"]),
-                "side": random.choice(["BUY", "SELL"]),
-                "quantity": random.randint(1, 100),
-                "price": round(random.uniform(100, 3000), 2),
-                "amount": round(random.uniform(1000, 50000), 2),
-                "timestamp": (datetime.now() - timedelta(minutes=random.randint(1, 1440))).isoformat(),
-                "status": random.choice(["COMPLETED", "PENDING", "CANCELLED"]),
-                "user_id": current_user["user_id"]
-            }
-            for i in range(limit)
-        ]
+        from ..main import global_orchestrator
+        
+        trades = []
+        total_count = 0
+        
+        if hasattr(global_orchestrator, 'get_user_trades'):
+            trades, total_count = await global_orchestrator.get_user_trades(
+                current_user.id, 
+                limit=limit, 
+                offset=offset
+            )
         
         return {
             "trades": trades,
-            "total": len(trades),
+            "total": total_count,
             "limit": limit,
-            "offset": offset,
-            "timestamp": datetime.now().isoformat()
+            "offset": offset
         }
         
     except Exception as e:
-        logger.error(f"Trades data error: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch trades data"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch trades: {str(e)}"
+        )
+
+@router.post("/trades")
+async def create_trade(
+    trade_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """Submit a new trade"""
+    try:
+        from ..main import global_orchestrator
+        
+        if not hasattr(global_orchestrator, 'submit_trade'):
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Trading service not available"
+            )
+        
+        # Submit trade through orchestrator
+        trade_result = await global_orchestrator.submit_trade(
+            user_id=current_user.id,
+            trade_data=trade_data
+        )
+        
+        return {
+            "trade": trade_result,
+            "status": "submitted",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit trade: {str(e)}"
         )
 
 @router.get("/analytics")
 async def get_analytics(
     timeframe: str = "1d",
-    current_user: Dict[str, Any] = Depends(get_current_user)
-):
-    """Get analytics data"""
+    current_user: User = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """Get trading analytics and performance metrics"""
     try:
-        # Generate analytics based on timeframe
-        days = 1 if timeframe == "1d" else 7 if timeframe == "1w" else 30
+        from ..main import global_orchestrator
         
-        analytics = {
-            "performance": {
-                "total_pnl": random.uniform(-10000, 20000),
-                "win_rate": random.uniform(0.45, 0.75),
-                "avg_profit": random.uniform(500, 2000),
-                "avg_loss": random.uniform(-1000, -200),
-                "total_trades": random.randint(10, 100),
-                "profitable_trades": random.randint(5, 60)
-            },
-            "risk_metrics": {
-                "max_drawdown": random.uniform(-5000, -1000),
-                "sharpe_ratio": random.uniform(0.5, 2.0),
-                "volatility": random.uniform(0.1, 0.4),
-                "var_95": random.uniform(-2000, -500)
-            },
-            "timeframe": timeframe,
-            "timestamp": datetime.now().isoformat()
-        }
+        analytics = {}
+        if hasattr(global_orchestrator, 'get_user_analytics'):
+            analytics = await global_orchestrator.get_user_analytics(
+                current_user.id, 
+                timeframe=timeframe
+            )
         
         return {
-            "success": True,
             "analytics": analytics,
-            "user_id": current_user["user_id"]
+            "timeframe": timeframe,
+            "generated_at": datetime.utcnow().isoformat()
         }
         
     except Exception as e:
-        logger.error(f"Analytics error: {e}")
         raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch analytics data"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch analytics: {str(e)}"
+        )
+
+@router.get("/analytics/performance")
+async def get_performance_metrics(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+    """Get detailed performance metrics"""
+    try:
+        from ..main import global_orchestrator
+        
+        performance = {}
+        if hasattr(global_orchestrator, 'get_performance_metrics'):
+            performance = await global_orchestrator.get_performance_metrics(current_user.id)
+        
+        return performance
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch performance metrics: {str(e)}"
         ) 
