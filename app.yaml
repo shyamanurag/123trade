@@ -94,7 +94,7 @@ static_sites:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
-  build_command: chmod +x build.sh && ./build.sh
+  build_command: npm ci && npm run build
   output_dir: dist
   environment_slug: node-js
   routes:
