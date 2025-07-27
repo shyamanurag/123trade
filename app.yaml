@@ -56,22 +56,22 @@ envs:
   value: trade123-app-secret-2025-production-secure
 - key: APP_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://trade123-l3zp7.ondigitalocean.app
+  value: ${APP_URL}
 - key: FRONTEND_URL
   scope: RUN_AND_BUILD_TIME
-  value: https://trade123-l3zp7.ondigitalocean.app
+  value: ${APP_URL}
 - key: CORS_ORIGINS
   scope: RUN_AND_BUILD_TIME
-  value: https://trade123-l3zp7.ondigitalocean.app
+  value: ${APP_URL}
 - key: TRUSTED_HOSTS
   scope: RUN_AND_BUILD_TIME
-  value: trade123-l3zp7.ondigitalocean.app
+  value: ${APP_DOMAIN}
 - key: VITE_API_URL
   scope: BUILD_TIME
-  value: https://trade123-l3zp7.ondigitalocean.app
+  value: ${APP_URL}
 - key: VITE_WS_URL
   scope: BUILD_TIME
-  value: wss://trade123-l3zp7.ondigitalocean.app/ws
+  value: wss://${APP_DOMAIN}/ws
 - key: VITE_APP_NAME
   scope: BUILD_TIME
   value: Trade123
@@ -94,6 +94,9 @@ static_sites:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
-  build_command: npm install && npm run build
+  build_command: chmod +x build.sh && ./build.sh
   output_dir: dist
-  environment_slug: node-js 
+  environment_slug: node-js
+  routes:
+  - path: /
+    name: frontend 
