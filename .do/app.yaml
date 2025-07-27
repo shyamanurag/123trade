@@ -12,13 +12,39 @@ services:
   http_port: 8080
   instance_count: 1
   instance_size_slug: basic-xxs
+static_sites:
+- name: frontend
+  source_dir: /src/frontend
+  github:
+    repo: shyamanurag/123trade
+    branch: main
+    deploy_on_push: true
+  build_command: npm install && npm run build
+  output_dir: dist
+  environment_slug: node-js
+  envs:
+  - key: VITE_API_URL
+    scope: BUILD_TIME
+    value: https://trade123-l3zp7.ondigitalocean.app
+  - key: VITE_WS_URL
+    scope: BUILD_TIME
+    value: wss://trade123-l3zp7.ondigitalocean.app/ws
 envs:
 - key: SHAREKHAN_API_KEY
   scope: RUN_AND_BUILD_TIME
   value: 3yraoHgX8z7fpLnKTyXoZKx8ugtLaOBq
+- key: SHAREKHAN_SECRET_KEY
+  scope: RUN_AND_BUILD_TIME
+  value: XxmjJwQ6KM6PrCc5ryRPQYU2KYQz9qz0
+- key: SHAREKHAN_CUSTOMER_ID
+  scope: RUN_AND_BUILD_TIME
+  value: SANURAG1977
 - key: DATABASE_URL
   scope: RUN_AND_BUILD_TIME
   value: postgresql://doadmin:AVNS_tZlUKP7ygb0Nk6D6be-@app-87875ca6-5b29-4c9e-a19b-9bcde7e2fde3-do-user-23093341-0.g.db.ondigitalocean.com:25060/defaultdb?sslmode=require
 - key: SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: trade123-secret-key 
+  value: trade123-secret-key
+- key: JWT_SECRET_KEY
+  scope: RUN_AND_BUILD_TIME
+  value: trade123-jwt-secret-key-2025 
