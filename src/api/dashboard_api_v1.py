@@ -12,7 +12,7 @@ from .auth_api import get_current_user
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
 @router.get("/dashboard")
-async def get_dashboard_data(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+async def get_dashboard_data(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """
     Get comprehensive dashboard data including:
     - Portfolio metrics
@@ -27,28 +27,28 @@ async def get_dashboard_data(current_user: User = Depends(get_current_user)) -> 
         # Get real portfolio metrics
         portfolio_data = {}
         if hasattr(global_orchestrator, 'get_portfolio_summary'):
-            portfolio_data = await global_orchestrator.get_portfolio_summary(current_user.id)
+            portfolio_data = await global_orchestrator.get_portfolio_summary(current_user["user_id"])
         
         # Get real trading metrics
         trading_metrics = {}
         if hasattr(global_orchestrator, 'get_trading_metrics'):
-            trading_metrics = await global_orchestrator.get_trading_metrics(current_user.id)
+            trading_metrics = await global_orchestrator.get_trading_metrics(current_user["user_id"])
         
         # Get recent trades
         recent_trades = []
         if hasattr(global_orchestrator, 'get_recent_trades'):
-            recent_trades = await global_orchestrator.get_recent_trades(current_user.id, limit=10)
+            recent_trades = await global_orchestrator.get_recent_trades(current_user["user_id"], limit=10)
         
         # Get system alerts
         alerts = []
         if hasattr(global_orchestrator, 'get_system_alerts'):
-            alerts = await global_orchestrator.get_system_alerts(current_user.id)
+            alerts = await global_orchestrator.get_system_alerts(current_user["user_id"])
         
         # Get performance data
         performance_data = []
         if hasattr(global_orchestrator, 'get_performance_history'):
             performance_data = await global_orchestrator.get_performance_history(
-                current_user.id, 
+                current_user["user_id"], 
                 days=7
             )
         
@@ -68,9 +68,9 @@ async def get_dashboard_data(current_user: User = Depends(get_current_user)) -> 
             "performance_data": performance_data,
             "last_updated": datetime.utcnow().isoformat(),
             "user_info": {
-                "id": current_user.id,
-                "username": current_user.username,
-                "role": current_user.role
+                "id": current_user["user_id"],
+                "email": current_user["email"],
+                "role": current_user["role"]
             }
         }
         
@@ -83,7 +83,7 @@ async def get_dashboard_data(current_user: User = Depends(get_current_user)) -> 
         )
 
 @router.get("/market/data")
-async def get_market_data(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+async def get_market_data(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """Get real-time market data"""
     try:
         from ..main import global_orchestrator
@@ -104,7 +104,7 @@ async def get_market_data(current_user: User = Depends(get_current_user)) -> Dic
         )
 
 @router.get("/market/indices")
-async def get_live_indices(current_user: User = Depends(get_current_user)) -> List[Dict[str, Any]]:
+async def get_live_indices(current_user: Dict[str, Any] = Depends(get_current_user)) -> List[Dict[str, Any]]:
     """Get live market indices data"""
     try:
         from ..main import global_orchestrator
@@ -125,7 +125,7 @@ async def get_live_indices(current_user: User = Depends(get_current_user)) -> Li
 async def get_trades(
     limit: int = 50,
     offset: int = 0,
-    current_user: User = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """Get user's trading history"""
     try:
@@ -136,7 +136,7 @@ async def get_trades(
         
         if hasattr(global_orchestrator, 'get_user_trades'):
             trades, total_count = await global_orchestrator.get_user_trades(
-                current_user.id, 
+                current_user["user_id"], 
                 limit=limit, 
                 offset=offset
             )
@@ -157,7 +157,7 @@ async def get_trades(
 @router.post("/trades")
 async def create_trade(
     trade_data: Dict[str, Any],
-    current_user: User = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """Submit a new trade"""
     try:
@@ -171,7 +171,7 @@ async def create_trade(
         
         # Submit trade through orchestrator
         trade_result = await global_orchestrator.submit_trade(
-            user_id=current_user.id,
+            user_id=current_user["user_id"],
             trade_data=trade_data
         )
         
@@ -190,7 +190,7 @@ async def create_trade(
 @router.get("/analytics")
 async def get_analytics(
     timeframe: str = "1d",
-    current_user: User = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user)
 ) -> Dict[str, Any]:
     """Get trading analytics and performance metrics"""
     try:
@@ -199,7 +199,7 @@ async def get_analytics(
         analytics = {}
         if hasattr(global_orchestrator, 'get_user_analytics'):
             analytics = await global_orchestrator.get_user_analytics(
-                current_user.id, 
+                current_user["user_id"], 
                 timeframe=timeframe
             )
         
@@ -216,14 +216,14 @@ async def get_analytics(
         )
 
 @router.get("/analytics/performance")
-async def get_performance_metrics(current_user: User = Depends(get_current_user)) -> Dict[str, Any]:
+async def get_performance_metrics(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """Get detailed performance metrics"""
     try:
         from ..main import global_orchestrator
         
         performance = {}
         if hasattr(global_orchestrator, 'get_performance_metrics'):
-            performance = await global_orchestrator.get_performance_metrics(current_user.id)
+            performance = await global_orchestrator.get_performance_metrics(current_user["user_id"])
         
         return performance
         
