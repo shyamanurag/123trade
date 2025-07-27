@@ -14,12 +14,12 @@ services:
   instance_size_slug: basic-xxs
 static_sites:
 - name: frontend
-  source_dir: /src/frontend
+  source_dir: /
   github:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
-  build_command: npm install && npm run build
+  build_command: cd src/frontend && npm install && npm run build && mkdir -p ../../dist && cp -r dist/* ../../dist/
   output_dir: dist
   environment_slug: node-js
   catchall_document: index.html
