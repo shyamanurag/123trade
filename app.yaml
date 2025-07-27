@@ -86,4 +86,7 @@ services:
   environment_slug: python
   instance_count: 1
   instance_size_slug: basic-xxs
-  http_port: 8080 
+  http_port: 8080
+  routes:
+  - path: /
+    name: api 

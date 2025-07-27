@@ -1,0 +1,36 @@
+# Ignore frontend build files from static site detection
+src/frontend/dist/
+src/frontend/node_modules/
+src/frontend/.vite/
+src/frontend/build.sh
+build_frontend.sh
+
+# Ignore development files
+*.log
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Ignore cache and temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db 
