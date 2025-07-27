@@ -1,19 +1,4 @@
-# Stage 1: Build the frontend
-FROM node:18.19.0-slim as builder
-
-WORKDIR /app/frontend
-
-# Copy package files and install dependencies
-COPY src/frontend/package.json src/frontend/package-lock.json* ./
-RUN npm install
-
-# Copy the rest of the frontend source code
-COPY src/frontend/ ./
-
-# Build the frontend
-RUN npm run build
-
-# Stage 2: Build the final Python application
+# Python application with pre-built frontend assets
 FROM python:3.11.2-slim
 
 WORKDIR /app
@@ -31,8 +16,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Copy built frontend from the builder stage
-COPY --from=builder /app/frontend/dist /app/static
+# Copy built frontend assets
+COPY dist ./static
 
 # Set environment variables
 ENV PYTHONPATH=/app
