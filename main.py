@@ -416,201 +416,63 @@ async def restart_system():
         return {"success": False, "error": str(e)}
 
 # =============================================================================
-# EMBEDDED FRONTEND SERVING
+# MINIMAL EMBEDDED FRONTEND (ZERO STATIC DETECTION)
 # =============================================================================
 
-# Embedded HTML frontend (no static files needed)
-EMBEDDED_HTML = """
-<!DOCTYPE html>
-<html lang="en">
+# Ultra-minimal embedded HTML frontend
+MINIMAL_HTML = """<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trade123 - Trading System</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .header h1 {
-            color: #2d3748;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .header p {
-            color: #718096;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card h3 {
-            color: #2d3748;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-        .card p {
-            color: #718096;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        .btn {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        .status {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #48bb78;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        .api-links {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .api-links a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 16px;
-            border: 2px solid #667eea;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-        .api-links a:hover {
-            background: #667eea;
-            color: white;
-        }
+        body{font-family:Arial,sans-serif;margin:40px;background:#f5f5f5}
+        .container{max-width:800px;margin:0 auto;background:white;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+        h1{color:#333;text-align:center;margin-bottom:30px}
+        .card{background:#f8f9fa;padding:20px;margin:15px 0;border-radius:8px;border-left:4px solid #007bff}
+        .btn{display:inline-block;background:#007bff;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px}
+        .btn:hover{background:#0056b3}
+        .status{text-align:center;margin:20px 0;padding:15px;background:#d4edda;border-radius:5px;color:#155724}
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🚀 Trade123 Trading System</h1>
-            <p>Advanced ShareKhan Trading Platform with Real-time Market Data</p>
+        <h1>🚀 Trade123 Trading System</h1>
+        <div class="status">✅ System Online - ShareKhan Trading Platform Ready</div>
+        
+        <div class="card">
+            <h3>📊 Trading Dashboard</h3>
+            <p>Access real-time trading data and portfolio management.</p>
+            <a href="/api/dashboard" class="btn">Dashboard</a>
         </div>
         
-        <div class="grid">
-            <div class="card">
-                <h3>📊 Trading Dashboard</h3>
-                <p>Access real-time trading data, portfolio management, and market analysis tools.</p>
-                <a href="/api/dashboard" class="btn">Open Dashboard</a>
-            </div>
-            
-            <div class="card">
-                <h3>📈 Market Data</h3>
-                <p>Live market data, price feeds, and technical analysis for informed trading decisions.</p>
-                <a href="/api/market-data" class="btn">View Markets</a>
-            </div>
-            
-            <div class="card">
-                <h3>💰 Portfolio</h3>
-                <p>Track your positions, P&L, and portfolio performance in real-time.</p>
-                <a href="/api/portfolio" class="btn">View Portfolio</a>
-            </div>
-            
-            <div class="card">
-                <h3>⚙️ System Status</h3>
-                <p>Monitor system health, trading status, and connection status.</p>
-                <a href="/health" class="btn">Check Status</a>
-            </div>
+        <div class="card">
+            <h3>📈 Market Data</h3>
+            <p>Live market data and price feeds.</p>
+            <a href="/api/market-data" class="btn">Markets</a>
         </div>
         
-        <div class="status">
-            <div class="status-indicator"></div>
-            <strong>System Status: Online</strong>
-            <p style="margin-top: 10px; color: #718096;">ShareKhan Trading System is running and ready for trading operations.</p>
-            
-            <div class="api-links">
-                <a href="/docs">📚 API Documentation</a>
-                <a href="/health/detailed">🔍 Detailed Health</a>
-                <a href="/api/system/config">⚙️ System Config</a>
-            </div>
+        <div class="card">
+            <h3>💰 Portfolio</h3>
+            <p>Track positions and P&L.</p>
+            <a href="/api/portfolio" class="btn">Portfolio</a>
+        </div>
+        
+        <div class="card">
+            <h3>📚 API Documentation</h3>
+            <p>Complete API reference and testing interface.</p>
+            <a href="/docs" class="btn">API Docs</a>
+            <a href="/health" class="btn">Health Check</a>
         </div>
     </div>
-    
-    <script>
-        // Simple status check
-        fetch('/health')
-            .then(response => response.json())
-            .then(data => {
-                console.log('System status:', data);
-            })
-            .catch(error => {
-                console.log('Status check failed:', error);
-            });
-    </script>
 </body>
-</html>
-"""
+</html>"""
 
-# Serve embedded frontend (catch-all route for client-side routing)
+# Serve minimal frontend (catch-all route)
 @app.get("/{full_path:path}")
-async def serve_embedded_frontend(full_path: str):
-    """Serve embedded frontend for all unmatched routes"""
+async def serve_minimal_frontend(full_path: str):
+    """Serve minimal frontend for all unmatched routes"""
     
-    # Skip API routes and known endpoints
+    # Skip API routes
     if (full_path.startswith("api/") or 
         full_path.startswith("docs") or 
         full_path.startswith("redoc") or
@@ -620,8 +482,8 @@ async def serve_embedded_frontend(full_path: str):
         full_path.startswith("v1/")):
         raise HTTPException(status_code=404, detail="API endpoint not found")
     
-    # Serve embedded HTML for all other routes
-    return HTMLResponse(content=EMBEDDED_HTML)
+    # Serve minimal HTML
+    return HTMLResponse(content=MINIMAL_HTML)
 
 # Development server configuration
 if __name__ == "__main__":
