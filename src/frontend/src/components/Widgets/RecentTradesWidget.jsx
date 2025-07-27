@@ -11,61 +11,39 @@ import {
 import React from 'react'
 
 const RecentTradesWidget = ({ trades }) => {
-    // Mock data if none provided
-    const defaultTrades = [
-        {
-            id: 1,
-            symbol: 'RELIANCE',
-            type: 'BUY',
-            quantity: 100,
-            price: 2845.50,
-            timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-            status: 'COMPLETED',
-            pnl: 1250.00
-        },
-        {
-            id: 2,
-            symbol: 'TCS',
-            type: 'SELL',
-            quantity: 50,
-            price: 3567.20,
-            timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-            status: 'COMPLETED',
-            pnl: -450.00
-        },
-        {
-            id: 3,
-            symbol: 'HDFCBANK',
-            type: 'BUY',
-            quantity: 75,
-            price: 1678.90,
-            timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            status: 'PENDING',
-            pnl: 0
-        },
-        {
-            id: 4,
-            symbol: 'INFY',
-            type: 'SELL',
-            quantity: 200,
-            price: 1456.75,
-            timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-            status: 'COMPLETED',
-            pnl: 2350.00
-        },
-        {
-            id: 5,
-            symbol: 'ICICIBANK',
-            type: 'BUY',
-            quantity: 150,
-            price: 987.25,
-            timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
-            status: 'FAILED',
-            pnl: 0
-        }
-    ]
+    // Show empty state if no data provided
+    if (!trades || trades.length === 0) {
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="card h-fit"
+            >
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            Recent Trades
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                            Waiting for trading data...
+                        </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-primary-600" />
+                        </div>
+                    </div>
+                </div>
+                <div className="text-center py-12">
+                    <Activity className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No Recent Trades</h4>
+                    <p className="text-gray-600">Your recent trading activity will appear here</p>
+                </div>
+            </motion.div>
+        )
+    }
 
-    const tradesData = trades || defaultTrades
+    const tradesData = trades
 
     const getStatusColor = (status) => {
         switch (status) {

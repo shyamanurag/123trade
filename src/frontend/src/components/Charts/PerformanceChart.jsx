@@ -12,18 +12,38 @@ import {
 } from 'recharts'
 
 const PerformanceChart = ({ data }) => {
-    // Mock data if none provided
-    const defaultData = [
-        { date: '2025-01-01', value: 100000, pnl: 0 },
-        { date: '2025-01-02', value: 102500, pnl: 2500 },
-        { date: '2025-01-03', value: 101800, pnl: 1800 },
-        { date: '2025-01-04', value: 105200, pnl: 5200 },
-        { date: '2025-01-05', value: 103900, pnl: 3900 },
-        { date: '2025-01-06', value: 108500, pnl: 8500 },
-        { date: '2025-01-07', value: 107200, pnl: 7200 }
-    ]
+    // Show empty state if no data provided
+    if (!data || data.length === 0) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="card"
+            >
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            Portfolio Performance
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                            Performance data will appear here
+                        </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center">
+                        <Activity className="w-6 h-6 text-primary-600" />
+                    </div>
+                </div>
+                <div className="text-center py-12">
+                    <Activity className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No Performance Data</h4>
+                    <p className="text-gray-600">Performance charts will appear when trading data is available</p>
+                </div>
+            </motion.div>
+        )
+    }
 
-    const chartData = data || defaultData
+    const chartData = data
     const latestValue = chartData[chartData.length - 1]
     const previousValue = chartData[chartData.length - 2]
     const change = latestValue?.value - previousValue?.value || 0

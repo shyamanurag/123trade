@@ -64,62 +64,8 @@ class ApiService {
 
     // Dashboard API
     async getDashboardData() {
-        try {
-            const response = await this.client.get('/api/dashboard')
-            return response.data
-        } catch (error) {
-            // Return mock data if API fails
-            return {
-                metrics: {
-                    portfolio_value: 1250000,
-                    portfolio_change: 2.5,
-                    todays_pnl: 15000,
-                    pnl_percentage: 1.2,
-                    active_positions: 12,
-                    positions_change: 3,
-                    connected_users: 5
-                },
-                recent_trades: [
-                    {
-                        id: 1,
-                        symbol: 'RELIANCE',
-                        type: 'BUY',
-                        quantity: 100,
-                        price: 2845.50,
-                        timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-                        status: 'COMPLETED',
-                        pnl: 1250.00
-                    },
-                    {
-                        id: 2,
-                        symbol: 'TCS',
-                        type: 'SELL',
-                        quantity: 50,
-                        price: 3567.20,
-                        timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-                        status: 'COMPLETED',
-                        pnl: -450.00
-                    }
-                ],
-                alerts: [
-                    {
-                        title: 'Market Alert',
-                        message: 'NIFTY approaching resistance level at 22,200',
-                        priority: 'medium',
-                        timestamp: new Date().toISOString()
-                    }
-                ],
-                performance_data: [
-                    { date: '2025-01-01', value: 100000, pnl: 0 },
-                    { date: '2025-01-02', value: 102500, pnl: 2500 },
-                    { date: '2025-01-03', value: 101800, pnl: 1800 },
-                    { date: '2025-01-04', value: 105200, pnl: 5200 },
-                    { date: '2025-01-05', value: 103900, pnl: 3900 },
-                    { date: '2025-01-06', value: 108500, pnl: 8500 },
-                    { date: '2025-01-07', value: 107200, pnl: 7200 }
-                ]
-            }
-        }
+        const response = await this.client.get('/api/dashboard')
+        return response.data
     }
 
     // Authentication API

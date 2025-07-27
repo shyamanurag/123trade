@@ -3,59 +3,41 @@ import { Activity, BarChart3, TrendingDown, TrendingUp } from 'lucide-react'
 import React from 'react'
 
 const LiveIndicesWidget = ({ indices }) => {
-    // Mock data if none provided
-    const defaultIndices = [
-        {
-            name: 'NIFTY 50',
-            symbol: 'NIFTY',
-            value: 22145.50,
-            change: 125.30,
-            changePercent: 0.57,
-            lastUpdate: new Date().toISOString()
-        },
-        {
-            name: 'SENSEX',
-            symbol: 'SENSEX',
-            value: 73042.20,
-            change: -88.45,
-            changePercent: -0.12,
-            lastUpdate: new Date().toISOString()
-        },
-        {
-            name: 'BANK NIFTY',
-            symbol: 'BANKNIFTY',
-            value: 45890.75,
-            change: 234.60,
-            changePercent: 0.51,
-            lastUpdate: new Date().toISOString()
-        },
-        {
-            name: 'NIFTY IT',
-            symbol: 'NIFTYIT',
-            value: 32156.40,
-            change: -156.80,
-            changePercent: -0.49,
-            lastUpdate: new Date().toISOString()
-        },
-        {
-            name: 'NIFTY AUTO',
-            symbol: 'NIFTYAUTO',
-            value: 18765.30,
-            change: 89.20,
-            changePercent: 0.48,
-            lastUpdate: new Date().toISOString()
-        },
-        {
-            name: 'NIFTY PHARMA',
-            symbol: 'NIFTYPHARMA',
-            value: 14532.85,
-            change: -45.60,
-            changePercent: -0.31,
-            lastUpdate: new Date().toISOString()
-        }
-    ]
+    // Show empty state if no data provided
+    if (!indices || indices.length === 0) {
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="card"
+            >
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            Live Market Indices
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                            Waiting for market data...
+                        </p>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                        <span className="text-sm text-gray-600">Connecting...</span>
+                        <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center">
+                            <BarChart3 className="w-5 h-5 text-primary-600" />
+                        </div>
+                    </div>
+                </div>
+                <div className="text-center py-12">
+                    <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">No Market Data</h4>
+                    <p className="text-gray-600">Live indices will appear when market feed is connected</p>
+                </div>
+            </motion.div>
+        )
+    }
 
-    const indicesData = indices || defaultIndices
+    const indicesData = indices
 
     const containerVariants = {
         hidden: { opacity: 0 },
