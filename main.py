@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError, HTTPException
-from fastapi.staticfiles import StaticFiles
+# StaticFiles import removed - using embedded frontend
 import uvicorn
 from dotenv import load_dotenv
 
@@ -416,18 +416,199 @@ async def restart_system():
         return {"success": False, "error": str(e)}
 
 # =============================================================================
-# STATIC FILES & FRONTEND SERVING
+# EMBEDDED FRONTEND SERVING
 # =============================================================================
 
-# Serve React frontend static files
-if os.path.exists("src/frontend/dist"):
-    app.mount("/static", StaticFiles(directory="src/frontend/dist/assets"), name="static")
-    logger.info("✅ React frontend static files mounted")
+# Embedded HTML frontend (no static files needed)
+EMBEDDED_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade123 - Trading System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .header p {
+            color: #718096;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .card p {
+            color: #718096;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .status {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #48bb78;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .api-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .api-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .api-links a:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Trade123 Trading System</h1>
+            <p>Advanced ShareKhan Trading Platform with Real-time Market Data</p>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>📊 Trading Dashboard</h3>
+                <p>Access real-time trading data, portfolio management, and market analysis tools.</p>
+                <a href="/api/dashboard" class="btn">Open Dashboard</a>
+            </div>
+            
+            <div class="card">
+                <h3>📈 Market Data</h3>
+                <p>Live market data, price feeds, and technical analysis for informed trading decisions.</p>
+                <a href="/api/market-data" class="btn">View Markets</a>
+            </div>
+            
+            <div class="card">
+                <h3>💰 Portfolio</h3>
+                <p>Track your positions, P&L, and portfolio performance in real-time.</p>
+                <a href="/api/portfolio" class="btn">View Portfolio</a>
+            </div>
+            
+            <div class="card">
+                <h3>⚙️ System Status</h3>
+                <p>Monitor system health, trading status, and connection status.</p>
+                <a href="/health" class="btn">Check Status</a>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="status-indicator"></div>
+            <strong>System Status: Online</strong>
+            <p style="margin-top: 10px; color: #718096;">ShareKhan Trading System is running and ready for trading operations.</p>
+            
+            <div class="api-links">
+                <a href="/docs">📚 API Documentation</a>
+                <a href="/health/detailed">🔍 Detailed Health</a>
+                <a href="/api/system/config">⚙️ System Config</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simple status check
+        fetch('/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('System status:', data);
+            })
+            .catch(error => {
+                console.log('Status check failed:', error);
+            });
+    </script>
+</body>
+</html>
+"""
 
-# Serve React frontend (catch-all route for client-side routing)
+# Serve embedded frontend (catch-all route for client-side routing)
 @app.get("/{full_path:path}")
-async def serve_react_app(full_path: str):
-    """Serve React frontend for all unmatched routes"""
+async def serve_embedded_frontend(full_path: str):
+    """Serve embedded frontend for all unmatched routes"""
     
     # Skip API routes and known endpoints
     if (full_path.startswith("api/") or 
@@ -439,27 +620,8 @@ async def serve_react_app(full_path: str):
         full_path.startswith("v1/")):
         raise HTTPException(status_code=404, detail="API endpoint not found")
     
-    # Serve React app index.html for all other routes
-    react_index_path = "src/frontend/dist/index.html"
-    if os.path.exists(react_index_path):
-        with open(react_index_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        return HTMLResponse(content=content)
-    else:
-        # Fallback if React build doesn't exist
-        return HTMLResponse(
-            content="""
-            <html>
-                <head><title>Trade123 - Setup Required</title></head>
-                <body>
-                    <h1>🚀 Trade123 Trading System</h1>
-                    <p>React frontend is being built. Please run:</p>
-                    <pre>cd src/frontend && npm install && npm run build</pre>
-                    <p><a href="/docs">📚 API Documentation</a></p>
-                </body>
-            </html>
-            """
-        )
+    # Serve embedded HTML for all other routes
+    return HTMLResponse(content=EMBEDDED_HTML)
 
 # Development server configuration
 if __name__ == "__main__":
