@@ -19,7 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse, HTMLResponse
 from fastapi.exceptions import RequestValidationError, HTTPException
-# StaticFiles import removed - using embedded frontend
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from dotenv import load_dotenv
 
@@ -165,6 +165,9 @@ app.add_middleware(
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Mount the static directory to serve the frontend
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 # Security middleware disabled to prevent host header issues in production
 # TrustedHostMiddleware can cause "Invalid host header" errors in cloud deployments
