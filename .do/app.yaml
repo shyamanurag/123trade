@@ -22,13 +22,7 @@ static_sites:
   build_command: npm install && npm run build
   output_dir: dist
   environment_slug: node-js
-  envs:
-  - key: VITE_API_URL
-    scope: BUILD_TIME
-    value: https://trade123-l3zp7.ondigitalocean.app
-  - key: VITE_WS_URL
-    scope: BUILD_TIME
-    value: wss://trade123-l3zp7.ondigitalocean.app/ws
+  catchall_document: index.html
 envs:
 - key: SHAREKHAN_API_KEY
   scope: RUN_AND_BUILD_TIME
@@ -47,4 +41,10 @@ envs:
   value: trade123-secret-key
 - key: JWT_SECRET_KEY
   scope: RUN_AND_BUILD_TIME
-  value: trade123-jwt-secret-key-2025 
+  value: trade123-jwt-secret-key-2025
+- key: VITE_API_URL
+  scope: BUILD_TIME
+  value: https://PLACEHOLDER_NEW_URL
+- key: VITE_WS_URL
+  scope: BUILD_TIME
+  value: wss://PLACEHOLDER_NEW_URL/ws 
