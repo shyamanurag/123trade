@@ -27,6 +27,7 @@
     "@mui/icons-material": "^5.14.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
+    "@heroicons/react": "^2.0.18",
     "date-fns": "^2.30.0"
   },
   "devDependencies": {
