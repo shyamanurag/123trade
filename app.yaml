@@ -101,6 +101,7 @@ static_sites:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
+  build_command: cd src/frontend && npm ci && npm run build
   output_dir: dist
   routes:
   - path: /
