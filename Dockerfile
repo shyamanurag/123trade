@@ -34,7 +34,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy built frontend from frontend-builder stage
-COPY --from=frontend-builder /frontend/dist ./static
+COPY --from=frontend-builder /frontend/dist ./dist
 
 # Set environment variables
 ENV PYTHONPATH=/app
