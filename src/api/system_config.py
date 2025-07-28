@@ -8,9 +8,9 @@ import os
 import logging
 
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(prefix="/system")
 
-@router.get("/system/config")
+@router.get("/config")
 async def get_system_config():
     """Get system configuration settings"""
     try:
@@ -58,15 +58,17 @@ async def get_system_config():
         logger.error(f"Error getting system config: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get system config: {str(e)}")
 
-@router.get("/system/status")
+@router.get("/status")
 async def get_system_status():
-    """Get basic system status information"""
+    """Get basic system status information with orchestrator status"""
     try:
+        # Default status
         status = {
             "status": "operational",
             "version": "4.0.1",
             "environment": os.getenv("ENVIRONMENT", "production"),
             "uptime": "running",
+            "orchestrator_status": "stopped",
             "components": {
                 "api": True,
                 "database": True,
@@ -80,6 +82,18 @@ async def get_system_status():
             }
         }
         
+        # Try to get orchestrator status
+        try:
+            from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+            orchestrator = await ShareKhanTradingOrchestrator.get_instance()
+            if orchestrator and hasattr(orchestrator, 'is_running'):
+                status["orchestrator_status"] = "running" if orchestrator.is_running else "stopped"
+            else:
+                status["orchestrator_status"] = "stopped"
+        except Exception as orch_error:
+            logger.warning(f"Could not get orchestrator status: {orch_error}")
+            status["orchestrator_status"] = "unknown"
+        
         return {
             "success": True,
             "data": status,
@@ -90,7 +104,7 @@ async def get_system_status():
         logger.error(f"Error getting system status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get system status: {str(e)}")
 
-@router.get("/system/metrics")
+@router.get("/metrics")
 async def get_system_metrics():
     """Get system performance metrics"""
     try:

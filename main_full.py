@@ -143,6 +143,38 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Include API routes with fallback handling
 routes_loaded = []
 
+# System Configuration & Status (CRITICAL for frontend)
+try:
+    from src.api.system_config import router as system_config_router
+    app.include_router(system_config_router, prefix="/api", tags=["system"])
+    routes_loaded.append("system-config")
+except Exception as e:
+    logger.warning(f"System config routes not loaded: {e}")
+
+# Users Management API (CRITICAL for frontend)
+try:
+    from src.api.users_api_v1 import router as users_router
+    app.include_router(users_router, prefix="/api", tags=["users"])
+    routes_loaded.append("users-api")
+except Exception as e:
+    logger.warning(f"Users API not loaded: {e}")
+
+# Market Data API (CRITICAL for frontend)
+try:
+    from src.api.market import router as market_router
+    app.include_router(market_router, prefix="/api", tags=["market"])
+    routes_loaded.append("market-api")
+except Exception as e:
+    logger.warning(f"Market API not loaded: {e}")
+
+# ShareKhan API (CRITICAL for frontend)
+try:
+    from src.api.sharekhan_api import router as sharekhan_api_router
+    app.include_router(sharekhan_api_router, prefix="/api", tags=["sharekhan"])
+    routes_loaded.append("sharekhan-api")
+except Exception as e:
+    logger.warning(f"ShareKhan API not loaded: {e}")
+
 # ShareKhan Auth routes
 try:
     from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
@@ -174,6 +206,78 @@ try:
     routes_loaded.append("autonomous")
 except Exception as e:
     logger.warning(f"Autonomous trading routes not loaded: {e}")
+
+# Trading Control & Strategies
+try:
+    from src.api.trading_control import router as trading_control_router
+    app.include_router(trading_control_router, prefix="/api", tags=["trading"])
+    routes_loaded.append("trading-control")
+except Exception as e:
+    logger.warning(f"Trading control routes not loaded: {e}")
+
+# Order Management
+try:
+    from src.api.order_management import router as orders_router
+    app.include_router(orders_router, prefix="/api", tags=["orders"])
+    routes_loaded.append("orders")
+except Exception as e:
+    logger.warning(f"Order management routes not loaded: {e}")
+
+# Position Management
+try:
+    from src.api.position_management import router as positions_router
+    app.include_router(positions_router, prefix="/api", tags=["positions"])
+    routes_loaded.append("positions")
+except Exception as e:
+    logger.warning(f"Position management routes not loaded: {e}")
+
+# Strategy Management
+try:
+    from src.api.strategy_management import router as strategy_router
+    app.include_router(strategy_router, prefix="/api", tags=["strategies"])
+    routes_loaded.append("strategies")
+except Exception as e:
+    logger.warning(f"Strategy management routes not loaded: {e}")
+
+# Risk Management
+try:
+    from src.api.risk_management import router as risk_router
+    app.include_router(risk_router, prefix="/api", tags=["risk"])
+    routes_loaded.append("risk")
+except Exception as e:
+    logger.warning(f"Risk management routes not loaded: {e}")
+
+# System Health & Monitoring
+try:
+    from src.api.system_health import router as system_health_router
+    app.include_router(system_health_router, prefix="/api", tags=["monitoring"])
+    routes_loaded.append("system-health")
+except Exception as e:
+    logger.warning(f"System health routes not loaded: {e}")
+
+# Auth Token Management
+try:
+    from src.api.token_management_api import router as token_router
+    app.include_router(token_router, prefix="/api", tags=["auth"])
+    routes_loaded.append("auth-tokens")
+except Exception as e:
+    logger.warning(f"Auth token management routes not loaded: {e}")
+
+# Trade Synchronization API (CRITICAL for real data sync)
+try:
+    from src.api.trade_sync_api import router as trade_sync_router
+    app.include_router(trade_sync_router, tags=["trade-sync"])
+    routes_loaded.append("trade-sync")
+except Exception as e:
+    logger.warning(f"Trade sync API not loaded: {e}")
+
+# Portfolio Sync API (CRITICAL for position tracking)
+try:
+    from src.api.portfolio_sync_api import router as portfolio_sync_router
+    app.include_router(portfolio_sync_router, tags=["portfolio-sync"])
+    routes_loaded.append("portfolio-sync")
+except Exception as e:
+    logger.warning(f"Portfolio sync API not loaded: {e}")
 
 # Frontend API routes - SIMPLIFIED: Direct include
 try:

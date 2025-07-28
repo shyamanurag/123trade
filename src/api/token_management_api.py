@@ -13,7 +13,7 @@ import random
 from .auth_api import get_current_user
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/v1/auth-tokens", tags=["token-management"])
+router = APIRouter(prefix="/auth", tags=["token-management"])
 
 # Pydantic Models
 class DailyTokenSubmission(BaseModel):
@@ -88,6 +88,45 @@ async def submit_daily_token(
             status_code=500,
             detail="Failed to submit daily token"
         )
+
+@router.get("/tokens")
+async def get_auth_tokens():
+    """Get authentication tokens status for all users"""
+    try:
+        tokens_status = []
+        for user_id, user_token in MOCK_TOKENS.items():
+            expires_at = datetime.fromisoformat(user_token["expires_at"].replace("Z", "+00:00"))
+            time_until_expiry = expires_at - datetime.now(expires_at.tzinfo)
+            
+            if time_until_expiry.total_seconds() < 0:
+                status = "expired"
+            elif time_until_expiry.total_seconds() < 4 * 3600:  # 4 hours
+                status = "expiring"
+            else:
+                status = "active"
+            
+            tokens_status.append({
+                "user_id": user_id,
+                "broker": "zerodha",
+                "status": status,
+                "expires_at": user_token["expires_at"],
+                "last_updated": user_token["updated_at"]
+            })
+        
+        return {
+            "success": True,
+            "data": {"tokens": tokens_status},
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Error getting auth tokens: {e}")
+        return {
+            "success": False,
+            "error": str(e),
+            "data": {"tokens": []},
+            "timestamp": datetime.now().isoformat()
+        }
 
 @router.get("/status", response_model=TokenStatusResponse)
 async def get_token_status(current_user: Dict[str, Any] = Depends(get_current_user)):

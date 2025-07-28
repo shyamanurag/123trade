@@ -29,9 +29,9 @@ export default function TopBar() {
     // Orchestrator toggle mutation
     const toggleOrchestratorMutation = useMutation({
         mutationFn: async (action: 'start' | 'stop') => {
-            const response = await axios.post('/api/autonomous/control', { action });
+            const response = await axios.post(`/api/autonomous/${action}`);
             if (!response.data.success) {
-                throw new Error(`Failed to ${action} orchestrator`);
+                throw new Error(response.data.message || `Failed to ${action} orchestrator`);
             }
             return response.data;
         },
@@ -79,8 +79,8 @@ export default function TopBar() {
                         onClick={handleOrchestratorToggle}
                         disabled={toggleOrchestratorMutation.isLoading}
                         className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${systemStatus?.orchestrator_status === 'running'
-                                ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                            : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                     >
                         <PowerIcon className="h-4 w-4 mr-2" />
