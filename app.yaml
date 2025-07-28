@@ -101,7 +101,7 @@ static_sites:
     repo: shyamanurag/123trade
     branch: main
     deploy_on_push: true
-  output_dir: /
+  output_dir: static
   routes:
   - path: /
-    name: frontend 
+    name: frontend
