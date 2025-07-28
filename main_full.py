@@ -392,6 +392,7 @@ async def serve_react_app(path: str):
     
     # Fallback if static files not found
     logger.warning(f"⚠️ Static frontend not found, serving fallback for path: {path}")
+    # Force deployment refresh - frontend should be working
     fallback_html = f"""
 <!DOCTYPE html>
 <html lang="en">
