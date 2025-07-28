@@ -171,6 +171,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 import os
 if os.path.exists("dist"):
     app.mount("/", StaticFiles(directory="dist", html=True), name="static")
+    logger.info("✅ Static files mounted from dist directory")
 else:
     logger.warning("dist directory not found, skipping static file mount")
 
