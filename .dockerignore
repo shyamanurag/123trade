@@ -58,8 +58,8 @@ tests/
 .env.test
 
 # Frontend development files
-node_modules/
-!src/frontend/node_modules/
+# node_modules/ - Commented out to allow frontend build process
+# !src/frontend/node_modules/ - Commented out
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
