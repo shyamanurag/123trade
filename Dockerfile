@@ -12,6 +12,14 @@ RUN npm ci
 # Copy frontend source
 COPY src/frontend/ ./
 
+# Build frontend with environment variables
+ARG VITE_API_URL
+ARG VITE_WS_URL
+ARG VITE_APP_NAME
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+ENV VITE_APP_NAME=$VITE_APP_NAME
+
 # Build frontend
 RUN npm run build
 
@@ -34,7 +42,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy built frontend from frontend-builder stage
-COPY --from=frontend-builder /frontend/dist ./dist
+COPY --from=frontend-builder /frontend/dist ./static
 
 # Set environment variables
 ENV PYTHONPATH=/app

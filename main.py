@@ -167,21 +167,34 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Mount the static directory to serve the frontend
-# Only mount if dist directory exists
+# Check for both static and dist directories
 import os
-if os.path.exists("dist"):
+static_dir = None
+if os.path.exists("static"):
+    static_dir = "static"
+elif os.path.exists("dist"):
+    static_dir = "dist"
+elif os.path.exists("src/frontend/dist"):
+    static_dir = "src/frontend/dist"
+
+if static_dir:
     # Serve static files with proper handling for SPA
-    app.mount("/static", StaticFiles(directory="dist"), name="static-files")
-    logger.info("✅ Static files mounted from dist directory at /static")
+    app.mount("/assets", StaticFiles(directory=f"{static_dir}/assets"), name="assets")
+    logger.info(f"✅ Static assets mounted from {static_dir}/assets directory")
     
     # Serve index.html for root path
     @app.get("/")
     async def serve_frontend():
-        if os.path.exists("dist/index.html"):
-            return HTMLResponse(open("dist/index.html").read())
+        index_path = f"{static_dir}/index.html"
+        if os.path.exists(index_path):
+            with open(index_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return HTMLResponse(content)
         return HTMLResponse("<h1>Frontend not built</h1>")
+        
+    logger.info(f"✅ Frontend served from {static_dir} directory")
 else:
-    logger.warning("dist directory not found, skipping static file mount")
+    logger.warning("No static directory found (checked: static, dist, src/frontend/dist)")
     
     # Serve a simple message when no frontend is available
     @app.get("/")
@@ -489,22 +502,32 @@ MINIMAL_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
-# Serve minimal frontend (catch-all route)
+# Serve frontend for SPA routing (catch-all route)
 @app.get("/{full_path:path}")
-async def serve_minimal_frontend(full_path: str):
-    """Serve minimal frontend for all unmatched routes"""
+async def serve_spa_frontend(full_path: str):
+    """Serve React frontend for all unmatched routes (SPA routing)"""
     
-    # Skip API routes
+    # Skip API routes and static assets
     if (full_path.startswith("api/") or 
         full_path.startswith("docs") or 
-        full_path.startswith("redoc") or
+        full_path.startswith("redoc") or 
         full_path.startswith("health") or
         full_path.startswith("auth/") or
         full_path.startswith("sharekhan/") or
-        full_path.startswith("v1/")):
-        raise HTTPException(status_code=404, detail="API endpoint not found")
+        full_path.startswith("v1/") or
+        full_path.startswith("assets/") or
+        full_path.startswith("static/")):
+        raise HTTPException(status_code=404, detail="Resource not found")
     
-    # Serve minimal HTML
+    # Serve React app index.html for SPA routing
+    if static_dir:
+        index_path = f"{static_dir}/index.html"
+        if os.path.exists(index_path):
+            with open(index_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            return HTMLResponse(content)
+    
+    # Fallback to minimal HTML if no React app available
     return HTMLResponse(content=MINIMAL_HTML)
 
 # Development server configuration

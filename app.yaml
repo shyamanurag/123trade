@@ -96,10 +96,15 @@ services:
     name: api
 static_sites:
 - name: frontend
-  image:
-    registry_type: DOCR
-    repository: trade123
-    tag: latest
+  github:
+    repo: shyamanurag/123trade
+    branch: main
+    deploy_on_push: true
+  source_dir: /src/frontend
+  build_command: npm ci && npm run build
+  output_dir: dist
+  index_document: index.html
+  catchall_document: index.html
   routes:
   - path: /
     name: frontend
