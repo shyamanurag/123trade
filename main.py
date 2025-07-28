@@ -500,7 +500,7 @@ if __name__ == "__main__":
     logger.info(f"   - Paper Trading: {os.getenv('PAPER_TRADING', 'true')}")
     logger.info(f"   - Log Level: {os.getenv('LOG_LEVEL', 'INFO')}")
     logger.info(f"   - ShareKhan API Key: {os.getenv('SHAREKHAN_API_KEY', 'Not Set')[:8]}...")
-    logger.info(f"   - Frontend: {'React Build Available' if os.path.exists('src/frontend/dist') else 'React Build Required'}")
+    logger.info(f"   - Frontend: {'React Build Available' if os.path.exists('dist') else 'React Build Required'}")
     
     uvicorn.run(
         "main:app",
