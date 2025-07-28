@@ -167,7 +167,7 @@ app.add_middleware(
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Mount the static directory to serve the frontend
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory="dist", html=True), name="static")
 
 # Security middleware disabled to prevent host header issues in production
 # TrustedHostMiddleware can cause "Invalid host header" errors in cloud deployments

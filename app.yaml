@@ -96,12 +96,10 @@ services:
     name: api
 static_sites:
 - name: frontend
-  source_dir: /
-  github:
-    repo: shyamanurag/123trade
-    branch: main
-    deploy_on_push: true
-  dockerfile_path: Dockerfile
+  image:
+    registry_type: DOCR
+    repository: trade123
+    tag: latest
   routes:
   - path: /
     name: frontend
