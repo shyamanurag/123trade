@@ -1,34 +1,59 @@
 import { BellIcon, PowerIcon } from '@heroicons/react/24/outline';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 interface SystemStatus {
     orchestrator_health: string;
+    orchestrator_status: 'running' | 'stopped' | 'error';
     active_users: number;
     total_trades_today: number;
     system_uptime: string;
 }
 
 export default function TopBar() {
-    const [orchestratorEnabled, setOrchestratorEnabled] = useState(false);
+    const queryClient = useQueryClient();
 
     const { data: systemStatus } = useQuery<SystemStatus>({
         queryKey: ['system-status'],
         queryFn: async () => {
             const response = await axios.get('/api/system/status');
+            if (!response.data.success) {
+                throw new Error('Failed to fetch system status');
+            }
             return response.data.data;
         },
         refetchInterval: 5000, // Refresh every 5 seconds
     });
 
-    const toggleOrchestrator = async () => {
-        try {
-            const action = orchestratorEnabled ? 'stop' : 'start';
-            await axios.post('/api/autonomous/control', { action });
-            setOrchestratorEnabled(!orchestratorEnabled);
-        } catch (error) {
-            console.error('Failed to toggle orchestrator:', error);
+    // Orchestrator toggle mutation
+    const toggleOrchestratorMutation = useMutation({
+        mutationFn: async (action: 'start' | 'stop') => {
+            const response = await axios.post('/api/autonomous/control', { action });
+            if (!response.data.success) {
+                throw new Error(`Failed to ${action} orchestrator`);
+            }
+            return response.data;
+        },
+        onSuccess: (data, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['system-status'] });
+            toast.success(`Orchestrator ${variables === 'start' ? 'started' : 'stopped'} successfully`);
+        },
+        onError: (error: any) => {
+            toast.error(`Failed to toggle orchestrator: ${error.message}`);
+        },
+    });
+
+    const handleOrchestratorToggle = () => {
+        const isRunning = systemStatus?.orchestrator_status === 'running';
+        const action = isRunning ? 'stop' : 'start';
+
+        if (action === 'stop') {
+            if (window.confirm('Are you sure you want to stop the orchestrator? This will halt automated trading.')) {
+                toggleOrchestratorMutation.mutate(action);
+            }
+        } else {
+            toggleOrchestratorMutation.mutate(action);
         }
     };
 
@@ -49,16 +74,26 @@ export default function TopBar() {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {/* Orchestrator Toggle */}
+                    {/* Orchestrator Toggle Button - FULLY FUNCTIONAL */}
                     <button
-                        onClick={toggleOrchestrator}
-                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${orchestratorEnabled
-                            ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                            : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        onClick={handleOrchestratorToggle}
+                        disabled={toggleOrchestratorMutation.isLoading}
+                        className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${systemStatus?.orchestrator_status === 'running'
+                                ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
                             }`}
                     >
                         <PowerIcon className="h-4 w-4 mr-2" />
-                        {orchestratorEnabled ? 'Stop Orchestrator' : 'Start Orchestrator'}
+                        {toggleOrchestratorMutation.isLoading ? (
+                            <span className="flex items-center">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current mr-2"></div>
+                                {systemStatus?.orchestrator_status === 'running' ? 'Stopping...' : 'Starting...'}
+                            </span>
+                        ) : (
+                            <>
+                                {systemStatus?.orchestrator_status === 'running' ? 'Stop Orchestrator' : 'Start Orchestrator'}
+                            </>
+                        )}
                     </button>
 
                     {/* Notifications */}
