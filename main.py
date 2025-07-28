@@ -170,10 +170,23 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 # Only mount if dist directory exists
 import os
 if os.path.exists("dist"):
-    app.mount("/", StaticFiles(directory="dist", html=True), name="static")
-    logger.info("✅ Static files mounted from dist directory")
+    # Serve static files with proper handling for SPA
+    app.mount("/static", StaticFiles(directory="dist"), name="static-files")
+    logger.info("✅ Static files mounted from dist directory at /static")
+    
+    # Serve index.html for root path
+    @app.get("/")
+    async def serve_frontend():
+        if os.path.exists("dist/index.html"):
+            return HTMLResponse(open("dist/index.html").read())
+        return HTMLResponse("<h1>Frontend not built</h1>")
 else:
     logger.warning("dist directory not found, skipping static file mount")
+    
+    # Serve a simple message when no frontend is available
+    @app.get("/")
+    async def serve_frontend():
+        return HTMLResponse("<h1>ShareKhan Trading System</h1><p>Frontend not available</p>")
 
 # Security middleware disabled to prevent host header issues in production
 # TrustedHostMiddleware can cause "Invalid host header" errors in cloud deployments
