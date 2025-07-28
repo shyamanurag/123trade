@@ -222,13 +222,49 @@ logger.info(f"✅ Loaded API routes: {routes_loaded}")
 import os
 from pathlib import Path
 
-# Mount static frontend files
-static_path = Path("static")
-if static_path.exists():
-    app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
-    logger.info(f"✅ Static frontend mounted at /static from {static_path}")
+# Mount static frontend files - check multiple possible locations
+static_dir = None
+possible_static_dirs = ["static", "dist", "src/frontend/dist"]
+
+for dir_path in possible_static_dirs:
+    if os.path.exists(dir_path):
+        static_dir = dir_path
+        break
+
+if static_dir:
+    # Mount both the main static files and assets
+    if os.path.exists(f"{static_dir}/assets"):
+        app.mount("/assets", StaticFiles(directory=f"{static_dir}/assets"), name="assets")
+        logger.info(f"✅ Static assets mounted from {static_dir}/assets")
+    
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    logger.info(f"✅ Static frontend mounted at /static from {static_dir}")
 else:
-    logger.warning(f"⚠️ Static folder not found at {static_path}")
+    logger.warning(f"⚠️ No static folder found (checked: {', '.join(possible_static_dirs)})")
+
+# Root route for serving the frontend
+@app.get("/")
+async def serve_frontend_root():
+    """Serve React frontend at root path"""
+    if static_dir:
+        index_path = Path(static_dir) / "index.html"
+        if index_path.exists():
+            with open(index_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Fallback HTML if frontend not available
+    return HTMLResponse("""
+<!DOCTYPE html>
+<html>
+<head><title>ShareKhan Trading System</title></head>
+<body>
+<h1>ShareKhan Trading System</h1>
+<p>Frontend is loading...</p>
+<a href="/docs">API Documentation</a>
+</body>
+</html>
+""")
 
 # NOTE: Catch-all route MOVED to absolute end of file after ALL other routes
 
@@ -346,16 +382,16 @@ async def serve_react_app(path: str):
         raise HTTPException(status_code=404, detail="API endpoint not found")
     
     # Serve the comprehensive static frontend
-    static_path = Path("static")
-    index_path = static_path / "index.html"
-    if index_path.exists():
-        logger.info(f"📄 Serving comprehensive trading platform for path: {path}")
-        with open(index_path, 'r', encoding='utf-8') as f:
-            html_content = f.read()
-        return HTMLResponse(content=html_content)
-    else:
-        # Fallback if static files not found
-        logger.warning(f"⚠️ Static frontend not found, serving fallback for path: {path}")
+    if static_dir:
+        index_path = Path(static_dir) / "index.html"
+        if index_path.exists():
+            logger.info(f"📄 Serving comprehensive trading platform for path: {path}")
+            with open(index_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Fallback if static files not found
+    logger.warning(f"⚠️ Static frontend not found, serving fallback for path: {path}")
         fallback_html = f"""
 <!DOCTYPE html>
 <html lang="en">
