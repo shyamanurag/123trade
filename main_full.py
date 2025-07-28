@@ -392,7 +392,7 @@ async def serve_react_app(path: str):
     
     # Fallback if static files not found
     logger.warning(f"⚠️ Static frontend not found, serving fallback for path: {path}")
-        fallback_html = f"""
+    fallback_html = f"""
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -408,30 +408,21 @@ async def serve_react_app(path: str):
 </head>
 <body>
     <div class="container">
-        <h1>🚀 ShareKhan Trading Platform</h1>
+        <h1>ShareKhan Trading Platform</h1>
         <div class="status">
-            <h2>✅ Comprehensive Trading Dashboard Loading...</h2>
+            <h2>🚀 System Starting</h2>
             <p>Static frontend files are being deployed...</p>
-            <p><strong>Features Available:</strong></p>
-            <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
-                <li>✅ Live Market Indices & Real-time Data</li>
-                <li>✅ User Management & Daily Auth Tokens</li>
-                <li>✅ Trading Reports & Analytics</li>
-                <li>✅ Performance Dashboard with Charts</li>
-                <li>✅ System Health Monitoring</li>
-                <li>✅ ShareKhan API Integration</li>
-            </ul>
-            <p style="margin-top: 20px;"><strong>Backend API:</strong> ✅ Fully Operational</p>
-            <p style="margin-top: 10px;">
-                <a href="/health" style="color: #fff; margin: 0 10px;">🏥 Health Check</a> |
-                <a href="/docs" style="color: #fff; margin: 0 10px;">📚 API Documentation</a>
-            </p>
+            <p>Please wait while the system initializes.</p>
+        </div>
+        <div class="status">
+            <h3>Available Services:</h3>
+            <p><a href="/health" style="color: #4CAF50;">Health Check</a></p>
+            <p><a href="/docs" style="color: #4CAF50;">API Documentation</a></p>
         </div>
     </div>
 </body>
-</html>
-        """
-        return HTMLResponse(content=fallback_html)
+</html>"""
+    return HTMLResponse(content=fallback_html)
 
 if __name__ == "__main__":
     import uvicorn
