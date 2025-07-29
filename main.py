@@ -324,6 +324,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ WebSocket API not loaded: {e}")
 
+# System Control API (NEW - for orchestrator management)
+try:
+    from src.api.system_control import router as system_control_router
+    app.include_router(system_control_router, tags=["system-control"])
+    logger.info("✅ System Control API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ System Control API not loaded: {e}")
+
 # Frontend API (fallback compatibility)
 try:
     from src.api.frontend_api import router as frontend_router

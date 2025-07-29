@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 // Add axios interceptor for authentication
 axios.interceptors.request.use((config) => {
@@ -14,6 +15,7 @@ axios.interceptors.request.use((config) => {
 export default function Dashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [authLoading, setAuthLoading] = useState(true);
+    const queryClient = useQueryClient();
 
     // Check authentication status
     useEffect(() => {
@@ -67,6 +69,22 @@ export default function Dashboard() {
         }
     };
 
+    // Handle orchestrator startup
+    const startOrchestrator = async () => {
+        try {
+            const response = await axios.post('/api/system/start-orchestrator');
+            if (response.data.success) {
+                toast.success('Orchestrator started successfully!');
+                // Refresh system status
+                queryClient.invalidateQueries({ queryKey: ['system-status'] });
+            } else {
+                toast.error(`Failed to start orchestrator: ${response.data.message}`);
+            }
+        } catch (error: any) {
+            toast.error(`Error starting orchestrator: ${error.response?.data?.detail || error.message}`);
+        }
+    };
+
     // Show login form if not authenticated
     if (authLoading) {
         return (
@@ -101,11 +119,19 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-bold text-gray-900">Trading Dashboard</h1>
                 <div className="flex items-center space-x-4">
                     <div className={`px-3 py-1 rounded-full text-sm font-medium ${systemStatus?.status === 'operational'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
                         }`}>
                         {systemStatus?.status || 'Unknown'}
                     </div>
+                    {systemStatus?.orchestrator_status !== 'running' && (
+                        <button
+                            onClick={startOrchestrator}
+                            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 mr-2"
+                        >
+                            Start Orchestrator
+                        </button>
+                    )}
                     <button
                         onClick={() => {
                             localStorage.removeItem('auth_token');
@@ -190,6 +216,17 @@ export default function Dashboard() {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* Start Orchestrator Button */}
+            <div className="flex justify-end">
+                <button
+                    onClick={startOrchestrator}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    disabled={systemStatus?.orchestrator_status === 'running'}
+                >
+                    {systemStatus?.orchestrator_status === 'running' ? 'Orchestrator Running' : 'Start Orchestrator'}
+                </button>
             </div>
         </div>
     );
