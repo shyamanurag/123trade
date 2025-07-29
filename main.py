@@ -342,6 +342,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Autonomous Trading API not loaded: {e}")
 
+# Real User Onboarding API (NEW - for production trader registration)
+try:
+    from src.api.real_user_onboarding import router as onboarding_router
+    app.include_router(onboarding_router, tags=["real-user-onboarding"])
+    logger.info("✅ Real User Onboarding API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Real User Onboarding API not loaded: {e}")
+
 # Frontend API (fallback compatibility)
 try:
     from src.api.frontend_api import router as frontend_router
