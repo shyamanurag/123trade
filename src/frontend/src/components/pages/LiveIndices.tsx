@@ -1,222 +1,166 @@
-import { ArrowDownIcon, ArrowUpIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { TrendingDownIcon, TrendingUpIcon } from '@heroicons/react/24/outline';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-// Add axios interceptor for authentication
-axios.interceptors.request.use((config) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
-
 interface IndexData {
-    name: string;
     symbol: string;
-    value: number;
+    ltp: number;
     change: number;
     change_percent: number;
-    last_updated: string;
+    volume: number;
 }
 
 interface MarketStatus {
     is_open: boolean;
     market_type: string;
-    status_text: string;
-    next_market_time?: string;
+    session: string;
+    open_time: string;
+    close_time: string;
 }
 
 export default function LiveIndices() {
-    // Fetch market indices
+    // REAL MARKET INDICES - NO FALLBACK DATA ALLOWED
     const { data: indices, isLoading: indicesLoading, error: indicesError } = useQuery<IndexData[]>({
         queryKey: ['market-indices'],
         queryFn: async () => {
-            try {
-                const response = await axios.get('/api/market/indices'); // Updated to use fallback API
-                if (response.data.success) {
-                    return response.data.data;
-                }
-                throw new Error('API returned unsuccessful response');
-            } catch (error) {
-                console.warn('Primary API failed, using fallback data:', error);
-                // Return fallback mock data if API fails
-                return [
-                    { symbol: 'NIFTY', ltp: 19800.50, change: 150.25, change_percent: 0.76, volume: 1250000 },
-                    { symbol: 'BANKNIFTY', ltp: 44250.75, change: -120.50, change_percent: -0.27, volume: 850000 },
-                    { symbol: 'SENSEX', ltp: 66500.30, change: 200.15, change_percent: 0.30, volume: 950000 }
-                ];
+            // ONLY REAL DATA - NO FALLBACK/MOCK DATA
+            const response = await axios.get('/api/market/indices');
+            if (!response.data.success || response.data.source !== 'sharekhan_live') {
+                throw new Error('SAFETY: Only real ShareKhan data allowed - no fallback data');
             }
+            return response.data.data;
         },
-        refetchInterval: 5000,
+        refetchInterval: 5000, // Update every 5 seconds
+        retry: false, // NO RETRY WITH MOCK DATA
     });
 
-    // Fetch market status
-    const { data: marketStatus, isLoading: statusLoading } = useQuery<MarketStatus>({
+    // REAL MARKET STATUS - NO FALLBACK DATA ALLOWED  
+    const { data: marketStatus, isLoading: statusLoading, error: statusError } = useQuery<MarketStatus>({
         queryKey: ['market-status'],
         queryFn: async () => {
-            try {
-                const response = await axios.get('/api/market/market-status'); // Updated to use fallback API
-                if (response.data.success) {
-                    return response.data.data;
-                }
-                throw new Error('API returned unsuccessful response');
-            } catch (error) {
-                console.warn('Market status API failed, using fallback:', error);
-                // Return fallback status
-                return {
-                    is_open: true,
-                    market_type: 'NORMAL',
-                    session: 'REGULAR',
-                    open_time: '09:15:00',
-                    close_time: '15:30:00',
-                    last_updated: new Date().toISOString()
-                };
+            // ONLY REAL DATA - NO FALLBACK/MOCK DATA
+            const response = await axios.get('/api/market/market-status');
+            if (!response.data.success || response.data.source !== 'sharekhan_live') {
+                throw new Error('SAFETY: Only real ShareKhan data allowed - no fallback data');
             }
+            return response.data.data;
         },
-        refetchInterval: 30000,
+        refetchInterval: 30000, // Update every 30 seconds
+        retry: false, // NO RETRY WITH MOCK DATA
     });
 
-    const formatValue = (value: number) => {
-        return value.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    };
-
-    const formatChange = (change: number, changePercent: number) => {
-        const isPositive = change >= 0;
-        const arrow = isPositive ? (
-            <ArrowUpIcon className="h-4 w-4" />
-        ) : (
-            <ArrowDownIcon className="h-4 w-4" />
-        );
-
+    if (indicesLoading || statusLoading) {
         return (
-            <div className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {arrow}
-                <span className="ml-1">
-                    {Math.abs(change).toFixed(2)} ({Math.abs(changePercent).toFixed(2)}%)
-                </span>
+            <div className="p-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <p className="text-blue-800 font-medium">🔄 Loading REAL market data from ShareKhan...</p>
+                    <p className="text-blue-600 text-sm mt-1">No fallback data - waiting for live connection</p>
+                </div>
             </div>
         );
-    };
+    }
 
-    if (indicesError) {
+    if (indicesError || statusError) {
         return (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <h2 className="text-red-800 font-medium">Market Data Error</h2>
-                <p className="text-red-600 text-sm mt-1">Cannot load market indices. Check API connection.</p>
+            <div className="p-6">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <h3 className="text-red-800 font-medium">❌ REAL DATA CONNECTION ERROR</h3>
+                    <p className="text-red-700 text-sm mt-1">
+                        ShareKhan connection unavailable. No fallback data allowed.
+                    </p>
+                    <p className="text-red-600 text-xs mt-2">
+                        Error: {indicesError?.message || statusError?.message}
+                    </p>
+                    <div className="mt-3">
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                        >
+                            Retry Real Connection
+                        </button>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Live Market Indices</h1>
-                    <p className="mt-1 text-sm text-gray-600">
-                        Real-time market data and indices performance
-                    </p>
-                </div>
-
-                {/* Market Status */}
-                <div className={`px-4 py-2 rounded-full text-sm font-medium ${marketStatus?.is_open
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                    }`}>
-                    {statusLoading ? 'Loading...' : (marketStatus?.status_text || 'Unknown')}
-                </div>
-            </div>
-
-            {/* Market Status Card */}
-            <div className="bg-white rounded-lg shadow p-6">
+        <div className="p-6">
+            {/* REAL MARKET STATUS */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                        <ChartBarIcon className="h-8 w-8 text-blue-600 mr-3" />
-                        <div>
-                            <h2 className="text-lg font-medium text-gray-900">Market Status</h2>
-                            <p className="text-sm text-gray-600">
-                                {marketStatus?.market_type || 'Regular'} Trading Session
-                            </p>
+                    <h2 className="text-2xl font-bold text-gray-900">Live Market Indices</h2>
+                    <div className="flex items-center space-x-4">
+                        <div className={`px-3 py-1 rounded-full text-sm font-medium ${marketStatus?.is_open
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                            {marketStatus?.is_open ? '🟢 MARKET OPEN' : '🔴 MARKET CLOSED'}
                         </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-500">
-                            Last Updated: {new Date().toLocaleTimeString()}
-                        </p>
-                        {marketStatus?.next_market_time && (
-                            <p className="text-sm text-gray-500">
-                                Next: {marketStatus.next_market_time}
-                            </p>
-                        )}
+                        <div className="text-sm text-gray-600">
+                            Session: {marketStatus?.session || 'Unknown'}
+                        </div>
+                        <div className="text-xs text-green-600 font-medium">
+                            📡 LIVE SHAREKHAN DATA
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Indices Grid */}
-            {indicesLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white rounded-lg shadow p-6 animate-pulse">
-                            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                            <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
-                            <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {indices?.map((index) => (
-                        <div key={index.symbol} className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500">{index.name}</h3>
-                                    <p className="text-2xl font-bold text-gray-900">
-                                        {formatValue(index.value)}
-                                    </p>
-                                </div>
-                                <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                                    {index.symbol}
-                                </span>
-                            </div>
-
-                            <div className="flex justify-between items-center">
-                                {formatChange(index.change, index.change_percent)}
-                                <span className="text-xs text-gray-400">
-                                    {new Date(index.last_updated).toLocaleTimeString()}
-                                </span>
+            {/* REAL INDICES GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {indices?.map((index) => (
+                    <div key={index.symbol} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-900">{index.symbol}</h3>
+                            <div className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                                LIVE
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
 
-            {/* Trading Summary */}
-            <div className="bg-white rounded-lg shadow">
-                <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-lg font-medium text-gray-900">Market Summary</h2>
-                </div>
-                <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
-                            <p className="text-2xl font-bold text-green-600">
-                                {indices?.filter(i => i.change >= 0).length || 0}
-                            </p>
-                            <p className="text-sm text-gray-500">Indices Up</p>
+                        <div className="mb-4">
+                            <div className="text-2xl font-bold text-gray-900">
+                                ₹{index.ltp.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <p className="text-2xl font-bold text-red-600">
-                                {indices?.filter(i => i.change < 0).length || 0}
-                            </p>
-                            <p className="text-sm text-gray-500">Indices Down</p>
-                        </div>
-                        <div className="text-center">
-                            <p className="text-2xl font-bold text-blue-600">
-                                {indices?.length || 0}
-                            </p>
-                            <p className="text-sm text-gray-500">Total Tracked</p>
+
+                        <div className="flex items-center justify-between">
+                            <div className={`flex items-center space-x-1 ${index.change >= 0 ? 'text-green-600' : 'text-red-600'
+                                }`}>
+                                {index.change >= 0 ? (
+                                    <TrendingUpIcon className="h-4 w-4" />
+                                ) : (
+                                    <TrendingDownIcon className="h-4 w-4" />
+                                )}
+                                <span className="font-medium">
+                                    {index.change >= 0 ? '+' : ''}{index.change.toFixed(2)}
+                                </span>
+                                <span className="text-sm">
+                                    ({index.change_percent >= 0 ? '+' : ''}{index.change_percent.toFixed(2)}%)
+                                </span>
+                            </div>
+                            <div className="text-sm text-gray-500">
+                                Vol: {index.volume.toLocaleString('en-IN')}
+                            </div>
                         </div>
                     </div>
+                ))}
+            </div>
+
+            {/* REAL DATA SOURCE INDICATOR */}
+            <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-green-800 font-medium">Live ShareKhan Data Stream</span>
+                    </div>
+                    <div className="text-green-600 text-sm">
+                        Last Updated: {new Date().toLocaleTimeString('en-IN')}
+                    </div>
                 </div>
+                <p className="text-green-700 text-sm mt-2">
+                    ✅ 100% Real Production Data - No Mock/Demo/Simulation Data
+                </p>
             </div>
         </div>
     );

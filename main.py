@@ -332,13 +332,7 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ System Control API not loaded: {e}")
 
-# Market Data Fallback API (NEW - for reliable market data)
-try:
-    from src.api.market_data_fallback import router as market_data_fallback_router
-    app.include_router(market_data_fallback_router, tags=["market-data-fallback"])
-    logger.info("✅ Market Data Fallback API loaded")
-except Exception as e:
-    logger.warning(f"⚠️ Market Data Fallback API not loaded: {e}")
+# Market Data Fallback API REMOVED - Real production data only
 
 # Autonomous Trading API (NEW - for orchestrator start/stop)
 try:
