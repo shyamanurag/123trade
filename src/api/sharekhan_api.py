@@ -125,7 +125,7 @@ async def generate_auth_url(request: Dict[str, str]):
         user_id = request.get("user_id", "default_user")
         
         # Use production ShareKhan API key from environment
-        api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')
+        api_key = os.getenv('SHAREKHAN_API_KEY')
         redirect_uri = "https://trade123-edtd2.ondigitalocean.app/auth/sharekhan/callback"
         
         # Generate real ShareKhan auth URL

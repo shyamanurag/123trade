@@ -48,15 +48,17 @@ def initialize_default_users():
         
         # Only add if master user doesn't exist (prevent duplicates)
         if master_sharekhan_user_id not in broker_users:
-            # Use production deployment credentials (matches app.yaml)
-            real_api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')
-            real_api_secret = os.getenv('SHAREKHAN_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc')
+            # Use actual production deployment credentials from environment
+            real_api_key = os.getenv('SHAREKHAN_API_KEY')
+            real_api_secret = os.getenv('SHAREKHAN_API_SECRET')
             
-            # VALIDATION: Ensure we're using the correct production credentials
-            if real_api_key != 'vc9ft4zpknynpm3u':
-                logger.warning(f"⚠️ API key mismatch detected: env={real_api_key[:8]}... vs production=vc9ft4zp...")
-                logger.warning("Using production credentials from deployment")
-                real_api_key = 'vc9ft4zpknynpm3u'
+            # Ensure we have the required credentials
+            if not real_api_key or not real_api_secret:
+                logger.error("❌ Missing ShareKhan API credentials in environment")
+                logger.error("Required: SHAREKHAN_API_KEY and SHAREKHAN_API_SECRET")
+                return
+                
+            logger.info(f"✅ Using ShareKhan API key: {real_api_key[:8]}...")
             
             # Create master user with ACTUAL ShareKhan user ID as the key
             master_user = {
@@ -106,8 +108,8 @@ except Exception as e:
         "user_id": master_sharekhan_user_id,
         "name": f"ShareKhan Account ({master_sharekhan_user_id})", 
         "broker": "sharekhan",
-        "api_key": os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u'),  # CRITICAL FIX: Use correct production key
-        "api_secret": os.getenv('SHAREKHAN_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc'),  # CRITICAL FIX: Use correct production secret
+                        "api_key": os.getenv('SHAREKHAN_API_KEY'),  # Use actual production key
+                        "api_secret": os.getenv('SHAREKHAN_API_SECRET'),  # Use actual production secret
         "client_id": master_sharekhan_user_id,
         "initial_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
         "current_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
@@ -631,7 +633,7 @@ async def get_trading_status():
 async def get_sharekhan_manual_auth_url():
     """Get ShareKhan authorization URL for manual token extraction"""
     try:
-        api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')  # CRITICAL FIX: Use correct production key
+        api_key = os.getenv('SHAREKHAN_API_KEY')  # Use actual production key
         auth_url = f"https://kite.sharekhan.com/connect/login?api_key={api_key}"
         
         return {
