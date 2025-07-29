@@ -1,4 +1,4 @@
-import { ArrowTrendingUpIcon, TrendingDownIcon } from '@heroicons/react/24/outline';
+import { ArrowTrendingDownIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -142,7 +142,7 @@ export default function LiveIndices() {
                                     {index.change >= 0 ? (
                                         <ArrowTrendingUpIcon className="h-4 w-4" />
                                     ) : (
-                                        <TrendingDownIcon className="h-4 w-4" />
+                                        <ArrowTrendingDownIcon className="h-4 w-4" />
                                     )}
                                     <span className="font-medium">
                                         {index.change >= 0 ? '+' : ''}{index.change?.toFixed(2) || 'N/A'}
