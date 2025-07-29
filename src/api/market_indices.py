@@ -25,8 +25,8 @@ async def get_market_indices():
         # Use IST timezone for accurate market status
         now_ist = datetime.now(IST)
         
-        # Check if TrueData is configured
-        truedata_configured = bool(os.getenv('TRUEDATA_USERNAME'))
+        # Check if ShareKhan is configured
+        sharekhan_configured = bool(os.getenv('SHAREKHAN_USERNAME'))
         
         # Return empty data if not configured or no real data available
         indices_data = {
@@ -34,12 +34,12 @@ async def get_market_indices():
             "timestamp": now_ist.isoformat(),
             "market_status": "OPEN" if ((now_ist.hour == 9 and now_ist.minute >= 15) or (9 < now_ist.hour < 15) or (now_ist.hour == 15 and now_ist.minute < 30)) else "CLOSED",
             "indices": [],  # Real market index data required
-            "message": "Waiting for live market data..." if truedata_configured else "TrueData not configured"
+            "message": "Waiting for live market data..." if sharekhan_configured else "ShareKhan not configured"
         }
         
-        # TODO: When TrueData is connected, fetch real data here
-        # if truedata_provider and truedata_provider.is_connected():
-        #     indices_data["indices"] = await truedata_provider.get_indices_data()
+        # TODO: When ShareKhan is connected, fetch real data here
+        # if sharekhan_provider and sharekhan_provider.is_connected():
+        #     indices_data["indices"] = await sharekhan_provider.get_indices_data()
         
         return indices_data
         
@@ -68,8 +68,8 @@ async def get_index_details(symbol: str):
         }
         
         # TODO: Fetch real data when available
-        # if truedata_provider and truedata_provider.is_connected():
-        #     index_details["data"] = await truedata_provider.get_index_details(symbol)
+        # if sharekhan_provider and sharekhan_provider.is_connected():
+        #     index_details["data"] = await sharekhan_provider.get_index_details(symbol)
         
         return index_details
         
@@ -130,9 +130,9 @@ async def get_market_status():
             "is_trading_day": now_ist.weekday() not in [5, 6],
             "next_trading_day": "Monday" if now_ist.weekday() >= 4 else "Tomorrow",
             "data_provider": {
-                "name": "TrueData",
-                "status": "CONNECTED" if os.getenv('TRUEDATA_USERNAME') else "NOT_CONFIGURED",
-                "user": os.getenv('TRUEDATA_USERNAME', 'Not configured')
+                "name": "ShareKhan",
+                "status": "CONNECTED" if os.getenv('SHAREKHAN_USERNAME') else "NOT_CONFIGURED",
+                "user": os.getenv('SHAREKHAN_USERNAME', 'Not configured')
             }
         }
         

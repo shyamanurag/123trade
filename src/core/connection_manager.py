@@ -172,19 +172,19 @@ class ConnectionManager:
         
         # Initialize connections with better error handling
         try:
-            # Zerodha connection (optional for autonomous mode)
-            zerodha_result = await self._initialize_zerodha_safe()
-            results.append(zerodha_result)
+            # ShareKhan connection (optional for autonomous mode)
+            sharekhan_result = await self._initialize_sharekhan_safe()
+            results.append(sharekhan_result)
         except Exception as e:
-            logger.warning(f"Zerodha initialization failed: {e}")
+            logger.warning(f"ShareKhan initialization failed: {e}")
             results.append(False)
         
         try:
-            # TrueData connection (optional)
-            truedata_result = await self._initialize_truedata_safe() 
-            results.append(truedata_result)
+            # ShareKhan connection (optional)
+            sharekhan_result = await self._initialize_sharekhan_safe() 
+            results.append(sharekhan_result)
         except Exception as e:
-            logger.warning(f"TrueData initialization failed: {e}")
+            logger.warning(f"ShareKhan initialization failed: {e}")
             results.append(False)
         
         try:
@@ -222,13 +222,13 @@ class ConnectionManager:
         # We can trade with paper mode even if some connections fail
         return successful_connections >= 1
     
-    async def _initialize_zerodha_safe(self):
-        """Safely initialize Zerodha connection"""
+    async def _initialize_sharekhan_safe(self):
+        """Safely initialize ShareKhan connection"""
         try:
-            logger.info("Initializing Zerodha connection...")
+            logger.info("Initializing ShareKhan connection...")
             
-            # REMOVED: ZerodhaIntegration import - now using ShareKhan only
-            # from brokers.zerodha import ZerodhaIntegration
+            # REMOVED: ShareKhanIntegration import - now using ShareKhan only
+            # from brokers.sharekhan import ShareKhanIntegration
             
             # Use ShareKhan integration instead
             try:
@@ -239,8 +239,8 @@ class ConnectionManager:
                 ShareKhanIntegration = None
             
             # Get access token from environment or Redis
-            access_token = os.getenv('ZERODHA_ACCESS_TOKEN')
-            user_id = os.getenv('ZERODHA_USER_ID')
+            access_token = os.getenv('SHAREKHAN_ACCESS_TOKEN')
+            user_id = os.getenv('SHAREKHAN_USER_ID')
             
             # If no access token in environment, check Redis with multiple key patterns
             if not access_token and user_id:
@@ -251,30 +251,30 @@ class ConnectionManager:
                     
                     # Check multiple Redis key patterns to find the token
                     token_keys_to_check = [
-                        f"zerodha:token:{user_id}",  # Standard pattern with env user_id
-                        f"zerodha:token:{os.getenv('ZERODHA_USER_ID', 'QSW899')}",  # Dynamic user_id pattern
-                        f"zerodha:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
-                        f"zerodha:{user_id}:access_token",  # Alternative pattern
-                        f"zerodha:access_token",  # Simple pattern
-                        f"zerodha_token_{user_id}",  # Alternative format
+                        f"sharekhan:token:{user_id}",  # Standard pattern with env user_id
+                        f"sharekhan:token:{os.getenv('SHAREKHAN_USER_ID', 'QSW899')}",  # Dynamic user_id pattern
+                        f"sharekhan:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
+                        f"sharekhan:{user_id}:access_token",  # Alternative pattern
+                        f"sharekhan:access_token",  # Simple pattern
+                        f"sharekhan_token_{user_id}",  # Alternative format
                     ]
                     
                     for key in token_keys_to_check:
                         stored_token = await redis_client.get(key)
                         if stored_token:
                             access_token = stored_token.decode() if isinstance(stored_token, bytes) else stored_token
-                            logger.info(f"✅ Found Zerodha token in Redis with key: {key}")
+                            logger.info(f"✅ Found ShareKhan token in Redis with key: {key}")
                             break
                     
-                    # If still no token, check all zerodha:token:* keys
+                    # If still no token, check all sharekhan:token:* keys
                     if not access_token:
-                        logger.info("🔍 Searching all zerodha:token:* keys in Redis...")
-                        all_keys = await redis_client.keys("zerodha:token:*")
+                        logger.info("🔍 Searching all sharekhan:token:* keys in Redis...")
+                        all_keys = await redis_client.keys("sharekhan:token:*")
                         for key in all_keys:
                             stored_token = await redis_client.get(key)
                             if stored_token:
                                 access_token = stored_token.decode() if isinstance(stored_token, bytes) else stored_token
-                                logger.info(f"✅ Found Zerodha token in Redis with key: {key}")
+                                logger.info(f"✅ Found ShareKhan token in Redis with key: {key}")
                                 break
                     
                     await redis_client.close()
@@ -287,48 +287,48 @@ class ConnectionManager:
             
             # CRITICAL FIX: Allow initialization without access token
             has_api_credentials = all([
-                os.getenv('ZERODHA_API_KEY'),
-                os.getenv('ZERODHA_API_SECRET'),
+                os.getenv('SHAREKHAN_API_KEY'),
+                os.getenv('SHAREKHAN_API_SECRET'),
                 user_id
             ])
             
-            zerodha_config = {
-                'api_key': os.getenv('ZERODHA_API_KEY'),
-                'api_secret': os.getenv('ZERODHA_API_SECRET'),
+            sharekhan_config = {
+                'api_key': os.getenv('SHAREKHAN_API_KEY'),
+                'api_secret': os.getenv('SHAREKHAN_API_SECRET'),
                 'user_id': user_id,
                 'access_token': access_token,  # Can be None initially
                 'mock_mode': not has_api_credentials,  # Only require API credentials, not token
-                'sandbox_mode': os.getenv('ZERODHA_SANDBOX_MODE', 'true').lower() == 'true',
+                'sandbox_mode': os.getenv('SHAREKHAN_SANDBOX_MODE', 'true').lower() == 'true',
                 'allow_token_update': True  # Allow token to be set later
             }
             
             # Log token status for debugging (without exposing actual token)
             if has_api_credentials:
                 if access_token:
-                    logger.info(f"✅ Zerodha token available for user {user_id}: {access_token[:10]}...")
-                    logger.info("🔄 Zerodha will run in LIVE mode with real API credentials")
+                    logger.info(f"✅ ShareKhan token available for user {user_id}: {access_token[:10]}...")
+                    logger.info("🔄 ShareKhan will run in LIVE mode with real API credentials")
                 else:
-                    logger.info(f"🔧 Zerodha initializing for user {user_id} - awaiting token from frontend authentication")
+                    logger.info(f"🔧 ShareKhan initializing for user {user_id} - awaiting token from frontend authentication")
                     logger.info("💡 Token will be provided through frontend daily auth workflow")
             else:
-                logger.warning(f"❌ Missing Zerodha API credentials - running in mock mode")
+                logger.warning(f"❌ Missing ShareKhan API credentials - running in mock mode")
             
             # Check if ShareKhanIntegration is available before initializing
             if ShareKhanIntegration:
-                zerodha = ShareKhanIntegration(zerodha_config)
-                await zerodha.initialize()
+                sharekhan = ShareKhanIntegration(sharekhan_config)
+                await sharekhan.initialize()
                 
-                self.connections['zerodha'] = {
-                    'instance': zerodha,
+                self.connections['sharekhan'] = {
+                    'instance': sharekhan,
                     'status': ConnectionStatus.CONNECTED,
                     'last_check': datetime.now()
                 }
                 
-                logger.info("✅ Zerodha connection initialized successfully")
+                logger.info("✅ ShareKhan connection initialized successfully")
                 return True
             else:
-                logger.error("❌ ShareKhan integration not available, cannot initialize Zerodha.")
-                self.connections['zerodha'] = {
+                logger.error("❌ ShareKhan integration not available, cannot initialize ShareKhan.")
+                self.connections['sharekhan'] = {
                     'instance': None,
                     'status': ConnectionStatus.ERROR,
                     'error': 'ShareKhan integration not available'
@@ -336,24 +336,24 @@ class ConnectionManager:
                 return False
             
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Zerodha: {e}")
-            self.connections['zerodha'] = {
+            logger.error(f"❌ Failed to initialize ShareKhan: {e}")
+            self.connections['sharekhan'] = {
                 'instance': None,
                 'status': ConnectionStatus.ERROR,
                 'error': str(e)
             }
             return False
     
-    async def _initialize_truedata_safe(self):
-        """Check TrueData cache availability instead of connecting - FIXED"""
+    async def _initialize_sharekhan_safe(self):
+        """Check ShareKhan cache availability instead of connecting - FIXED"""
         try:
-            # FIXED: Check existing TrueData cache instead of trying to connect
-            # TrueData is already connected and flowing data in the main app
-            from data.truedata_client import live_market_data, is_connected
+            # FIXED: Check existing ShareKhan cache instead of trying to connect
+            # ShareKhan is already connected and flowing data in the main app
+            from data.sharekhan_client import live_market_data, is_connected
             
             if live_market_data and len(live_market_data) > 0:
-                logger.info(f"✅ TrueData cache available: {len(live_market_data)} symbols")
-                self.connections['truedata'] = {
+                logger.info(f"✅ ShareKhan cache available: {len(live_market_data)} symbols")
+                self.connections['sharekhan'] = {
                     'instance': None,  # No direct instance - using cache
                     'status': ConnectionStatus.CONNECTED,
                     'cache_size': len(live_market_data),
@@ -361,21 +361,21 @@ class ConnectionManager:
                 }
                 return True
             else:
-                logger.warning("⚠️ TrueData cache is empty - market data not available")
-                self.connections['truedata'] = {
+                logger.warning("⚠️ ShareKhan cache is empty - market data not available")
+                self.connections['sharekhan'] = {
                     'instance': None,
                     'status': ConnectionStatus.ERROR,
-                    'error': 'TrueData cache empty - check main app connection',
+                    'error': 'ShareKhan cache empty - check main app connection',
                     'last_check': datetime.now()
                 }
                 return False
             
         except Exception as e:
-            logger.error(f"Failed to check TrueData cache: {e}")
-            self.connections['truedata'] = {
+            logger.error(f"Failed to check ShareKhan cache: {e}")
+            self.connections['sharekhan'] = {
                 'instance': None,
                 'status': ConnectionStatus.ERROR,
-                'error': f'TrueData cache check failed: {str(e)}',
+                'error': f'ShareKhan cache check failed: {str(e)}',
                 'last_check': datetime.now()
             }
             return False
@@ -474,7 +474,7 @@ class ConnectionManager:
     async def _check_connection_health(self, name: str, connection) -> bool:
         """Check if connection is healthy"""
         try:
-            if name == 'zerodha':
+            if name == 'sharekhan':
                 return await connection.is_connected()
             elif name == 'database':
                 # Perform a simple query
@@ -482,7 +482,7 @@ class ConnectionManager:
             elif name == 'redis':
                 await connection.instance.ping()
                 return True
-            elif name == 'truedata':
+            elif name == 'sharekhan':
                 return True  # Implement actual check
             return False
         except:
@@ -504,14 +504,14 @@ class ConnectionManager:
         self.connections[name]['status'] = ConnectionStatus.RECONNECTING
         
         try:
-            if name == 'zerodha':
-                await self._initialize_zerodha_safe()
+            if name == 'sharekhan':
+                await self._initialize_sharekhan_safe()
             elif name == 'database':
                 await self._initialize_database_safe()
             elif name == 'redis':
                 await self._initialize_redis_safe()
-            elif name == 'truedata':
-                await self._initialize_truedata_safe()
+            elif name == 'sharekhan':
+                await self._initialize_sharekhan_safe()
                 
             logger.info(f"Successfully reconnected {name}")
             
@@ -535,7 +535,7 @@ class ConnectionManager:
     
     def is_all_connected(self) -> bool:
         """Check if all critical connections are active"""
-        critical = ['zerodha', 'truedata', 'database', 'redis']
+        critical = ['sharekhan', 'sharekhan', 'database', 'redis']
         return all(
             self.get_status(name) == ConnectionStatus.CONNECTED 
             for name in critical
@@ -558,18 +558,18 @@ class ConnectionManager:
         # Re-initialize all connections
         return await self.initialize_all_connections()
     
-    async def refresh_zerodha_connection(self):
-        """Force refresh only Zerodha connection - optimized for post-auth"""
-        logger.info("Refreshing Zerodha connection...")
+    async def refresh_sharekhan_connection(self):
+        """Force refresh only ShareKhan connection - optimized for post-auth"""
+        logger.info("Refreshing ShareKhan connection...")
         
-        # Clear only Zerodha connection
-        if 'zerodha' in self.connections:
-            del self.connections['zerodha']
-        if 'zerodha' in self.reconnect_attempts:
-            del self.reconnect_attempts['zerodha']
+        # Clear only ShareKhan connection
+        if 'sharekhan' in self.connections:
+            del self.connections['sharekhan']
+        if 'sharekhan' in self.reconnect_attempts:
+            del self.reconnect_attempts['sharekhan']
         
-        # Re-initialize Zerodha connection
-        return await self._initialize_zerodha_safe()
+        # Re-initialize ShareKhan connection
+        return await self._initialize_sharekhan_safe()
     
     async def shutdown(self):
         """Gracefully shutdown all connections"""
@@ -584,7 +584,7 @@ class ConnectionManager:
             except Exception as e:
                 logger.error(f"Error disconnecting {name}: {e}") 
 
-# Missing ResilientConnection base class for ResilientZerodhaConnection
+# Missing ResilientConnection base class for ResilientShareKhanConnection
 from abc import ABC, abstractmethod
 
 class ConnectionHealth:

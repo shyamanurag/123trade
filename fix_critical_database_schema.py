@@ -55,7 +55,7 @@ def fix_database_schema():
         # Ensure PAPER_TRADER_001 user exists with proper broker_user_id
         cursor.execute("""
             INSERT INTO users (username, email, password_hash, broker_user_id, is_active, trading_enabled, 
-                             full_name, initial_capital, current_balance, zerodha_client_id)
+                             full_name, initial_capital, current_balance, sharekhan_client_id)
             VALUES ('PAPER_TRADER_001', 'paper.trader@algoauto.com', 'dummy_hash', 'QSW899', true, true,
                    'Autonomous Paper Trader', 100000.00, 100000.00, 'QSW899')
             ON CONFLICT (username) DO UPDATE SET

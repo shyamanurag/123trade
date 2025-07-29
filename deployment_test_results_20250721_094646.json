@@ -59,7 +59,7 @@
               "low": 24945.41,
               "open": 24970.4,
               "volume": 1293300,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-21T04:16:42.460711",
               "data_age_seconds": 0.0,
               "heartbeat": false
@@ -75,17 +75,17 @@
               "low": 56485.6,
               "open": 56542.2,
               "volume": 300125,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-21T04:16:42.327451",
               "data_age_seconds": 0.0,
               "heartbeat": false
             }
           ],
           "market_status": "OPEN",
-          "provider": "TrueData",
+          "provider": "ShareKhan",
           "last_update": "2025-07-21T09:46:42.663421+05:30",
           "timestamp": "2025-07-21 09:46:42 IST",
-          "truedata_connection": {
+          "sharekhan_connection": {
             "symbols_available": 194,
             "nifty_available": true,
             "banknifty_available": true,
@@ -320,7 +320,7 @@
           "bid": 0,
           "ask": 0,
           "timestamp": "2025-07-21T04:16:42.460711",
-          "source": "TrueData_Live",
+          "source": "ShareKhan_Live",
           "deployment_id": "deploy_1753070766_95f21016",
           "data_quality": {
             "has_ohlc": true,
@@ -330,7 +330,7 @@
           }
         },
         "timestamp": "2025-07-21T04:16:43.039895",
-        "source": "truedata_proxy"
+        "source": "sharekhan_proxy"
       },
       "expected": true
     },
@@ -450,7 +450,7 @@
       "expected": true
     },
     {
-      "endpoint": "/auth/zerodha/status?user_id=QSW899",
+      "endpoint": "/auth/sharekhan/status?user_id=QSW899",
       "method": "GET",
       "status_code": 200,
       "success": true,
@@ -468,17 +468,17 @@
       "expected": true
     },
     {
-      "endpoint": "/auth/zerodha/auth-url?user_id=QSW899",
+      "endpoint": "/auth/sharekhan/auth-url?user_id=QSW899",
       "method": "GET",
       "status_code": 200,
       "success": true,
       "data": {
         "success": true,
-        "auth_url": "https://kite.zerodha.com/connect/login?api_key=vc9ft4zpknynpm3u",
+        "auth_url": "https://kite.sharekhan.com/connect/login?api_key=vc9ft4zpknynpm3u",
         "api_key": "vc9ft4zpknynpm3u",
         "instructions": [
           "1. Click the authorization URL below",
-          "2. Login to Zerodha with your credentials",
+          "2. Login to ShareKhan with your credentials",
           "3. After login, you'll be redirected to a URL",
           "4. Copy the 'request_token' parameter from the redirected URL",
           "5. Paste the token in the manual token entry form",

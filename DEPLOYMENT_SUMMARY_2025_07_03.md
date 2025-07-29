@@ -30,17 +30,17 @@ All direct endpoints are working:
 - 4 out of 5 strategies are loaded
 - Strategies are ready for paper trading
 
-## 🔐 Zerodha Authentication
+## 🔐 ShareKhan Authentication
 
-The Zerodha token has expired. To get a new token:
+The ShareKhan token has expired. To get a new token:
 
-1. Visit: https://trade123-l3zp7.ondigitalocean.app/auth/zerodha/
-2. Click "Get Zerodha Login URL"
-3. Login to Zerodha
+1. Visit: https://trade123-l3zp7.ondigitalocean.app/auth/sharekhan/
+2. Click "Get ShareKhan Login URL"
+3. Login to ShareKhan
 4. Copy the request_token from the redirect URL
 5. Submit it on the authentication page
 
-**Correct endpoint**: `/auth/zerodha/submit-token`
+**Correct endpoint**: `/auth/sharekhan/submit-token`
 
 ## 🛠️ Windows Command Line Tools
 
@@ -78,15 +78,15 @@ All 8 frontend tabs are working:
 
 ## 🚀 Next Steps
 
-1. **Get Fresh Zerodha Token**: The current token has expired
-2. **Authenticate**: Use the web interface at `/auth/zerodha/`
+1. **Get Fresh ShareKhan Token**: The current token has expired
+2. **Authenticate**: Use the web interface at `/auth/sharekhan/`
 3. **Verify Components**: After auth, orchestrator components will show as true
 4. **Start Trading**: System is ready for paper trading when markets open
 
 ## 📝 Notes
 
 - Markets are closed now, so live data won't flow
-- TrueData connection errors during deployment are expected
+- ShareKhan connection errors during deployment are expected
 - All backend fixes from earlier are now deployed
 - System has graceful degradation - works without all components
 
@@ -98,4 +98,4 @@ The deployment is **100% successful**. All backend issues have been fixed:
 - Elite recommendations working
 - All components properly configured
 
-Just need a fresh Zerodha token to fully activate the system! 
+Just need a fresh ShareKhan token to fully activate the system! 

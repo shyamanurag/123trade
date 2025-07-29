@@ -161,12 +161,12 @@ agents:
 
 # Integration Settings
 integrations:
-  zerodha:
+  sharekhan:
     enabled: true
     api_key: "vc9ft4zpknynpm3u"
-    api_secret: "${ZERODHA_API_SECRET}"
+    api_secret: "${SHAREKHAN_API_SECRET}"
     webhook:
-      path: /zerodha
+      path: /sharekhan
       method: POST
       authentication: bearer_token
       events:
@@ -193,9 +193,9 @@ integrations:
         health_check_interval: 30
         alert_threshold: 3
 
-  truedata:
+  sharekhan:
     enabled: true
-    webhook_path: /truedata
+    webhook_path: /sharekhan
     events:
       - market_data
       - news_update

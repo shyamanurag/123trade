@@ -42,7 +42,7 @@ except ImportError:
     TF_AVAILABLE = False
 
 # Technical Analysis
-import talib
+import pandas_ta as ta
 from scipy import stats
 from scipy.signal import find_peaks
 
@@ -79,6 +79,106 @@ class PredictionResult:
     model_name: str = ""
     timestamp: datetime = field(default_factory=datetime.now)
     metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+    def _calculate_macd_pandas_ta(self, prices):
+        """Calculate MACD using pandas-ta"""
+        try:
+            macd_result = ta.macd(prices)
+            macd = macd_result[f'MACD_12_26_9'] if f'MACD_12_26_9' in macd_result.columns else macd_result.iloc[:, 0]
+            macd_signal = macd_result[f'MACDs_12_26_9'] if f'MACDs_12_26_9' in macd_result.columns else macd_result.iloc[:, 1]
+            macd_hist = macd_result[f'MACDh_12_26_9'] if f'MACDh_12_26_9' in macd_result.columns else macd_result.iloc[:, 2]
+            return macd.values, macd_signal.values, macd_hist.values
+        except:
+            # Fallback to simple calculation
+            ema_12 = prices.ewm(span=12).mean()
+            ema_26 = prices.ewm(span=26).mean()
+            macd = ema_12 - ema_26
+            signal = macd.ewm(span=9).mean()
+            hist = macd - signal
+            return macd.values, signal.values, hist.values
+    
+    def _calculate_bbands_pandas_ta(self, prices):
+        """Calculate Bollinger Bands using pandas-ta"""
+        try:
+            bb_result = ta.bbands(prices)
+            upper = bb_result[f'BBU_20_2.0'] if f'BBU_20_2.0' in bb_result.columns else bb_result.iloc[:, 0]
+            middle = bb_result[f'BBM_20_2.0'] if f'BBM_20_2.0' in bb_result.columns else bb_result.iloc[:, 1]
+            lower = bb_result[f'BBL_20_2.0'] if f'BBL_20_2.0' in bb_result.columns else bb_result.iloc[:, 2]
+            return upper.values, middle.values, lower.values
+        except:
+            # Fallback to simple calculation
+            sma = prices.rolling(20).mean()
+            std = prices.rolling(20).std()
+            upper = sma + (std * 2)
+            lower = sma - (std * 2)
+            return upper.values, sma.values, lower.values
+    
+    def _calculate_stoch_pandas_ta(self, highs, lows, prices):
+        """Calculate Stochastic using pandas-ta"""
+        try:
+            stoch_result = ta.stoch(highs, lows, prices)
+            stoch_k = stoch_result[f'STOCHk_14_3_3'] if f'STOCHk_14_3_3' in stoch_result.columns else stoch_result.iloc[:, 0]
+            stoch_d = stoch_result[f'STOCHd_14_3_3'] if f'STOCHd_14_3_3' in stoch_result.columns else stoch_result.iloc[:, 1]
+            return stoch_k.values, stoch_d.values
+        except:
+            # Fallback to simple calculation
+            lowest_low = lows.rolling(14).min()
+            highest_high = highs.rolling(14).max()
+            k_percent = 100 * (prices - lowest_low) / (highest_high - lowest_low)
+            d_percent = k_percent.rolling(3).mean()
+            return k_percent.values, d_percent.values
+
+
+
+    def _calculate_macd_pandas_ta(self, prices):
+        """Calculate MACD using pandas-ta"""
+        try:
+            macd_result = ta.macd(prices)
+            macd = macd_result[f'MACD_12_26_9'] if f'MACD_12_26_9' in macd_result.columns else macd_result.iloc[:, 0]
+            macd_signal = macd_result[f'MACDs_12_26_9'] if f'MACDs_12_26_9' in macd_result.columns else macd_result.iloc[:, 1]
+            macd_hist = macd_result[f'MACDh_12_26_9'] if f'MACDh_12_26_9' in macd_result.columns else macd_result.iloc[:, 2]
+            return macd.values, macd_signal.values, macd_hist.values
+        except:
+            # Fallback to simple calculation
+            ema_12 = prices.ewm(span=12).mean()
+            ema_26 = prices.ewm(span=26).mean()
+            macd = ema_12 - ema_26
+            signal = macd.ewm(span=9).mean()
+            hist = macd - signal
+            return macd.values, signal.values, hist.values
+    
+    def _calculate_bbands_pandas_ta(self, prices):
+        """Calculate Bollinger Bands using pandas-ta"""
+        try:
+            bb_result = ta.bbands(prices)
+            upper = bb_result[f'BBU_20_2.0'] if f'BBU_20_2.0' in bb_result.columns else bb_result.iloc[:, 0]
+            middle = bb_result[f'BBM_20_2.0'] if f'BBM_20_2.0' in bb_result.columns else bb_result.iloc[:, 1]
+            lower = bb_result[f'BBL_20_2.0'] if f'BBL_20_2.0' in bb_result.columns else bb_result.iloc[:, 2]
+            return upper.values, middle.values, lower.values
+        except:
+            # Fallback to simple calculation
+            sma = prices.rolling(20).mean()
+            std = prices.rolling(20).std()
+            upper = sma + (std * 2)
+            lower = sma - (std * 2)
+            return upper.values, sma.values, lower.values
+    
+    def _calculate_stoch_pandas_ta(self, highs, lows, prices):
+        """Calculate Stochastic using pandas-ta"""
+        try:
+            stoch_result = ta.stoch(highs, lows, prices)
+            stoch_k = stoch_result[f'STOCHk_14_3_3'] if f'STOCHk_14_3_3' in stoch_result.columns else stoch_result.iloc[:, 0]
+            stoch_d = stoch_result[f'STOCHd_14_3_3'] if f'STOCHd_14_3_3' in stoch_result.columns else stoch_result.iloc[:, 1]
+            return stoch_k.values, stoch_d.values
+        except:
+            # Fallback to simple calculation
+            lowest_low = lows.rolling(14).min()
+            highest_high = highs.rolling(14).max()
+            k_percent = 100 * (prices - lowest_low) / (highest_high - lowest_low)
+            d_percent = k_percent.rolling(3).mean()
+            return k_percent.values, d_percent.values
+
 
 class BaseMLModel(ABC):
     """Base class for all ML models"""
@@ -224,19 +324,19 @@ class PricePredictionModel(BaseMLModel):
         
         # Technical indicators
         try:
-            features['rsi_14'] = talib.RSI(prices, timeperiod=14)
-            features['macd'], features['macd_signal'], features['macd_hist'] = talib.MACD(prices)
-            features['bb_upper'], features['bb_middle'], features['bb_lower'] = talib.BBANDS(prices)
-            features['atr_14'] = talib.ATR(highs, lows, prices, timeperiod=14)
-            features['adx_14'] = talib.ADX(highs, lows, prices, timeperiod=14)
-            features['cci_14'] = talib.CCI(highs, lows, prices, timeperiod=14)
-            features['williams_r'] = talib.WILLR(highs, lows, prices, timeperiod=14)
-            features['stoch_k'], features['stoch_d'] = talib.STOCH(highs, lows, prices)
+            features['rsi_14'] = ta.rsi(pd.Series(prices), length=14)
+            features['macd'], features['macd_signal'], features['macd_hist'] = self._calculate_macd_pandas_ta(pd.Series(prices))
+            features['bb_upper'], features['bb_middle'], features['bb_lower'] = self._calculate_bbands_pandas_ta(pd.Series(prices))
+            features['atr_14'] = ta.atr(pd.Series(highs), pd.Series(lows), pd.Series(prices), length=14)
+            features['adx_14'] = ta.adx(pd.Series(highs), pd.Series(lows), pd.Series(prices), length=14)['ADX_14']
+            features['cci_14'] = ta.cci(pd.Series(highs), pd.Series(lows), pd.Series(prices), length=14)
+            features['williams_r'] = ta.willr(pd.Series(highs), pd.Series(lows), pd.Series(prices), length=14)
+            features['stoch_k'], features['stoch_d'] = self._calculate_stoch_pandas_ta(pd.Series(highs), pd.Series(lows), pd.Series(prices))
             
             # Volume indicators
-            features['obv'] = talib.OBV(prices, volumes)
-            features['ad'] = talib.AD(highs, lows, prices, volumes)
-            features['mfi'] = talib.MFI(highs, lows, prices, volumes, timeperiod=14)
+            features['obv'] = ta.obv(pd.Series(prices), pd.Series(volumes))
+            features['ad'] = ta.ad(pd.Series(highs), pd.Series(lows), pd.Series(prices), pd.Series(volumes))
+            features['mfi'] = ta.mfi(pd.Series(highs), pd.Series(lows), pd.Series(prices), pd.Series(volumes), length=14)
             
         except Exception as e:
             logger.warning(f"Error calculating technical indicators: {e}")

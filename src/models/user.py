@@ -84,7 +84,7 @@ class NewUser(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     initial_capital: condecimal(gt=0) = Field(default=50000)
     risk_tolerance: RiskTolerance = Field(default=RiskTolerance.MEDIUM)
-    zerodha_client_id: Optional[str] = None
+    sharekhan_client_id: Optional[str] = None
     broker_account_id: Optional[str] = None
     trading_enabled: bool = Field(default=False)
     max_position_size: Optional[float] = None

@@ -21,11 +21,11 @@ def cleanup_codebase():
     files_to_remove = [
         # Duplicate/old files
         "main_production.py",  # Use main.py instead
-        "truedata_standalone.py",  # Integrated into main system
+        "sharekhan_standalone.py",  # Integrated into main system
         "websocket_manager.py",  # Integrated into orchestrator
         "zero_trade_diagnosis.py",  # Diagnostic script, not needed in production
-        "verify_zerodha_fix.py",  # Diagnostic script
-        "fix_zerodha_auth.py",  # Diagnostic script
+        "verify_sharekhan_fix.py",  # Diagnostic script
+        "fix_sharekhan_auth.py",  # Diagnostic script
         "debug_signal_generation.py",  # Debug script
         "diagnose_signal_timing.py",  # Debug script
         "strategy_fine_tuning_analysis.py",  # Analysis script
@@ -37,8 +37,8 @@ def cleanup_codebase():
         "add_broker_user_and_start_trading.py",  # Use API instead
         "start_trading.py",  # Use main.py instead
         "subscribe_indices.py",  # Integrated into main system
-        "update_truedata_symbols.py",  # Integrated into main system
-        "update_zerodha_credentials.py",  # Use API instead
+        "update_sharekhan_symbols.py",  # Integrated into main system
+        "update_sharekhan_credentials.py",  # Use API instead
         
         # Test files (move to tests/ directory)
         "test_redis_token_retrieval.py",

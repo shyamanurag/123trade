@@ -1,7 +1,7 @@
 """
 Dynamic User Management API
 Handles creation, management, and analytics for multiple trading users
-Integrates with Zerodha broker for multi-user trading support
+Integrates with ShareKhan broker for multi-user trading support
 """
 
 import logging
@@ -32,9 +32,9 @@ class UserCreateRequest(BaseModel):
     full_name: str
     initial_capital: float = 50000.0
     risk_tolerance: str = "medium"
-    zerodha_client_id: Optional[str] = None
-    zerodha_api_key: Optional[str] = None
-    zerodha_api_secret: Optional[str] = None
+    sharekhan_client_id: Optional[str] = None
+    sharekhan_api_key: Optional[str] = None
+    sharekhan_api_secret: Optional[str] = None
 
     @validator('username')
     def validate_username(cls, v):
@@ -56,7 +56,7 @@ class UserUpdateRequest(BaseModel):
     initial_capital: Optional[float] = None
     current_balance: Optional[float] = None
     risk_tolerance: Optional[str] = None
-    zerodha_client_id: Optional[str] = None
+    sharekhan_client_id: Optional[str] = None
     is_active: Optional[bool] = None
 
 class UserResponse(BaseModel):
@@ -69,7 +69,7 @@ class UserResponse(BaseModel):
     current_balance: float
     risk_tolerance: str
     is_active: bool
-    zerodha_client_id: Optional[str] = None
+    sharekhan_client_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     total_trades: int = 0
@@ -161,7 +161,7 @@ class DynamicUserManager:
                 initial_capital=user_data.initial_capital,
                 current_balance=user_data.initial_capital,
                 risk_tolerance=user_data.risk_tolerance,
-                zerodha_client_id=user_data.zerodha_client_id,
+                sharekhan_client_id=user_data.sharekhan_client_id,
                 is_active=True
             )
             
@@ -170,13 +170,13 @@ class DynamicUserManager:
             db.commit()
             db.refresh(new_user)
             
-            # Store Zerodha credentials in Redis if provided
-            if user_data.zerodha_api_key and user_data.zerodha_api_secret:
-                await self._store_zerodha_credentials(
+            # Store ShareKhan credentials in Redis if provided
+            if user_data.sharekhan_api_key and user_data.sharekhan_api_secret:
+                await self._store_sharekhan_credentials(
                     new_user.id,
-                    user_data.zerodha_api_key,
-                    user_data.zerodha_api_secret,
-                    user_data.zerodha_client_id
+                    user_data.sharekhan_api_key,
+                    user_data.sharekhan_api_secret,
+                    user_data.sharekhan_client_id
                 )
             
             # Initialize user analytics
@@ -251,7 +251,7 @@ class DynamicUserManager:
                         current_balance=float(broker_user.get('current_capital', 0)),
                         risk_tolerance=broker_user.get('risk_tolerance', 'medium'),
                         is_active=broker_user.get('is_active', True),
-                        zerodha_client_id=broker_user.get('client_id', user_id),
+                        sharekhan_client_id=broker_user.get('client_id', user_id),
                         created_at=datetime.fromisoformat(broker_user.get('created_at', datetime.now().isoformat())),
                         updated_at=datetime.now(),
                         total_trades=broker_user.get('total_trades', 0),
@@ -295,8 +295,8 @@ class DynamicUserManager:
                 user.current_balance = user_data.current_balance
             if user_data.risk_tolerance is not None:
                 user.risk_tolerance = user_data.risk_tolerance
-            if user_data.zerodha_client_id is not None:
-                user.zerodha_client_id = user_data.zerodha_client_id
+            if user_data.sharekhan_client_id is not None:
+                user.sharekhan_client_id = user_data.sharekhan_client_id
             if user_data.is_active is not None:
                 user.is_active = user_data.is_active
             
@@ -487,7 +487,7 @@ class DynamicUserManager:
                 current_balance=float(user.current_balance),
                 risk_tolerance=user.risk_tolerance,
                 is_active=user.is_active,
-                zerodha_client_id=user.zerodha_client_id,
+                sharekhan_client_id=user.sharekhan_client_id,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
                 total_trades=total_trades,
@@ -509,13 +509,13 @@ class DynamicUserManager:
                 current_balance=float(user.current_balance),
                 risk_tolerance=user.risk_tolerance,
                 is_active=user.is_active,
-                zerodha_client_id=user.zerodha_client_id,
+                sharekhan_client_id=user.sharekhan_client_id,
                 created_at=user.created_at,
                 updated_at=user.updated_at
             )
     
-    async def _store_zerodha_credentials(self, user_id: int, api_key: str, api_secret: str, client_id: str):
-        """Store Zerodha credentials securely in Redis"""
+    async def _store_sharekhan_credentials(self, user_id: int, api_key: str, api_secret: str, client_id: str):
+        """Store ShareKhan credentials securely in Redis"""
         if not self.redis_client:
             return
         
@@ -528,17 +528,17 @@ class DynamicUserManager:
             }
             
             await self.redis_client.hset(
-                f"zerodha:credentials:{user_id}",
+                f"sharekhan:credentials:{user_id}",
                 mapping=credentials
             )
             
             # Set expiry (optional - for security)
-            await self.redis_client.expire(f"zerodha:credentials:{user_id}", 86400 * 30)  # 30 days
+            await self.redis_client.expire(f"sharekhan:credentials:{user_id}", 86400 * 30)  # 30 days
             
-            logger.info(f"✅ Zerodha credentials stored for user {user_id}")
+            logger.info(f"✅ ShareKhan credentials stored for user {user_id}")
             
         except Exception as e:
-            logger.error(f"❌ Failed to store Zerodha credentials for user {user_id}: {e}")
+            logger.error(f"❌ Failed to store ShareKhan credentials for user {user_id}: {e}")
     
     async def _initialize_user_analytics(self, user_id: int):
         """Initialize user analytics in Redis"""
@@ -571,7 +571,7 @@ class DynamicUserManager:
         
         try:
             keys_to_delete = [
-                f"zerodha:credentials:{user_id}",
+                f"sharekhan:credentials:{user_id}",
                 f"user:analytics:{user_id}",
                 f"user:positions:{user_id}",
                 f"user:orders:{user_id}"
@@ -615,7 +615,7 @@ async def create_user(
     background_tasks: BackgroundTasks,
     manager: DynamicUserManager = Depends(get_user_manager)
 ):
-    """Create a new trading user with Zerodha integration"""
+    """Create a new trading user with ShareKhan integration"""
     return await manager.create_user(user_data)
 
 @router.get("/list", response_model=List[UserResponse])

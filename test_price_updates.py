@@ -21,10 +21,10 @@ async def test_price_updates():
     logger.info("=" * 40)
     
     try:
-        from src.api.market_data import get_truedata_proxy
+        from src.api.market_data import get_sharekhan_proxy
         
-        # Get current TrueData prices
-        proxy_data = get_truedata_proxy()
+        # Get current ShareKhan prices
+        proxy_data = get_sharekhan_proxy()
         live_prices = proxy_data.get('data', {})
         
         logger.info(f"📊 Live Prices Available: {len(live_prices)}")

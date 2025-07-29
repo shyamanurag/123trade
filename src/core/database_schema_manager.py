@@ -43,7 +43,7 @@ class DatabaseSchemaManager:
         'initial_capital': {'type': 'FLOAT', 'nullable': True, 'default': 100000.0},
         'current_balance': {'type': 'FLOAT', 'nullable': True, 'default': 100000.0},
         'risk_tolerance': {'type': 'VARCHAR(20)', 'nullable': True, 'default': 'medium'},
-        'zerodha_client_id': {'type': 'VARCHAR(50)', 'nullable': True},
+        'sharekhan_client_id': {'type': 'VARCHAR(50)', 'nullable': True},
         'max_daily_trades': {'type': 'INTEGER', 'nullable': True, 'default': 1000}
     }
     
@@ -273,7 +273,7 @@ class DatabaseSchemaManager:
                     current_balance FLOAT DEFAULT 100000.0,
                     risk_tolerance VARCHAR(20) DEFAULT 'medium',
                     is_active BOOLEAN DEFAULT TRUE,
-                    zerodha_client_id VARCHAR(50),
+                    sharekhan_client_id VARCHAR(50),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     total_trades INTEGER DEFAULT 0,
@@ -282,10 +282,10 @@ class DatabaseSchemaManager:
                     phone VARCHAR(20),
                     trading_enabled BOOLEAN DEFAULT TRUE,
                     max_position_size INTEGER DEFAULT 500000,
-                    zerodha_api_key VARCHAR(100),
-                    zerodha_api_secret VARCHAR(100),
-                    zerodha_access_token TEXT,
-                    zerodha_public_token VARCHAR(100),
+                    sharekhan_api_key VARCHAR(100),
+                    sharekhan_api_secret VARCHAR(100),
+                    sharekhan_access_token TEXT,
+                    sharekhan_public_token VARCHAR(100),
                     total_pnl FLOAT DEFAULT 0,
                     last_login TIMESTAMP,
                     paper_trading BOOLEAN DEFAULT FALSE,
@@ -305,18 +305,18 @@ class DatabaseSchemaManager:
                         conn.execute(text("""
                             INSERT INTO users (
                                 username, email, password_hash, full_name, initial_capital,
-                                current_balance, risk_tolerance, is_active, zerodha_client_id,
+                                current_balance, risk_tolerance, is_active, sharekhan_client_id,
                                 created_at, updated_at, total_trades, user_type, status,
-                                phone, trading_enabled, max_position_size, zerodha_api_key,
-                                zerodha_api_secret, zerodha_access_token, zerodha_public_token,
+                                phone, trading_enabled, max_position_size, sharekhan_api_key,
+                                sharekhan_api_secret, sharekhan_access_token, sharekhan_public_token,
                                 total_pnl, last_login, paper_trading, max_daily_trades
                             ) VALUES (
                                 :username, :email, :password_hash, :full_name, :initial_capital,
-                                :current_balance, :risk_tolerance, :is_active, :zerodha_client_id,
+                                :current_balance, :risk_tolerance, :is_active, :sharekhan_client_id,
                                 COALESCE(:created_at, CURRENT_TIMESTAMP), COALESCE(:updated_at, CURRENT_TIMESTAMP),
                                 :total_trades, :user_type, :status, :phone, :trading_enabled,
-                                :max_position_size, :zerodha_api_key, :zerodha_api_secret,
-                                :zerodha_access_token, :zerodha_public_token, :total_pnl,
+                                :max_position_size, :sharekhan_api_key, :sharekhan_api_secret,
+                                :sharekhan_access_token, :sharekhan_public_token, :total_pnl,
                                 :last_login, :paper_trading, :max_daily_trades
                             )
                         """), {
@@ -328,7 +328,7 @@ class DatabaseSchemaManager:
                             'current_balance': row_data[6] if len(row_data) > 6 else 100000.0,
                             'risk_tolerance': row_data[7] if len(row_data) > 7 else 'medium',
                             'is_active': row_data[8] if len(row_data) > 8 else True,
-                            'zerodha_client_id': row_data[9] if len(row_data) > 9 else None,
+                            'sharekhan_client_id': row_data[9] if len(row_data) > 9 else None,
                             'created_at': row_data[10] if len(row_data) > 10 else None,
                             'updated_at': row_data[11] if len(row_data) > 11 else None,
                             'total_trades': row_data[12] if len(row_data) > 12 else 0,
@@ -337,10 +337,10 @@ class DatabaseSchemaManager:
                             'phone': row_data[15] if len(row_data) > 15 else None,
                             'trading_enabled': row_data[16] if len(row_data) > 16 else True,
                             'max_position_size': row_data[17] if len(row_data) > 17 else 500000,
-                            'zerodha_api_key': row_data[18] if len(row_data) > 18 else None,
-                            'zerodha_api_secret': row_data[19] if len(row_data) > 19 else None,
-                            'zerodha_access_token': row_data[20] if len(row_data) > 20 else None,
-                            'zerodha_public_token': row_data[21] if len(row_data) > 21 else None,
+                            'sharekhan_api_key': row_data[18] if len(row_data) > 18 else None,
+                            'sharekhan_api_secret': row_data[19] if len(row_data) > 19 else None,
+                            'sharekhan_access_token': row_data[20] if len(row_data) > 20 else None,
+                            'sharekhan_public_token': row_data[21] if len(row_data) > 21 else None,
                             'total_pnl': row_data[22] if len(row_data) > 22 else 0,
                             'last_login': row_data[23] if len(row_data) > 23 else None,
                             'paper_trading': row_data[24] if len(row_data) > 24 else False,
@@ -641,7 +641,7 @@ class DatabaseSchemaManager:
                             INSERT INTO users (
                                 username, email, password_hash, full_name, 
                                 initial_capital, current_balance, is_active, 
-                                trading_enabled, zerodha_client_id, max_daily_trades
+                                trading_enabled, sharekhan_client_id, max_daily_trades
                             ) VALUES (
                                 'PAPER_TRADER_001', 
                                 'paper@trader.com', 

@@ -28,12 +28,12 @@ class OrderManager:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         
-        # CRITICAL FIX: Store Zerodha client from config
-        self.zerodha_client = config.get('zerodha_client')
-        if self.zerodha_client:
-            logger.info("✅ OrderManager initialized with Zerodha client")
+        # CRITICAL FIX: Store ShareKhan client from config
+        self.sharekhan_client = config.get('sharekhan_client')
+        if self.sharekhan_client:
+            logger.info("✅ OrderManager initialized with ShareKhan client")
         else:
-            logger.warning("⚠️ OrderManager initialized without Zerodha client")
+            logger.warning("⚠️ OrderManager initialized without ShareKhan client")
         
         # FIXED: Handle None redis config properly
         if config.get('redis') is not None:
@@ -513,13 +513,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -529,11 +529,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -541,31 +541,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -619,7 +619,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -632,32 +632,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -668,10 +668,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -711,7 +711,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -724,37 +724,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -766,10 +766,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -1252,13 +1252,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -1268,11 +1268,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -1280,31 +1280,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -1358,7 +1358,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -1371,32 +1371,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -1407,10 +1407,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -1450,7 +1450,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -1463,37 +1463,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -1505,10 +1505,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -1991,13 +1991,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -2007,11 +2007,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -2019,31 +2019,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -2097,7 +2097,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -2110,32 +2110,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -2146,10 +2146,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -2189,7 +2189,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -2202,37 +2202,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -2244,10 +2244,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -2730,13 +2730,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -2746,11 +2746,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -2758,31 +2758,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -2836,7 +2836,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -2849,32 +2849,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -2885,10 +2885,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -2928,7 +2928,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -2941,37 +2941,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -2983,10 +2983,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -3469,13 +3469,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -3485,11 +3485,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -3497,31 +3497,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -3575,7 +3575,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -3588,32 +3588,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -3624,10 +3624,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -3667,7 +3667,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -3680,37 +3680,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -3722,10 +3722,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -4208,13 +4208,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -4224,11 +4224,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -4236,31 +4236,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -4314,7 +4314,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -4327,32 +4327,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -4363,10 +4363,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -4406,7 +4406,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -4419,37 +4419,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -4461,10 +4461,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -4947,13 +4947,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -4963,11 +4963,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -4975,31 +4975,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -5053,7 +5053,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -5066,32 +5066,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -5102,10 +5102,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -5145,7 +5145,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -5158,37 +5158,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -5200,10 +5200,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -5686,13 +5686,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -5702,11 +5702,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -5714,31 +5714,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -5792,7 +5792,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -5805,32 +5805,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -5841,10 +5841,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -5884,7 +5884,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -5897,37 +5897,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -5939,10 +5939,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -6425,13 +6425,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -6441,11 +6441,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -6453,31 +6453,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -6531,7 +6531,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -6544,32 +6544,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -6580,10 +6580,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -6623,7 +6623,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -6636,37 +6636,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -6678,10 +6678,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -7164,13 +7164,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -7180,11 +7180,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -7192,31 +7192,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -7270,7 +7270,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -7283,32 +7283,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -7319,10 +7319,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -7362,7 +7362,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -7375,37 +7375,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -7417,10 +7417,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")
@@ -7903,13 +7903,13 @@ class OrderManager:
             return False
     
     async def _get_current_price(self, symbol: str) -> Optional[float]:
-        """Get current price for a symbol from TrueData shared cache"""
+        """Get current price for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     price = live_market_data[symbol].get('ltp', 0)
                     if price > 0:
@@ -7919,11 +7919,11 @@ class OrderManager:
                         logger.warning(f"⚠️ Zero price for {symbol}")
                         return None
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return None
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return None
                 
         except Exception as e:
@@ -7931,31 +7931,31 @@ class OrderManager:
             return None
     
     async def _get_last_price(self, symbol: str) -> Optional[float]:
-        """Get last recorded price for a symbol from TrueData shared cache"""
+        """Get last recorded price for a symbol from ShareKhan shared cache"""
         try:
-            # Use current price from TrueData shared cache
+            # Use current price from ShareKhan shared cache
             return await self._get_current_price(symbol)
         except Exception as e:
             logger.error(f"Error getting last price for {symbol}: {str(e)}")
             return None
     
     async def _get_current_volume(self, symbol: str) -> Optional[int]:
-        """Get current volume for a symbol from TrueData shared cache"""
+        """Get current volume for a symbol from ShareKhan shared cache"""
         try:
-            # CRITICAL FIX: Get from TrueData shared cache instead of Redis
+            # CRITICAL FIX: Get from ShareKhan shared cache instead of Redis
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 
-                # Access the shared TrueData cache
+                # Access the shared ShareKhan cache
                 if symbol in live_market_data:
                     volume = live_market_data[symbol].get('volume', 0)
                     return int(volume) if volume else 0
                 else:
-                    logger.warning(f"⚠️ Symbol {symbol} not found in TrueData cache")
+                    logger.warning(f"⚠️ Symbol {symbol} not found in ShareKhan cache")
                     return 0
                     
             except ImportError:
-                logger.error("❌ TrueData client not available")
+                logger.error("❌ ShareKhan client not available")
                 return 0
                 
         except Exception as e:
@@ -8009,7 +8009,7 @@ class OrderManager:
             }
     
     async def _execute_market_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a market order through Zerodha broker API"""
+        """Execute a market order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -8022,32 +8022,32 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # ELIMINATED: Dangerous fallback to orchestrator client
-                    # When Zerodha client not available, system should fail, not simulate
-                    logger.error("❌ CRITICAL: No Zerodha client available in OrderManager")
+                    # When ShareKhan client not available, system should fail, not simulate
+                    logger.error("❌ CRITICAL: No ShareKhan client available in OrderManager")
                     logger.error("❌ SAFETY: No fallback client access - real broker required")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available - no fallback simulation'
+                        'message': 'ShareKhan client not available - no fallback simulation'
                     }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -8058,10 +8058,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing market order via Zerodha: {order.symbol} {order.quantity} @ MARKET")
+                logger.info(f"🚀 Placing market order via ShareKhan: {order.symbol} {order.quantity} @ MARKET")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Market order placed successfully: {broker_order_id}")
@@ -8101,7 +8101,7 @@ class OrderManager:
             }
     
     async def _execute_limit_order(self, order: Order) -> Dict[str, Any]:
-        """Execute a limit order through Zerodha broker API"""
+        """Execute a limit order through ShareKhan broker API"""
         try:
             # Get current market price for validation
             current_price = await self._get_current_price(order.symbol)
@@ -8114,37 +8114,37 @@ class OrderManager:
                     'message': 'Current market price not available'
                 }
             
-            # Get Zerodha client from OrderManager config (CRITICAL FIX)
+            # Get ShareKhan client from OrderManager config (CRITICAL FIX)
             try:
-                zerodha_client = self.zerodha_client  # Use the client passed during initialization
+                sharekhan_client = self.sharekhan_client  # Use the client passed during initialization
                 
-                if not zerodha_client:
+                if not sharekhan_client:
                     # Fallback: Try to get from orchestrator singleton
                     from src.core.orchestrator import get_orchestrator
                     orchestrator = await get_orchestrator()
                     
-                    if hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                        zerodha_client = orchestrator.zerodha_client
-                        logger.info("🔄 Using Zerodha client from orchestrator fallback")
+                    if hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                        sharekhan_client = orchestrator.sharekhan_client
+                        logger.info("🔄 Using ShareKhan client from orchestrator fallback")
                     else:
-                        logger.error("❌ No Zerodha client available in OrderManager or orchestrator")
+                        logger.error("❌ No ShareKhan client available in OrderManager or orchestrator")
                         return {
                             'status': 'REJECTED',
                             'reason': 'NO_BROKER_CLIENT',
                             'order_id': order.order_id,
-                            'message': 'Zerodha client not available'
+                            'message': 'ShareKhan client not available'
                         }
                 
-                if not zerodha_client:
-                    logger.error("❌ No Zerodha client available")
+                if not sharekhan_client:
+                    logger.error("❌ No ShareKhan client available")
                     return {
                         'status': 'REJECTED',
                         'reason': 'NO_BROKER_CLIENT',
                         'order_id': order.order_id,
-                        'message': 'Zerodha client not available'
+                        'message': 'ShareKhan client not available'
                     }
                 
-                # Prepare order parameters for Zerodha
+                # Prepare order parameters for ShareKhan
                 order_params = {
                     'symbol': order.symbol,
                     'transaction_type': 'BUY' if order.side.value == 'BUY' else 'SELL',
@@ -8156,10 +8156,10 @@ class OrderManager:
                     'tag': f"ORDER_MANAGER_{order.order_id[:8]}"
                 }
                 
-                logger.info(f"🚀 Placing limit order via Zerodha: {order.symbol} {order.quantity} @ ₹{order.price}")
+                logger.info(f"🚀 Placing limit order via ShareKhan: {order.symbol} {order.quantity} @ ₹{order.price}")
                 
-                # Place order through Zerodha
-                broker_order_id = await zerodha_client.place_order(order_params)
+                # Place order through ShareKhan
+                broker_order_id = await sharekhan_client.place_order(order_params)
                 
                 if broker_order_id:
                     logger.info(f"✅ Limit order placed successfully: {broker_order_id}")

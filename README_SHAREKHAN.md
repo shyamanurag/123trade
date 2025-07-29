@@ -1,14 +1,14 @@
 # ShareKhan Trading System
 
-🚀 **Complete Architecture Replacement: TrueData + Zerodha → ShareKhan Only**
+🚀 **Complete Architecture Replacement: ShareKhan + ShareKhan → ShareKhan Only**
 
-This is a comprehensive trading system that completely replaces the old dual-provider architecture (TrueData for market data + Zerodha for trading) with a unified ShareKhan API integration. The system now provides trading operations, real-time market data, and multi-user management all through ShareKhan's API.
+This is a comprehensive trading system that completely replaces the old dual-provider architecture (ShareKhan for market data + ShareKhan for trading) with a unified ShareKhan API integration. The system now provides trading operations, real-time market data, and multi-user management all through ShareKhan's API.
 
 ## 🎯 Key Improvements
 
 ### Old Architecture Problems
-- **Dual Provider Complexity**: TrueData for market data + Zerodha for trading = 2 different APIs, 2 authentication systems, 2 failure points
-- **Data Synchronization Issues**: Market data from TrueData, trading from Zerodha - timing mismatches
+- **Dual Provider Complexity**: ShareKhan for market data + ShareKhan for trading = 2 different APIs, 2 authentication systems, 2 failure points
+- **Data Synchronization Issues**: Market data from ShareKhan, trading from ShareKhan - timing mismatches
 - **Limited Multi-User Support**: Basic user management with single master account approach
 - **Complex Deployment**: Multiple service dependencies and configurations
 
@@ -478,8 +478,8 @@ python scripts/migrate_from_old_system.py
 During migration, you can enable limited legacy support:
 
 ```env
-LEGACY_TRUEDATA_SUPPORT=false  # Set to true only during migration
-LEGACY_ZERODHA_SUPPORT=false   # Set to true only during migration
+LEGACY_SHAREKHAN_SUPPORT=false  # Set to true only during migration
+LEGACY_SHAREKHAN_SUPPORT=false   # Set to true only during migration
 ```
 
 ## 🤝 Contributing

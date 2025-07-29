@@ -40,7 +40,7 @@ class TradeEngine:
         self.last_signal_time = 0.0  # Last signal processing time
         
         # Initialize additional required attributes
-        self.zerodha_client = None  # Will be set by orchestrator
+        self.sharekhan_client = None  # Will be set by orchestrator
         self.risk_manager = None  # Will be set by orchestrator
         
         # Ensure precise database schema
@@ -172,46 +172,46 @@ class TradeEngine:
         except Exception as e:
             self.logger.error(f"Error tracking signal execution failure: {e}")
     
-    async def _try_get_zerodha_client_from_orchestrator(self):
-        """Try to get Zerodha client from orchestrator if not set"""
+    async def _try_get_sharekhan_client_from_orchestrator(self):
+        """Try to get ShareKhan client from orchestrator if not set"""
         try:
             # CRITICAL FIX: Use correct function name
             from src.core.orchestrator import get_orchestrator_instance
             orchestrator = get_orchestrator_instance()
             
-            if orchestrator and hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client:
-                self.zerodha_client = orchestrator.zerodha_client
-                self.logger.info("✅ Successfully retrieved Zerodha client from orchestrator")
+            if orchestrator and hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client:
+                self.sharekhan_client = orchestrator.sharekhan_client
+                self.logger.info("✅ Successfully retrieved ShareKhan client from orchestrator")
                 return True
             else:
-                self.logger.error("❌ No Zerodha client available in orchestrator")
+                self.logger.error("❌ No ShareKhan client available in orchestrator")
                 # CRITICAL DEBUG: Log orchestrator state
                 if orchestrator:
-                    self.logger.error(f"❌ Orchestrator exists but zerodha_client is: {getattr(orchestrator, 'zerodha_client', 'MISSING')}")
+                    self.logger.error(f"❌ Orchestrator exists but sharekhan_client is: {getattr(orchestrator, 'sharekhan_client', 'MISSING')}")
                 else:
                     self.logger.error("❌ No orchestrator instance found")
                 return False
                 
         except Exception as e:
-            self.logger.error(f"❌ Error getting Zerodha client from orchestrator: {e}")
+            self.logger.error(f"❌ Error getting ShareKhan client from orchestrator: {e}")
             return False
     
     async def _process_paper_signal(self, signal: Dict):
-        """Process signal in paper trading mode with REAL Zerodha API and P&L tracking"""
+        """Process signal in paper trading mode with REAL ShareKhan API and P&L tracking"""
         try:
             self.logger.info(f"📊 Processing paper signal for {signal.get('symbol', 'UNKNOWN')}")
             
-            # CRITICAL FIX: Attempt to get Zerodha client if not available
-            if not self.zerodha_client:
-                self.logger.warning("⚠️ Zerodha client not set, attempting to retrieve from orchestrator")
-                await self._try_get_zerodha_client_from_orchestrator()
+            # CRITICAL FIX: Attempt to get ShareKhan client if not available
+            if not self.sharekhan_client:
+                self.logger.warning("⚠️ ShareKhan client not set, attempting to retrieve from orchestrator")
+                await self._try_get_sharekhan_client_from_orchestrator()
             
-            # CRITICAL FIX: Use real Zerodha API even in paper mode
-            if self.zerodha_client:
+            # CRITICAL FIX: Use real ShareKhan API even in paper mode
+            if self.sharekhan_client:
                 # CRITICAL FIX: Map signal 'action' to order 'action' correctly
                 signal_action = signal.get('action', 'BUY').upper()
                 
-                # Create order for Zerodha API (sandbox mode)
+                # Create order for ShareKhan API (sandbox mode)
                 order_data = {
                     'symbol': signal.get('symbol'),
                     'quantity': signal.get('quantity', 50),
@@ -225,12 +225,12 @@ class TradeEngine:
                 
                 self.logger.info(f"🔄 Signal: {signal.get('symbol')} {signal_action} → Order: {signal.get('symbol')} {signal_action}")
                 
-                # Place order through Zerodha (sandbox)
-                result = await self.zerodha_client.place_order(order_data)
+                # Place order through ShareKhan (sandbox)
+                result = await self.sharekhan_client.place_order(order_data)
                 
-                # CRITICAL FIX: Handle string order_id returned by ZerodhaIntegration  
+                # CRITICAL FIX: Handle string order_id returned by ShareKhanIntegration  
                 if result and isinstance(result, str):
-                    # ZerodhaIntegration returns order_id string directly
+                    # ShareKhanIntegration returns order_id string directly
                     order_id = result
                     execution_price = signal.get('entry_price', 0)
                     
@@ -265,7 +265,7 @@ class TradeEngine:
                     # CRITICAL FIX: Calculate real P&L and store to database
                     await self._calculate_and_store_trade_pnl(trade_record)
                     
-                    self.logger.info(f"✅ Paper trade executed via Zerodha API: {order_id}")
+                    self.logger.info(f"✅ Paper trade executed via ShareKhan API: {order_id}")
                     return trade_record
                 elif result and isinstance(result, dict) and result.get('success'):
                     # Handle dict format (backward compatibility)
@@ -294,20 +294,20 @@ class TradeEngine:
                         )
                     
                     await self._calculate_and_store_trade_pnl(trade_record)
-                    self.logger.info(f"✅ Paper trade executed via Zerodha API: {order_id}")
+                    self.logger.info(f"✅ Paper trade executed via ShareKhan API: {order_id}")
                     return trade_record
                 
-            # ENHANCED SAFETY: Handle Zerodha failures with graceful degradation
-            self.logger.error("❌ CRITICAL: Zerodha client not available - NO FALLBACK EXECUTION")
+            # ENHANCED SAFETY: Handle ShareKhan failures with graceful degradation
+            self.logger.error("❌ CRITICAL: ShareKhan client not available - NO FALLBACK EXECUTION")
             
             # RULE #8: Don't suggest bypasses—fix root causes
             # RULE #1: Never put mock/demo data in production trading system
             self.logger.error("❌ NO FALLBACK EXECUTION - Real broker required for all trades")
             self.logger.error(f"❌ Signal REJECTED: {signal.get('symbol')} {signal.get('side')} {signal.get('quantity')}")
-            self.logger.error("🚨 SYSTEM DESIGNED TO FAIL WHEN BROKER UNAVAILABLE - FIX ZERODHA CONNECTION")
+            self.logger.error("🚨 SYSTEM DESIGNED TO FAIL WHEN BROKER UNAVAILABLE - FIX SHAREKHAN CONNECTION")
             
             # Track failed execution
-            self._track_signal_execution_failed(signal, "Zerodha client unavailable - NO FALLBACK ALLOWED")
+            self._track_signal_execution_failed(signal, "ShareKhan client unavailable - NO FALLBACK ALLOWED")
             
             # CRITICAL: Raise exception to make failure visible
             raise Exception(f"BROKER CONNECTION FAILED: {signal.get('symbol')} - No fallback execution allowed per Rule #8")
@@ -324,7 +324,7 @@ class TradeEngine:
             quantity = trade_record['quantity']
             side = trade_record['side']
             
-            # CRITICAL FIX: Get REAL current market price from TrueData
+            # CRITICAL FIX: Get REAL current market price from ShareKhan
             current_price = await self._get_current_market_price(symbol)
             if not current_price or current_price <= 0:
                 self.logger.warning(f"⚠️ No real-time price for {symbol}, using entry price as fallback")
@@ -427,24 +427,24 @@ class TradeEngine:
             if db_session:
                 db_session.close()
     
-    async def sync_actual_zerodha_trades(self):
-        """CRITICAL: Fetch ACTUAL executed trades from Zerodha API"""
+    async def sync_actual_sharekhan_trades(self):
+        """CRITICAL: Fetch ACTUAL executed trades from ShareKhan API"""
         try:
-            if not self.zerodha_client:
-                self.logger.warning("⚠️ No Zerodha client for trade sync")
+            if not self.sharekhan_client:
+                self.logger.warning("⚠️ No ShareKhan client for trade sync")
                 return
             
-            self.logger.info("🔄 Syncing actual executed trades from Zerodha...")
+            self.logger.info("🔄 Syncing actual executed trades from ShareKhan...")
             
-            # Get actual orders from Zerodha API
-            zerodha_orders = await self.zerodha_client.get_orders()
+            # Get actual orders from ShareKhan API
+            sharekhan_orders = await self.sharekhan_client.get_orders()
             
-            if not zerodha_orders:
-                self.logger.warning("⚠️ No orders returned from Zerodha API")
+            if not sharekhan_orders:
+                self.logger.warning("⚠️ No orders returned from ShareKhan API")
                 return
             
             executed_trades = []
-            for order in zerodha_orders:
+            for order in sharekhan_orders:
                 if order.get('status') == 'COMPLETE':
                     # This is an ACTUAL executed trade
                     executed_trade = {
@@ -460,7 +460,7 @@ class TradeEngine:
                     }
                     executed_trades.append(executed_trade)
             
-            self.logger.info(f"✅ Found {len(executed_trades)} actual executed trades from Zerodha")
+            self.logger.info(f"✅ Found {len(executed_trades)} actual executed trades from ShareKhan")
             
             # Update our records with ACTUAL execution data
             for trade in executed_trades:
@@ -469,11 +469,11 @@ class TradeEngine:
             return executed_trades
             
         except Exception as e:
-            self.logger.error(f"❌ Error syncing actual Zerodha trades: {e}")
+            self.logger.error(f"❌ Error syncing actual ShareKhan trades: {e}")
             return []
     
     async def _update_with_actual_execution_data(self, actual_trade: Dict):
-        """Update internal trade records with ACTUAL execution data from Zerodha"""
+        """Update internal trade records with ACTUAL execution data from ShareKhan"""
         try:
             trade_id = actual_trade['trade_id']
             
@@ -526,7 +526,7 @@ class TradeEngine:
                         'price': actual_trade['price'],
                         'status': actual_trade['status'],
                         'executed_at': actual_trade['executed_at'],
-                        'user_id': 'ZERODHA_SYNC'
+                        'user_id': 'SHAREKHAN_SYNC'
                     })
                 
                 db_session.commit()
@@ -540,20 +540,20 @@ class TradeEngine:
             if db_session:
                 db_session.close()
     
-    async def sync_actual_zerodha_positions(self):
-        """CRITICAL: Fetch ACTUAL positions from Zerodha API for square-off"""
+    async def sync_actual_sharekhan_positions(self):
+        """CRITICAL: Fetch ACTUAL positions from ShareKhan API for square-off"""
         try:
-            if not self.zerodha_client:
-                self.logger.warning("⚠️ No Zerodha client for position sync")
+            if not self.sharekhan_client:
+                self.logger.warning("⚠️ No ShareKhan client for position sync")
                 return {}
             
-            self.logger.info("🔄 Syncing actual positions from Zerodha for square-off...")
+            self.logger.info("🔄 Syncing actual positions from ShareKhan for square-off...")
             
-            # Get ACTUAL positions from Zerodha API
-            positions_data = await self.zerodha_client.get_positions()
+            # Get ACTUAL positions from ShareKhan API
+            positions_data = await self.sharekhan_client.get_positions()
             
             if not positions_data:
-                self.logger.warning("⚠️ No positions returned from Zerodha API")
+                self.logger.warning("⚠️ No positions returned from ShareKhan API")
                 return {}
             
             # Extract net positions (for square-off)
@@ -594,7 +594,7 @@ class TradeEngine:
                         'exchange': pos.get('exchange')
                     }
             
-            self.logger.info(f"✅ Found {len(active_positions)} ACTUAL positions from Zerodha")
+            self.logger.info(f"✅ Found {len(active_positions)} ACTUAL positions from ShareKhan")
             
             # Update position tracker with ACTUAL positions
             if self.position_tracker:
@@ -603,11 +603,11 @@ class TradeEngine:
             return active_positions
             
         except Exception as e:
-            self.logger.error(f"❌ Error syncing actual Zerodha positions: {e}")
+            self.logger.error(f"❌ Error syncing actual ShareKhan positions: {e}")
             return {}
     
     async def _update_position_tracker_with_actual_data(self, actual_positions: Dict):
-        """Update position tracker with ACTUAL Zerodha position data"""
+        """Update position tracker with ACTUAL ShareKhan position data"""
         try:
             for symbol, pos_data in actual_positions.items():
                 await self.position_tracker.update_position(
@@ -628,8 +628,8 @@ class TradeEngine:
             self.logger.error(f"❌ Error updating position tracker with actual data: {e}")
     
     async def start_real_time_sync(self):
-        """Start background tasks for real-time Zerodha data synchronization"""
-        self.logger.info("🚀 Starting real-time Zerodha data synchronization...")
+        """Start background tasks for real-time ShareKhan data synchronization"""
+        self.logger.info("🚀 Starting real-time ShareKhan data synchronization...")
         
         # Start trade sync (every 2 minutes)
         asyncio.create_task(self._periodic_trade_sync())
@@ -640,10 +640,10 @@ class TradeEngine:
         self.logger.info("✅ Real-time sync tasks started")
     
     async def _periodic_trade_sync(self):
-        """Periodic task to sync actual trades from Zerodha"""
+        """Periodic task to sync actual trades from ShareKhan"""
         while True:
             try:
-                await self.sync_actual_zerodha_trades()
+                await self.sync_actual_sharekhan_trades()
                 await asyncio.sleep(120)  # Every 2 minutes
             except asyncio.CancelledError:
                 break
@@ -652,10 +652,10 @@ class TradeEngine:
                 await asyncio.sleep(120)
     
     async def _periodic_position_sync(self):
-        """Periodic task to sync actual positions from Zerodha"""
+        """Periodic task to sync actual positions from ShareKhan"""
         while True:
             try:
-                await self.sync_actual_zerodha_positions()
+                await self.sync_actual_sharekhan_positions()
                 await asyncio.sleep(60)  # Every 1 minute
             except asyncio.CancelledError:
                 break
@@ -664,10 +664,10 @@ class TradeEngine:
                 await asyncio.sleep(60)
     
     async def _get_current_market_price(self, symbol: str) -> Optional[float]:
-        """Get current market price from TrueData cache"""
+        """Get current market price from ShareKhan cache"""
         try:
-            # Try to get from TrueData cache
-            from data.truedata_client import live_market_data
+            # Try to get from ShareKhan cache
+            from data.sharekhan_client import live_market_data
             if symbol in live_market_data:
                 market_data = live_market_data[symbol]
                 # Use LTP (Last Traded Price) or Close price
@@ -743,8 +743,8 @@ class TradeEngine:
             # Process through order manager if available
             if self.order_manager:
                 return await self._process_signal_through_order_manager(signal)
-            elif self.zerodha_client:
-                return await self._process_signal_through_zerodha(signal)
+            elif self.sharekhan_client:
+                return await self._process_signal_through_sharekhan(signal)
             else:
                 self.logger.warning("❌ No order execution method available")
                 return None
@@ -774,34 +774,34 @@ class TradeEngine:
             self.logger.error(f"❌ Error processing signal through order manager: {e}")
             return None
     
-    async def _process_signal_through_zerodha(self, signal: Dict):
-        """Process signal through direct Zerodha integration"""
+    async def _process_signal_through_sharekhan(self, signal: Dict):
+        """Process signal through direct ShareKhan integration"""
         try:
-            # CRITICAL FIX: Attempt to get Zerodha client if not available
-            if not self.zerodha_client:
-                self.logger.warning("⚠️ Zerodha client not set, attempting to retrieve from orchestrator")
-                await self._try_get_zerodha_client_from_orchestrator()
+            # CRITICAL FIX: Attempt to get ShareKhan client if not available
+            if not self.sharekhan_client:
+                self.logger.warning("⚠️ ShareKhan client not set, attempting to retrieve from orchestrator")
+                await self._try_get_sharekhan_client_from_orchestrator()
             
-            if not self.zerodha_client:
-                self.logger.warning("❌ No Zerodha client available")
+            if not self.sharekhan_client:
+                self.logger.warning("❌ No ShareKhan client available")
                 return None
                 
             # Create order
             order = self._create_order_from_signal(signal)
             
-            # Place order through Zerodha
-            order_id = await self.zerodha_client.place_order(order)
+            # Place order through ShareKhan
+            order_id = await self.sharekhan_client.place_order(order)
             
             if order_id:
-                self.logger.info(f"📋 Zerodha order placed: {order_id}")
+                self.logger.info(f"📋 ShareKhan order placed: {order_id}")
                 self.last_signal_time = time.time()
                 return order_id
             else:
-                self.logger.error("❌ Zerodha order failed")
+                self.logger.error("❌ ShareKhan order failed")
                 return None
                 
         except Exception as e:
-            self.logger.error(f"❌ Error processing signal through Zerodha: {e}")
+            self.logger.error(f"❌ Error processing signal through ShareKhan: {e}")
             return None
     
     def _create_order_from_signal(self, signal: Dict) -> Dict:
@@ -818,7 +818,7 @@ class TradeEngine:
         return {
             'symbol': signal.get('symbol'),
             'action': signal_action,  # ✅ FIXED: Primary action field
-            'transaction_type': signal_action,  # ✅ FIXED: Zerodha backup field
+            'transaction_type': signal_action,  # ✅ FIXED: ShareKhan backup field
             'side': signal_action,  # ✅ FIXED: Generic backup field
             'quantity': signal.get('quantity', 0),
             'price': signal.get('entry_price'),
@@ -893,7 +893,7 @@ class TradeEngine:
             'initialized': hasattr(self, 'is_initialized') and getattr(self, 'is_initialized', False),
             'running': hasattr(self, 'is_running') and getattr(self, 'is_running', False),
             'order_manager_available': self.order_manager is not None,
-            'zerodha_client_available': self.zerodha_client is not None,
+            'sharekhan_client_available': self.sharekhan_client is not None,
             'risk_manager_available': self.risk_manager is not None,
             'timestamp': datetime.now().isoformat()
         })

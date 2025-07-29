@@ -5,7 +5,7 @@
 - ✅ User management and authentication working
 - ✅ Market data endpoints operational
 - ✅ Monitoring endpoints functional
-- ✅ Default Zerodha user added successfully
+- ✅ Default ShareKhan user added successfully
 
 ## Remaining Issues to Fix
 
@@ -35,8 +35,8 @@ ingress:
 
 ## Pre-Trading Checklist
 
-### 1. Zerodha Authentication
-- [ ] Run daily authentication at `/zerodha` endpoint
+### 1. ShareKhan Authentication
+- [ ] Run daily authentication at `/sharekhan` endpoint
 - [ ] Verify access token is valid
 - [ ] Check if paper trading mode is enabled
 
@@ -70,8 +70,8 @@ ingress:
 # Test API endpoints
 python scripts/test_production_api.py
 
-# Add Zerodha user (if needed)
-python scripts/add_default_zerodha_user.py
+# Add ShareKhan user (if needed)
+python scripts/add_default_sharekhan_user.py
 
 # Monitor logs
 doctl apps logs <app-id> --follow
@@ -82,12 +82,12 @@ doctl apps list
 
 ## Emergency Contacts
 - Digital Ocean Support: https://www.digitalocean.com/support/
-- TrueData Support: support@truedata.in
-- Zerodha Support: https://support.zerodha.com/
+- ShareKhan Support: support@sharekhan.in
+- ShareKhan Support: https://support.sharekhan.com/
 
 ## Trading Session Timeline
 1. **8:00 AM**: Run system health checks
-2. **8:30 AM**: Execute Zerodha daily authentication
+2. **8:30 AM**: Execute ShareKhan daily authentication
 3. **8:45 AM**: Verify all systems operational
 4. **9:00 AM**: Enable automated trading
 5. **9:15 AM**: Market opens - monitor initial trades

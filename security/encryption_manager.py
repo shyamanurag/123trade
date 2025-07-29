@@ -45,7 +45,7 @@ class EncryptionConfig:
             self.sensitive_fields = [
                 'password', 'password_hash', 'ssn', 'credit_card',
                 'bank_account', 'api_key', 'secret', 'token',
-                'phone', 'email', 'address', 'zerodha_client_id'
+                'phone', 'email', 'address', 'sharekhan_client_id'
             ]
 
 @dataclass

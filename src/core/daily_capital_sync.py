@@ -21,7 +21,7 @@ class DailyCapitalSync:
         self.is_syncing = False
         
     async def sync_all_accounts(self) -> Dict:
-        """Sync capital and margins from all connected Zerodha accounts every morning"""
+        """Sync capital and margins from all connected ShareKhan accounts every morning"""
         logger.info("🌅 MORNING SYNC: Starting daily capital and margin sync...")
         
         sync_results = {
@@ -36,9 +36,9 @@ class DailyCapitalSync:
         }
         
         try:
-            # 1. Sync Zerodha accounts
-            zerodha_results = await self._sync_zerodha_accounts()
-            sync_results.update(zerodha_results)
+            # 1. Sync ShareKhan accounts
+            sharekhan_results = await self._sync_sharekhan_accounts()
+            sync_results.update(sharekhan_results)
             
             # 2. Check margin utilization and generate alerts
             margin_alerts = self._analyze_margin_utilization(sync_results)
@@ -58,32 +58,32 @@ class DailyCapitalSync:
             sync_results['error'] = str(e)
             return sync_results
     
-    async def _sync_zerodha_accounts(self) -> Dict[str, float]:
-        """Fetch real available funds from Zerodha accounts"""
+    async def _sync_sharekhan_accounts(self) -> Dict[str, float]:
+        """Fetch real available funds from ShareKhan accounts"""
         try:
-            zerodha_capitals = {}
+            sharekhan_capitals = {}
             
-            # Get Zerodha client from orchestrator
+            # Get ShareKhan client from orchestrator
             if (not self.orchestrator or 
-                not hasattr(self.orchestrator, 'zerodha_client') or 
-                not self.orchestrator.zerodha_client):
-                logger.error("❌ No Zerodha client available")
+                not hasattr(self.orchestrator, 'sharekhan_client') or 
+                not self.orchestrator.sharekhan_client):
+                logger.error("❌ No ShareKhan client available")
                 return {}
                 
-            zerodha_client = self.orchestrator.zerodha_client
+            sharekhan_client = self.orchestrator.sharekhan_client
             
-            # Get real margins from Zerodha API
-            logger.info("🔍 Fetching real margins from Zerodha API...")
-            margins_data = await zerodha_client.get_margins()
+            # Get real margins from ShareKhan API
+            logger.info("🔍 Fetching real margins from ShareKhan API...")
+            margins_data = await sharekhan_client.get_margins()
             
             if margins_data and 'equity' in margins_data:
                 available_cash = margins_data['equity'].get('available', {}).get('cash', 0)
                 
                 # Get user ID
-                user_id = zerodha_client.user_id or 'ZERODHA_USER'
-                zerodha_capitals[user_id] = float(available_cash)
+                user_id = sharekhan_client.user_id or 'SHAREKHAN_USER'
+                sharekhan_capitals[user_id] = float(available_cash)
                 
-                logger.info(f"✅ Zerodha account {user_id}: ₹{available_cash:,.2f} available")
+                logger.info(f"✅ ShareKhan account {user_id}: ₹{available_cash:,.2f} available")
                 
                 # Check if this is significantly different from hardcoded value
                 hardcoded_capital = 1000000.0
@@ -94,18 +94,18 @@ class DailyCapitalSync:
                     logger.warning(f"   Using REAL amount for position sizing!")
                 
             else:
-                logger.error("❌ Could not fetch margins from Zerodha")
+                logger.error("❌ Could not fetch margins from ShareKhan")
                 
                 # Fallback to hardcoded for testing
                 fallback_capital = 1000000.0
-                user_id = zerodha_client.user_id or 'ZERODHA_USER'
-                zerodha_capitals[user_id] = fallback_capital
+                user_id = sharekhan_client.user_id or 'SHAREKHAN_USER'
+                sharekhan_capitals[user_id] = fallback_capital
                 logger.warning(f"⚠️ Using fallback capital: ₹{fallback_capital:,.2f}")
             
-            return zerodha_capitals
+            return sharekhan_capitals
             
         except Exception as e:
-            logger.error(f"❌ Error fetching Zerodha margins: {e}")
+            logger.error(f"❌ Error fetching ShareKhan margins: {e}")
             return {}
     
     async def _update_system_capitals(self, account_capitals: Dict[str, float]):

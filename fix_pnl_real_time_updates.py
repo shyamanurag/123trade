@@ -3,17 +3,17 @@
 Fix P&L Real-Time Updates
 ========================
 This script fixes the P&L calculation issue by ensuring position tracker
-receives real-time price updates from TrueData feed.
+receives real-time price updates from ShareKhan feed.
 
 PROBLEM IDENTIFIED:
 - Position tracker has update_market_prices() method
 - Background task exists but not being called
-- TrueData prices available but not reaching position tracker
+- ShareKhan prices available but not reaching position tracker
 - Current price = Entry price → P&L = 0
 
 SOLUTION:
 - Fix the market data bridge to position tracker
-- Ensure TrueData prices update position tracker every 30 seconds
+- Ensure ShareKhan prices update position tracker every 30 seconds
 - Verify P&L calculations with live prices
 """
 
@@ -93,10 +93,10 @@ def fix_market_data_source():
             content = f.read()
         
         # Find the _update_positions_with_market_data method
-        old_import_section = '''                # Get market data from TrueData cache
+        old_import_section = '''                # Get market data from ShareKhan cache
                 market_prices = {}
                 try:
-                    from data.truedata_client import live_market_data
+                    from data.sharekhan_client import live_market_data
                     for symbol, data in live_market_data.items():
                         ltp = data.get('ltp', 0)
                         if ltp and ltp > 0:
@@ -104,7 +104,7 @@ def fix_market_data_source():
                 except ImportError:
                     pass'''
         
-        new_import_section = '''                # Get market data from TrueData API
+        new_import_section = '''                # Get market data from ShareKhan API
                 market_prices = {}
                 try:
                     # Use the same method as orchestrator uses for market data
@@ -120,9 +120,9 @@ def fix_market_data_source():
                     
                 except Exception as e:
                     self.logger.error(f"❌ Error getting market data for positions: {e}")
-                    # Fallback: try direct TrueData import
+                    # Fallback: try direct ShareKhan import
                     try:
-                        from data.truedata_client import live_market_data
+                        from data.sharekhan_client import live_market_data
                         for symbol, data in live_market_data.items():
                             ltp = data.get('ltp', 0)
                             if ltp and ltp > 0:
@@ -191,11 +191,11 @@ class PositionPriceUpdater:
             return False
     
     async def get_market_prices(self):
-        """Get current market prices from TrueData"""
+        """Get current market prices from ShareKhan"""
         try:
-            from src.api.market_data import get_truedata_proxy
+            from src.api.market_data import get_sharekhan_proxy
             
-            proxy_data = get_truedata_proxy()
+            proxy_data = get_sharekhan_proxy()
             if not proxy_data or not proxy_data.get('data'):
                 return {}
             
@@ -333,7 +333,7 @@ async def test_position_updates():
     
     try:
         from src.core.position_tracker import get_position_tracker
-        from src.api.market_data import get_truedata_proxy
+        from src.api.market_data import get_sharekhan_proxy
         
         # Get position tracker
         position_tracker = await get_position_tracker()
@@ -359,7 +359,7 @@ async def test_position_updates():
         
         # Get live market data
         logger.info("\\n📊 Getting Live Market Data:")
-        proxy_data = get_truedata_proxy()
+        proxy_data = get_sharekhan_proxy()
         
         if proxy_data and proxy_data.get('data'):
             market_prices = {}
@@ -411,7 +411,7 @@ async def test_position_updates():
         logger.info("\\n" + "=" * 40)
         logger.info("🎯 TEST SUMMARY:")
         logger.info("If P&L is still zero after live price update:")
-        logger.info("1. Check if TrueData feed is working")
+        logger.info("1. Check if ShareKhan feed is working")
         logger.info("2. Verify position tracker update_market_prices method")
         logger.info("3. Check if background price updater is running")
         logger.info("4. Verify API endpoints return updated positions")
@@ -444,7 +444,7 @@ def main():
     logger.info("🔍 PROBLEM ANALYSIS:")
     logger.info("- Position tracker has update_market_prices() method")
     logger.info("- Background task exists but may not be started")
-    logger.info("- TrueData prices available but not reaching position tracker")
+    logger.info("- ShareKhan prices available but not reaching position tracker")
     logger.info("- Current price = Entry price → P&L = 0")
     
     logger.info("\n🔧 IMPLEMENTING FIXES:")

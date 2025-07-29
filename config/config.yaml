@@ -34,14 +34,14 @@ app:
 
 # Environment Variables for Trading
 environment:
-  ZERODHA_SANDBOX_MODE: "true"
+  SHAREKHAN_SANDBOX_MODE: "true"
 
 brokers:
-  zerodha:
+  sharekhan:
     api_key: vc9ft4zpknynpm3u
     api_secret: 0nwjb2cncw9stf3m5cre73rqc3bc5xsc
-    base_url: https://api.kite.trade
-    name: zerodha
+    base_url: https://api.sharekhan.com
+    name: sharekhan
     rate_limit_per_minute: 60
     sandbox_mode: true
     timeout_seconds: 30

@@ -66,7 +66,7 @@ DASHBOARD_SUMMARY: createEndpoint('/api/v1/dashboard/summary'),  // Remove dupli
 ```javascript
 // Frontend uses:
 PRIMARY_USER_ID: 'PAPER_TRADER_001'
-ZERODHA_USER_ID: 'QSW899'
+SHAREKHAN_USER_ID: 'QSW899'
 
 // But some endpoints expect different IDs
 ```
@@ -103,7 +103,7 @@ WS_ORDERS: '/ws/orders'           // ❌ NOT FOUND
    ```javascript
    // Consolidate to single user context system
    const getUserForEndpoint = (endpointType) => {
-     return endpointType === 'zerodha' ? 'QSW899' : 'PAPER_TRADER_001';
+     return endpointType === 'sharekhan' ? 'QSW899' : 'PAPER_TRADER_001';
    };
    ```
 
@@ -247,14 +247,14 @@ class ProductionRedisFallback:
 - ✅ Automatic reconnection attempts
 - ✅ Comprehensive error handling
 
-#### **2. TrueData Caching** - ✅ **WELL DESIGNED**
+#### **2. ShareKhan Caching** - ✅ **WELL DESIGNED**
 
-**Found in**: `data/truedata_client.py`
+**Found in**: `data/sharekhan_client.py`
 
 ```python
 # CRITICAL: Store in Redis for cross-process access
-redis_client.hset("truedata:live_cache", symbol, json.dumps(market_data))
-redis_client.expire("truedata:live_cache", 300)  # 5 minutes
+redis_client.hset("sharekhan:live_cache", symbol, json.dumps(market_data))
+redis_client.expire("sharekhan:live_cache", 300)  # 5 minutes
 ```
 
 **Strengths**:
@@ -272,7 +272,7 @@ redis_client.expire("truedata:live_cache", 300)  # 5 minutes
 
 ```python
 # Strategy 1: Redis cache (PRIMARY)
-redis_data = get_truedata_from_redis()
+redis_data = get_sharekhan_from_redis()
 if redis_data:
     return redis_data
 
@@ -290,8 +290,8 @@ if os.path.exists(cache_file):
 #### **1. Cache Key Standardization**
 ```python
 # Current: Inconsistent cache key patterns
-"truedata:live_cache"
-"truedata:symbol:{symbol}"
+"sharekhan:live_cache"
+"sharekhan:symbol:{symbol}"
 f"price:{symbol}"
 
 # Recommended: Standardized naming convention
@@ -303,7 +303,7 @@ f"price:{symbol}"
 #### **2. Cache TTL Optimization**
 ```python
 # Current: Fixed 5-minute expiration
-redis_client.expire("truedata:live_cache", 300)
+redis_client.expire("sharekhan:live_cache", 300)
 
 # Recommended: Dynamic TTL based on market hours
 ttl = 60 if market_is_open() else 3600  # 1 min during market, 1 hour after close
@@ -334,7 +334,7 @@ async def get_cache_metrics():
 
 ### **Cache System Performance**
 - ✅ Redis Connection: Stable with fallback
-- ✅ TrueData Cache: 250 symbols supported
+- ✅ ShareKhan Cache: 250 symbols supported
 - ✅ Cross-process Data Sharing: Working
 - ✅ Cache Invalidation: Proper TTL implementation
 

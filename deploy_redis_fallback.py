@@ -50,13 +50,13 @@ def main():
 ✅ Key Features:
 - ProductionRedisFallback class with in-memory cache fallback
 - Orchestrator integration with Redis fallback manager
-- Zerodha token storage/retrieval with fallback support
+- ShareKhan token storage/retrieval with fallback support
 - Graceful degradation when Redis unavailable
 - Production environment configuration template
 
 ✅ Benefits:
 - System continues working without Redis connection
-- Zerodha authentication tokens cached in memory
+- ShareKhan authentication tokens cached in memory
 - No system crashes due to Redis failures
 - Seamless fallback to in-memory cache
 - Production-ready with proper error handling
@@ -102,14 +102,14 @@ def main():
     logger.info("   - Or use REDIS_URL for managed Redis service")
     logger.info("2. Deploy updated codebase to production")
     logger.info("3. Monitor logs for Redis connection status")
-    logger.info("4. Verify Zerodha token retrieval works")
+    logger.info("4. Verify ShareKhan token retrieval works")
     logger.info("5. Test real trade execution")
     
     logger.info("\n🔧 FALLBACK BEHAVIOR:")
     logger.info("- If Redis available: Normal Redis operations")
     logger.info("- If Redis unavailable: In-memory cache fallback")
     logger.info("- System continues working in both modes")
-    logger.info("- Zerodha tokens cached for session duration")
+    logger.info("- ShareKhan tokens cached for session duration")
     
     logger.info("\n🚀 System is now resilient to Redis failures!")
 

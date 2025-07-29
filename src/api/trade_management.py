@@ -92,11 +92,11 @@ async def get_user_metrics(user_id: str) -> Dict[str, Any]:
         logger.error(f"Error getting user metrics: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e)) 
 
-@router.post("/sync-zerodha-data")
-async def sync_zerodha_data():
-    """Manually trigger Zerodha trade and position synchronization + Database Migration Fix"""
+@router.post("/sync-sharekhan-data")
+async def sync_sharekhan_data():
+    """Manually trigger ShareKhan trade and position synchronization + Database Migration Fix"""
     try:
-        logger.info("🚀 Manual sync triggered for Zerodha data")
+        logger.info("🚀 Manual sync triggered for ShareKhan data")
         
         # URGENT MIGRATION FIX: Add missing columns if they don't exist
         try:
@@ -142,7 +142,7 @@ async def sync_zerodha_data():
                         # Log the migration
                         conn.execute(text("""
                             INSERT INTO schema_migrations (version, description, executed_at) 
-                            VALUES (16, 'Add actual_execution and P&L columns for real Zerodha data sync', CURRENT_TIMESTAMP)
+                            VALUES (16, 'Add actual_execution and P&L columns for real ShareKhan data sync', CURRENT_TIMESTAMP)
                             ON CONFLICT (version) DO NOTHING
                         """))
                         
@@ -158,7 +158,7 @@ async def sync_zerodha_data():
         except Exception as schema_error:
             logger.warning(f"⚠️ Schema check failed: {schema_error}")
         
-        # Continue with normal Zerodha sync logic
+        # Continue with normal ShareKhan sync logic
         from src.core.orchestrator import get_orchestrator_instance
         
         orchestrator = get_orchestrator_instance()
@@ -171,19 +171,19 @@ async def sync_zerodha_data():
             raise HTTPException(status_code=503, detail="Trade engine not available")
         
         # Trigger both sync operations
-        logger.info("🔄 Starting Zerodha data synchronization...")
+        logger.info("🔄 Starting ShareKhan data synchronization...")
         
-        # Sync actual trades from Zerodha
-        trade_results = await trade_engine.sync_actual_zerodha_trades()
+        # Sync actual trades from ShareKhan
+        trade_results = await trade_engine.sync_actual_sharekhan_trades()
         
-        # Sync actual positions from Zerodha  
-        position_results = await trade_engine.sync_actual_zerodha_positions()
+        # Sync actual positions from ShareKhan  
+        position_results = await trade_engine.sync_actual_sharekhan_positions()
         
         logger.info(f"✅ Sync completed: {len(trade_results.get('actual_trades', []))} trades, {len(position_results.get('actual_positions', []))} positions")
         
         return {
             "success": True,
-            "message": "Zerodha data synchronization completed",
+            "message": "ShareKhan data synchronization completed",
             "timestamp": datetime.now().isoformat(),
             "results": {
                 "trades_synced": len(trade_results.get('actual_trades', [])),
@@ -195,53 +195,53 @@ async def sync_zerodha_data():
         }
         
     except Exception as e:
-        logger.error(f"❌ Zerodha data sync failed: {e}")
+        logger.error(f"❌ ShareKhan data sync failed: {e}")
         raise HTTPException(status_code=500, detail=f"Sync failed: {str(e)}")
 
-@router.get("/zerodha-positions")
-async def get_zerodha_positions():
-    """Get actual positions from Zerodha API"""
+@router.get("/sharekhan-positions")
+async def get_sharekhan_positions():
+    """Get actual positions from ShareKhan API"""
     try:
         from src.core.orchestrator import get_orchestrator_instance
         
         orchestrator = get_orchestrator_instance()
-        if not orchestrator or not orchestrator.zerodha_client:
-            raise HTTPException(status_code=503, detail="Zerodha client not available")
+        if not orchestrator or not orchestrator.sharekhan_client:
+            raise HTTPException(status_code=503, detail="ShareKhan client not available")
         
-        # Get actual positions from Zerodha
-        positions_data = await orchestrator.zerodha_client.get_positions()
+        # Get actual positions from ShareKhan
+        positions_data = await orchestrator.sharekhan_client.get_positions()
         
         return {
             "success": True,
-            "message": "Retrieved actual positions from Zerodha",
+            "message": "Retrieved actual positions from ShareKhan",
             "timestamp": datetime.now().isoformat(),
             "data": positions_data
         }
         
     except Exception as e:
-        logger.error(f"Error getting Zerodha positions: {e}")
+        logger.error(f"Error getting ShareKhan positions: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/zerodha-orders")
-async def get_zerodha_orders():
-    """Get actual orders from Zerodha API"""
+@router.get("/sharekhan-orders")
+async def get_sharekhan_orders():
+    """Get actual orders from ShareKhan API"""
     try:
         from src.core.orchestrator import get_orchestrator_instance
         
         orchestrator = get_orchestrator_instance()
-        if not orchestrator or not orchestrator.zerodha_client:
-            raise HTTPException(status_code=503, detail="Zerodha client not available")
+        if not orchestrator or not orchestrator.sharekhan_client:
+            raise HTTPException(status_code=503, detail="ShareKhan client not available")
         
-        # Get actual orders from Zerodha
-        orders_data = await orchestrator.zerodha_client.get_orders()
+        # Get actual orders from ShareKhan
+        orders_data = await orchestrator.sharekhan_client.get_orders()
         
         return {
             "success": True,
-            "message": "Retrieved actual orders from Zerodha",
+            "message": "Retrieved actual orders from ShareKhan",
             "timestamp": datetime.now().isoformat(),
             "data": orders_data
         }
         
     except Exception as e:
-        logger.error(f"Error getting Zerodha orders: {e}")
+        logger.error(f"Error getting ShareKhan orders: {e}")
         raise HTTPException(status_code=500, detail=str(e)) 

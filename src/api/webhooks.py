@@ -44,11 +44,11 @@ async def receive_market_data(data: Dict[str, Any], request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Order & Position Webhooks
-@router.post("/webhooks/zerodha/order-update")
-async def receive_zerodha_order_update(data: Dict[str, Any], request: Request):
-    """Receive order status updates from Zerodha"""
+@router.post("/webhooks/sharekhan/order-update")
+async def receive_sharekhan_order_update(data: Dict[str, Any], request: Request):
+    """Receive order status updates from ShareKhan"""
     try:
-        logger.info(f"Received Zerodha order update: {data}")
+        logger.info(f"Received ShareKhan order update: {data}")
         
         order_id = data.get("order_id")
         status = data.get("status")
@@ -61,14 +61,14 @@ async def receive_zerodha_order_update(data: Dict[str, Any], request: Request):
         }
         
     except Exception as e:
-        logger.error(f"Error processing Zerodha order update: {str(e)}")
+        logger.error(f"Error processing ShareKhan order update: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/webhooks/zerodha/position-update")
-async def receive_zerodha_position_update(data: Dict[str, Any], request: Request):
-    """Receive position updates from Zerodha"""
+@router.post("/webhooks/sharekhan/position-update")
+async def receive_sharekhan_position_update(data: Dict[str, Any], request: Request):
+    """Receive position updates from ShareKhan"""
     try:
-        logger.info(f"Received Zerodha position update: {data}")
+        logger.info(f"Received ShareKhan position update: {data}")
         
         return {
             "status": "updated",
@@ -76,17 +76,17 @@ async def receive_zerodha_position_update(data: Dict[str, Any], request: Request
         }
         
     except Exception as e:
-        logger.error(f"Error processing Zerodha position update: {str(e)}")
+        logger.error(f"Error processing ShareKhan position update: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Generic Zerodha webhook endpoint (for any Zerodha notification)
-@router.post("/webhooks/zerodha")
-async def receive_zerodha_webhook(data: Dict[str, Any], request: Request):
-    """Generic Zerodha webhook receiver for any notification"""
+# Generic ShareKhan webhook endpoint (for any ShareKhan notification)
+@router.post("/webhooks/sharekhan")
+async def receive_sharekhan_webhook(data: Dict[str, Any], request: Request):
+    """Generic ShareKhan webhook receiver for any notification"""
     try:
-        logger.info(f"Received Zerodha webhook from {request.client.host if request.client else 'unknown'}: {data}")
+        logger.info(f"Received ShareKhan webhook from {request.client.host if request.client else 'unknown'}: {data}")
         
-        # Handle different types of Zerodha notifications
+        # Handle different types of ShareKhan notifications
         notification_type = data.get("type", "unknown")
         
         return {
@@ -96,7 +96,7 @@ async def receive_zerodha_webhook(data: Dict[str, Any], request: Request):
         }
         
     except Exception as e:
-        logger.error(f"Error processing Zerodha webhook: {str(e)}")
+        logger.error(f"Error processing ShareKhan webhook: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # News & Events Webhooks

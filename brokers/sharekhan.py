@@ -1,6 +1,6 @@
 """
 ShareKhan Broker Integration
-Complete replacement for Zerodha with unified trading and market data
+Complete replacement for ShareKhan with unified trading and market data
 """
 
 import asyncio
@@ -81,7 +81,7 @@ class ShareKhanMarketData:
 class ShareKhanIntegration:
     """
     Unified ShareKhan integration for trading and market data
-    Replaces both Zerodha trading and TrueData market data
+    Replaces both ShareKhan trading and ShareKhan market data
     """
     
     def __init__(self, api_key: str, secret_key: str, customer_id: str, version_id: Optional[str] = None):

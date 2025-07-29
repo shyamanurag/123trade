@@ -14,9 +14,9 @@ This project has multiple requirements files for different purposes. All files a
   - DigitalOcean App Platform (via `PIP_REQUIREMENTS` in `app.yaml`)
 - **Status**: ✅ **ACTIVE** - This is the source of truth
 
-### 2. `requirements_truedata.txt`
-- **Purpose**: TrueData integration specific requirements
-- **Used by**: TrueData standalone scripts and integration tests
+### 2. `requirements_sharekhan.txt`
+- **Purpose**: ShareKhan integration specific requirements
+- **Used by**: ShareKhan standalone scripts and integration tests
 - **Status**: ✅ **SYNCED** - Now matches main requirements.txt
 
 ### 3. `requirements_python311.txt`
@@ -73,8 +73,8 @@ RUN pip install -r requirements.txt
 - `websockets>=12.0` - WebSocket support
 
 ### Trading & Data
-- `truedata>=7.0.0` - TrueData SDK
-- `kiteconnect>=4.2.0` - Zerodha API
+- `sharekhan>=7.0.0` - ShareKhan SDK
+- `sharekhantconnect>=4.2.0` - ShareKhan API
 - `pandas>=2.1.4` - Data analysis
 - `numpy>=1.24.3` - Numerical computing
 

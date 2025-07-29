@@ -90,11 +90,11 @@ def main():
     test_results.append(test_endpoint("/api/v1/control/trading/status?user_id=PAPER_TRADER_001"))
     test_results.append(test_endpoint("/api/v1/control/users/broker"))
     
-    # Zerodha Authentication Tests
-    print("\n🔐 ZERODHA AUTHENTICATION TESTS")
+    # ShareKhan Authentication Tests
+    print("\n🔐 SHAREKHAN AUTHENTICATION TESTS")
     print("-" * 30)
-    test_results.append(test_endpoint("/auth/zerodha/status?user_id=QSW899"))
-    test_results.append(test_endpoint("/auth/zerodha/auth-url?user_id=QSW899"))
+    test_results.append(test_endpoint("/auth/sharekhan/status?user_id=QSW899"))
+    test_results.append(test_endpoint("/auth/sharekhan/auth-url?user_id=QSW899"))
     
     # User Management Tests
     print("\n👥 USER MANAGEMENT TESTS")
@@ -143,7 +143,7 @@ def main():
             if "paper_trading" in str(error):
                 critical_issues.append(f"❌ TRADING CONTROL ERROR: Missing paper_trading attribute")
             elif "Not authenticated" in str(error):
-                critical_issues.append(f"❌ ZERODHA AUTH ERROR: User QSW899 not authenticated")
+                critical_issues.append(f"❌ SHAREKHAN AUTH ERROR: User QSW899 not authenticated")
             elif result["status_code"] == 500:
                 critical_issues.append(f"❌ SERVER ERROR: {endpoint} - {error}")
             elif result["status_code"] == 404:
@@ -168,8 +168,8 @@ def main():
             endpoint = result["endpoint"]
             if "trading/status" in endpoint:
                 recommendations.append("1. Fix trading_state global variable missing paper_trading key")
-            elif "zerodha/status" in endpoint and "Not authenticated" in str(result["data"]):
-                recommendations.append("2. Authenticate Zerodha user QSW899 via /auth/zerodha/auth-url")
+            elif "sharekhan/status" in endpoint and "Not authenticated" in str(result["data"]):
+                recommendations.append("2. Authenticate ShareKhan user QSW899 via /auth/sharekhan/auth-url")
             elif "/trades" in endpoint:
                 recommendations.append("3. Fix trades API endpoint returning empty responses")
             elif result["status_code"] == 500:

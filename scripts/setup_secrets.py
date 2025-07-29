@@ -30,9 +30,9 @@ def setup_production_secrets():
     
     # Define secrets to configure
     secrets = {
-        'ZERODHA_API_SECRET': {
-            'description': 'Zerodha API Secret (from Kite Connect Dashboard)',
-            'current': 'your_real_zerodha_api_secret_here',
+        'SHAREKHAN_API_SECRET': {
+            'description': 'ShareKhan API Secret (from Kite Connect Dashboard)',
+            'current': 'your_real_sharekhan_api_secret_here',
             'required': True
         },
         'TELEGRAM_BOT_TOKEN': {
@@ -126,7 +126,7 @@ def create_digitalocean_env_vars():
     print()
     
     env_vars = [
-        "ZERODHA_API_SECRET",
+        "SHAREKHAN_API_SECRET",
         "TELEGRAM_BOT_TOKEN",
         "EMAIL_PASSWORD", 
         "N8N_API_KEY",

@@ -94,12 +94,12 @@ def identify_root_causes():
     logger.info("=" * 30)
     
     logger.info("1. REAL-TIME PRICE FEED ISSUE:")
-    logger.info("   - TrueData WebSocket connection may not be updating prices")
+    logger.info("   - ShareKhan WebSocket connection may not be updating prices")
     logger.info("   - Price update mechanism not working in production")
     logger.info("   - Database price updates may be failing")
     
     logger.info("\n2. BROKER CONNECTION ISSUE:")
-    logger.info("   - Zerodha authentication still failing")
+    logger.info("   - ShareKhan authentication still failing")
     logger.info("   - System falling back to paper trading mode")
     logger.info("   - Real broker API not accessible")
     
@@ -114,13 +114,13 @@ def suggest_fixes():
     logger.info("=" * 30)
     
     logger.info("1. FIX REAL-TIME PRICE UPDATES:")
-    logger.info("   - Check TrueData WebSocket connection status")
+    logger.info("   - Check ShareKhan WebSocket connection status")
     logger.info("   - Verify price update mechanism in database")
     logger.info("   - Ensure frontend receives live price feeds")
     
     logger.info("\n2. FIX BROKER CONNECTION:")
     logger.info("   - Wait for Redis deployment to complete")
-    logger.info("   - Verify Zerodha token retrieval from Redis")
+    logger.info("   - Verify ShareKhan token retrieval from Redis")
     logger.info("   - Check broker authentication in logs")
     
     logger.info("\n3. VERIFY P&L CALCULATION:")
@@ -133,7 +133,7 @@ def check_system_components():
     logger.info("\n📋 COMPONENTS TO CHECK:")
     logger.info("=" * 30)
     
-    logger.info("1. TRUEDATA CONNECTION:")
+    logger.info("1. SHAREKHAN CONNECTION:")
     logger.info("   - WebSocket connection status")
     logger.info("   - Price feed subscription")
     logger.info("   - Data flow to database")
@@ -149,7 +149,7 @@ def check_system_components():
     logger.info("   - P&L calculation and display")
     
     logger.info("\n4. BROKER INTEGRATION:")
-    logger.info("   - Zerodha authentication status")
+    logger.info("   - ShareKhan authentication status")
     logger.info("   - Real vs fallback execution")
     logger.info("   - Position synchronization")
 
@@ -171,9 +171,9 @@ def main():
     logger.info("❌ Using fallback mode instead of real broker")
     
     logger.info("\n🎯 PRIORITY FIXES:")
-    logger.info("1. Fix TrueData real-time price feed")
+    logger.info("1. Fix ShareKhan real-time price feed")
     logger.info("2. Wait for Redis deployment completion")
-    logger.info("3. Verify Zerodha authentication")
+    logger.info("3. Verify ShareKhan authentication")
     logger.info("4. Test P&L calculation with live prices")
 
 if __name__ == "__main__":

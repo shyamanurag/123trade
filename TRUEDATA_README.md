@@ -1,23 +1,23 @@
-# TrueData Integration for Trading System
+# ShareKhan Integration for Trading System
 
-This integration provides real-time market data from TrueData using the **official TrueData Python SDK**.
+This integration provides real-time market data from ShareKhan using the **official ShareKhan Python SDK**.
 
 ## 🚀 Quick Start
 
 ### 1. Install Dependencies
 ```bash
-pip install -r requirements_truedata.txt
+pip install -r requirements_sharekhan.txt
 ```
 
 ### 2. Set Environment Variables
 ```bash
-export TRUEDATA_USERNAME="your_username"
-export TRUEDATA_PASSWORD="your_password"
+export SHAREKHAN_USERNAME="your_username"
+export SHAREKHAN_PASSWORD="your_password"
 ```
 
 ### 3. Run Standalone Script
 ```bash
-python truedata_standalone.py
+python sharekhan_standalone.py
 ```
 
 ## 📊 Features
@@ -38,14 +38,14 @@ python truedata_standalone.py
 ## 🔧 Integration Options
 
 ### Option 1: Standalone Script (Recommended)
-Use `truedata_standalone.py` for immediate data collection using the official SDK:
+Use `sharekhan_standalone.py` for immediate data collection using the official SDK:
 
 ```python
-python truedata_standalone.py
+python sharekhan_standalone.py
 ```
 
-This uses the **exact same approach** as the official TrueData documentation:
-- Official `TD_live` class
+This uses the **exact same approach** as the official ShareKhan documentation:
+- Official `ShareKhanLive` class
 - Official callback decorators
 - Official `start_live_data()` method
 - Official keep-alive mechanism
@@ -55,18 +55,18 @@ Integrate with your FastAPI trading system:
 
 ```python
 # Add to main.py
-from src.api.truedata_integration import router as truedata_router
-app.include_router(truedata_router, prefix="/api/v1")
+from src.api.sharekhan_integration import router as sharekhan_router
+app.include_router(sharekhan_router, prefix="/api/v1")
 ```
 
 ### Option 3: Custom Integration
-Use the TrueData client directly:
+Use the ShareKhan client directly:
 
 ```python
-from src.data.truedata_client import init_truedata_client, get_truedata_client
+from src.data.sharekhan_client import init_sharekhan_client, get_sharekhan_client
 
 # Initialize (uses official SDK internally)
-client = await init_truedata_client()
+client = await init_sharekhan_client()
 
 # Subscribe to symbols
 await client.subscribe_symbols(['NIFTY', 'BANKNIFTY'])
@@ -80,18 +80,18 @@ data = client.get_market_data('NIFTY')
 Once integrated with your FastAPI app:
 
 ### Connection Management
-- `POST /api/v1/truedata/connect` - Connect to TrueData
-- `POST /api/v1/truedata/disconnect` - Disconnect from TrueData
-- `GET /api/v1/truedata/status` - Get connection status
+- `POST /api/v1/sharekhan/connect` - Connect to ShareKhan
+- `POST /api/v1/sharekhan/disconnect` - Disconnect from ShareKhan
+- `GET /api/v1/sharekhan/status` - Get connection status
 
 ### Data Management
-- `POST /api/v1/truedata/subscribe` - Subscribe to symbols
-- `POST /api/v1/truedata/unsubscribe` - Unsubscribe from symbols
-- `GET /api/v1/truedata/data/{symbol}` - Get data for specific symbol
-- `GET /api/v1/truedata/data` - Get all market data
+- `POST /api/v1/sharekhan/subscribe` - Subscribe to symbols
+- `POST /api/v1/sharekhan/unsubscribe` - Unsubscribe from symbols
+- `GET /api/v1/sharekhan/data/{symbol}` - Get data for specific symbol
+- `GET /api/v1/sharekhan/data` - Get all market data
 
 ### WebSocket
-- `WS /api/v1/truedata/ws/{symbol}` - Real-time data stream
+- `WS /api/v1/sharekhan/ws/{symbol}` - Real-time data stream
 
 ## 📁 Data Storage
 
@@ -108,9 +108,9 @@ The standalone script saves data to JSON files:
 The integration supports custom callbacks using the official SDK:
 
 ```python
-from src.data.truedata_client import get_truedata_client
+from src.data.sharekhan_client import get_sharekhan_client
 
-client = get_truedata_client()
+client = get_sharekhan_client()
 
 def my_tick_callback(symbol, data):
     print(f"New tick for {symbol}: {data}")
@@ -122,14 +122,14 @@ client.add_callback('tick', my_tick_callback)
 
 ### Environment Variables
 ```bash
-TRUEDATA_USERNAME=your_username
-TRUEDATA_PASSWORD=your_password
-TRUEDATA_PORT=8084  # Optional, default: 8084
-TRUEDATA_URL=push.truedata.in  # Optional, default: push.truedata.in
+SHAREKHAN_USERNAME=your_username
+SHAREKHAN_PASSWORD=your_password
+SHAREKHAN_PORT=8084  # Optional, default: 8084
+SHAREKHAN_URL=push.sharekhan.in  # Optional, default: push.sharekhan.in
 ```
 
 ### Custom Symbols
-Modify the symbols list in `truedata_standalone.py`:
+Modify the symbols list in `sharekhan_standalone.py`:
 
 ```python
 symbols = [
@@ -149,9 +149,9 @@ symbols = [
 ### Common Issues
 
 1. **Connection Failed**
-   - Check your TrueData credentials
+   - Check your ShareKhan credentials
    - Verify internet connection
-   - Ensure TrueData account is active
+   - Ensure ShareKhan account is active
 
 2. **No Data Received**
    - Check if symbols are valid
@@ -159,7 +159,7 @@ symbols = [
    - Check subscription status
 
 3. **Import Errors**
-   - Install TrueData: `pip install truedata>=7.0.0`
+   - Install ShareKhan: `pip install sharekhan>=7.0.0`
    - Check Python version compatibility
 
 ### Debug Mode
@@ -224,9 +224,9 @@ client.add_callback('tick', ma_strategy_callback)
 
 ## 📞 Support
 
-For TrueData-specific issues:
-- TrueData Documentation: https://truedata.in/docs
-- TrueData Support: support@truedata.in
+For ShareKhan-specific issues:
+- ShareKhan Documentation: https://sharekhan.in/docs
+- ShareKhan Support: support@sharekhan.in
 
 For integration issues:
 - Check the trading system logs
@@ -243,10 +243,10 @@ For integration issues:
 
 ## 🎯 Official SDK Usage
 
-This integration uses the **official TrueData Python SDK** exactly as documented:
+This integration uses the **official ShareKhan Python SDK** exactly as documented:
 
 ```python
-from truedata import TD_live
+from sharekhan import ShareKhanLive
 import time
 import logging
 
@@ -254,9 +254,9 @@ username = "your_username"
 password = "your_password"
 
 port = 8084
-url = "push.truedata.in"
+url = "push.sharekhan.in"
 
-td_obj = TD_live(username, password, live_port=port, 
+td_obj = ShareKhanLive(username, password, live_port=port, 
                  log_level=logging.WARNING, url=url, compression=False)
 
 symbols = ['CRUDEOIL2506165300CE', 'CRUDEOIL2506165300PE']

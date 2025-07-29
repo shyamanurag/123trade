@@ -117,7 +117,7 @@ INSERT INTO users (
     initial_capital,
     current_balance,
     risk_tolerance,
-    zerodha_client_id,
+    sharekhan_client_id,
     max_daily_trades,
     created_at, 
     updated_at

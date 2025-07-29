@@ -1,6 +1,6 @@
 """
-Multi-User Zerodha Manager
-Manages multiple Zerodha user configurations and trading sessions
+Multi-User ShareKhan Manager
+Manages multiple ShareKhan user configurations and trading sessions
 Integrates with dynamic user management system
 """
 
@@ -18,8 +18,8 @@ from pathlib import Path
 # Add parent directory for imports
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
-from brokers.zerodha import ZerodhaIntegration
-from brokers.resilient_zerodha import ResilientZerodhaConnection
+from brokers.sharekhan import ShareKhanIntegration
+from brokers.resilient_sharekhan import ResilientShareKhanConnection
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ class UserTradingSession:
     """Trading session for a specific user"""
     user_id: int
     username: str
-    zerodha_client: Optional[ZerodhaIntegration]
-    resilient_client: Optional[ResilientZerodhaConnection]
+    sharekhan_client: Optional[ShareKhanIntegration]
+    resilient_client: Optional[ResilientShareKhanConnection]
     is_connected: bool = False
     last_activity: Optional[datetime] = None
     api_key: Optional[str] = None
@@ -37,8 +37,8 @@ class UserTradingSession:
     access_token: Optional[str] = None
     session_config: Dict = None
 
-class MultiUserZerodhaManager:
-    """Manages multiple Zerodha user sessions"""
+class MultiUserShareKhanManager:
+    """Manages multiple ShareKhan user sessions"""
     
     def __init__(self):
         self.user_sessions: Dict[int, UserTradingSession] = {}
@@ -60,11 +60,11 @@ class MultiUserZerodhaManager:
             self.session_cleanup_task = asyncio.create_task(self._session_cleanup_loop())
             
             self.is_initialized = True
-            logger.info("✅ MultiUserZerodhaManager initialized successfully")
+            logger.info("✅ MultiUserShareKhanManager initialized successfully")
             return True
             
         except Exception as e:
-            logger.error(f"❌ MultiUserZerodhaManager initialization failed: {e}")
+            logger.error(f"❌ MultiUserShareKhanManager initialization failed: {e}")
             return False
     
     async def add_user_session(
@@ -78,18 +78,18 @@ class MultiUserZerodhaManager:
     ) -> bool:
         """Add a new user trading session"""
         try:
-            # Create Zerodha configuration
-            zerodha_config = {
+            # Create ShareKhan configuration
+            sharekhan_config = {
                 'api_key': api_key,
                 'api_secret': api_secret,
                 'user_id': client_id,
                 'access_token': access_token,
                 'mock_mode': not access_token,  # Use mock mode if no access token
-                'sandbox_mode': os.getenv('ZERODHA_SANDBOX_MODE', 'true').lower() == 'true'
+                'sandbox_mode': os.getenv('SHAREKHAN_SANDBOX_MODE', 'true').lower() == 'true'
             }
             
-            # Create Zerodha client
-            zerodha_client = ZerodhaIntegration(zerodha_config)
+            # Create ShareKhan client
+            sharekhan_client = ShareKhanIntegration(sharekhan_config)
             
             # Create resilient connection
             resilient_config = {
@@ -101,18 +101,18 @@ class MultiUserZerodhaManager:
                 'ws_max_reconnect_attempts': 10
             }
             
-            resilient_client = ResilientZerodhaConnection(zerodha_client, resilient_config)
+            resilient_client = ResilientShareKhanConnection(sharekhan_client, resilient_config)
             
             # Create session
             session = UserTradingSession(
                 user_id=user_id,
                 username=username,
-                zerodha_client=zerodha_client,
+                sharekhan_client=sharekhan_client,
                 resilient_client=resilient_client,
                 api_key=api_key,
                 client_id=client_id,
                 access_token=access_token,
-                session_config=zerodha_config
+                session_config=sharekhan_config
             )
             
             # Store session
@@ -332,14 +332,14 @@ class MultiUserZerodhaManager:
             session.session_config['access_token'] = access_token
             session.session_config['mock_mode'] = False  # Enable real trading
             
-            # Update Zerodha client
-            if session.zerodha_client:
-                session.zerodha_client.access_token = access_token
-                session.zerodha_client.mock_mode = False
+            # Update ShareKhan client
+            if session.sharekhan_client:
+                session.sharekhan_client.access_token = access_token
+                session.sharekhan_client.mock_mode = False
                 
-                # Set access token in KiteConnect if available
-                if hasattr(session.zerodha_client, 'kite') and session.zerodha_client.kite:
-                    session.zerodha_client.kite.set_access_token(access_token)
+                # Set access token in ShareKhanConnect if available
+                if hasattr(session.sharekhan_client, 'kite') and session.sharekhan_client.kite:
+                    session.sharekhan_client.kite.set_access_token(access_token)
             
             # Store updated credentials
             await self._store_user_credentials(
@@ -364,7 +364,7 @@ class MultiUserZerodhaManager:
                 return
             
             # Get all user credential keys
-            keys = await self.redis_client.keys("zerodha:credentials:*")
+            keys = await self.redis_client.keys("sharekhan:credentials:*")
             
             for key in keys:
                 try:
@@ -422,12 +422,12 @@ class MultiUserZerodhaManager:
                 credentials['access_token'] = access_token
             
             await self.redis_client.hset(
-                f"zerodha:credentials:{user_id}",
+                f"sharekhan:credentials:{user_id}",
                 mapping=credentials
             )
             
             # Set expiry for security
-            await self.redis_client.expire(f"zerodha:credentials:{user_id}", 86400 * 30)  # 30 days
+            await self.redis_client.expire(f"sharekhan:credentials:{user_id}", 86400 * 30)  # 30 days
             
         except Exception as e:
             logger.error(f"❌ Error storing credentials for user {user_id}: {e}")
@@ -439,9 +439,9 @@ class MultiUserZerodhaManager:
                 return
             
             keys_to_delete = [
-                f"zerodha:credentials:{user_id}",
-                f"zerodha:activity:{user_id}",
-                f"zerodha:session:{user_id}"
+                f"sharekhan:credentials:{user_id}",
+                f"sharekhan:activity:{user_id}",
+                f"sharekhan:session:{user_id}"
             ]
             
             for key in keys_to_delete:
@@ -463,8 +463,8 @@ class MultiUserZerodhaManager:
             }
             
             # Store in Redis list (keep last 100 activities)
-            await self.redis_client.lpush(f"zerodha:activity:{user_id}", json.dumps(activity))
-            await self.redis_client.ltrim(f"zerodha:activity:{user_id}", 0, 99)
+            await self.redis_client.lpush(f"sharekhan:activity:{user_id}", json.dumps(activity))
+            await self.redis_client.ltrim(f"sharekhan:activity:{user_id}", 0, 99)
             
         except Exception as e:
             logger.error(f"❌ Error logging activity for user {user_id}: {e}")
@@ -517,10 +517,10 @@ class MultiUserZerodhaManager:
             if self.redis_client:
                 await self.redis_client.close()
             
-            logger.info("✅ MultiUserZerodhaManager cleaned up successfully")
+            logger.info("✅ MultiUserShareKhanManager cleaned up successfully")
             
         except Exception as e:
             logger.error(f"❌ Error during cleanup: {e}")
 
 # Global instance
-multi_user_zerodha_manager = MultiUserZerodhaManager() 
+multi_user_sharekhan_manager = MultiUserShareKhanManager() 

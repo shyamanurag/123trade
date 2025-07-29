@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 class TradeSource(str, Enum):
-    ZERODHA = "zerodha"
+    SHAREKHAN = "sharekhan"
     MANUAL = "manual"
     N8N = "n8n"
     AUTONOMOUS = "autonomous"

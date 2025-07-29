@@ -4,7 +4,7 @@
 =======================================
 
 This script comprehensively checks:
-1. TrueData connectivity and data flow
+1. ShareKhan connectivity and data flow
 2. Remaining mock data in the system
 3. Health monitoring system status
 4. Elite trade recommendations system
@@ -40,22 +40,22 @@ class ProductionSystemVerifier:
         timestamp = datetime.now().strftime("%H:%M:%S")
         print(f"[{timestamp}] {level}: {message}")
     
-    async def verify_truedata_connectivity(self):
-        """1. Verify TrueData is connected and pushing data"""
-        self.log("🔍 Checking TrueData connectivity...")
+    async def verify_sharekhan_connectivity(self):
+        """1. Verify ShareKhan is connected and pushing data"""
+        self.log("🔍 Checking ShareKhan connectivity...")
         
         try:
             # Check health endpoint
             response = requests.get(f"{self.api_base}/health", timeout=10)
             health_data = response.json()
             
-            truedata_status = "UNKNOWN"
+            sharekhan_status = "UNKNOWN"
             data_flow = False
             
-            # Check TrueData specific health
-            if "truedata" in health_data.get("components", {}):
-                truedata_health = health_data["components"]["truedata"]
-                truedata_status = truedata_health.get("status", "UNKNOWN")
+            # Check ShareKhan specific health
+            if "sharekhan" in health_data.get("components", {}):
+                sharekhan_health = health_data["components"]["sharekhan"]
+                sharekhan_status = sharekhan_health.get("status", "UNKNOWN")
             
             # Check for data flow - try to get market data
             try:
@@ -76,18 +76,18 @@ class ProductionSystemVerifier:
             except:
                 pass
             
-            self.results["checks"]["truedata"] = {
-                "connection_status": truedata_status,
+            self.results["checks"]["sharekhan"] = {
+                "connection_status": sharekhan_status,
                 "data_flow": data_flow,
                 "historical_data": historical_data,
-                "status": "PASS" if truedata_status == "HEALTHY" else "FAIL"
+                "status": "PASS" if sharekhan_status == "HEALTHY" else "FAIL"
             }
             
-            if truedata_status == "HEALTHY":
-                self.log("✅ TrueData connection: HEALTHY")
+            if sharekhan_status == "HEALTHY":
+                self.log("✅ ShareKhan connection: HEALTHY")
             else:
-                self.log("❌ TrueData connection: Issues detected", "WARNING")
-                self.results["recommendations"].append("Check TrueData credentials and network connectivity")
+                self.log("❌ ShareKhan connection: Issues detected", "WARNING")
+                self.results["recommendations"].append("Check ShareKhan credentials and network connectivity")
             
             if data_flow:
                 self.log("✅ Real-time data flow: Active")
@@ -100,8 +100,8 @@ class ProductionSystemVerifier:
                 self.log("⚠️ Historical data: Not available", "WARNING")
                 
         except Exception as e:
-            self.log(f"❌ TrueData check failed: {e}", "ERROR")
-            self.results["checks"]["truedata"] = {"status": "FAIL", "error": str(e)}
+            self.log(f"❌ ShareKhan check failed: {e}", "ERROR")
+            self.results["checks"]["sharekhan"] = {"status": "FAIL", "error": str(e)}
     
     def check_mock_data_removal(self):
         """2. Check for remaining mock data in the system"""
@@ -243,11 +243,11 @@ class ProductionSystemVerifier:
                 # Check if paper trading is disabled (for live trading)
                 paper_trading = os.getenv("PAPER_TRADING", "true").lower() == "true"
                 
-                # Check Zerodha connection
-                zerodha_connected = False
+                # Check ShareKhan connection
+                sharekhan_connected = False
                 try:
-                    zerodha_resp = requests.get(f"{self.api_base}/api/trading/account-info", timeout=5)
-                    zerodha_connected = zerodha_resp.status_code == 200
+                    sharekhan_resp = requests.get(f"{self.api_base}/api/trading/account-info", timeout=5)
+                    sharekhan_connected = sharekhan_resp.status_code == 200
                 except:
                     pass
                 
@@ -256,7 +256,7 @@ class ProductionSystemVerifier:
                     strategies_loaded > 0,
                     risk_management,
                     not paper_trading,  # Live trading enabled
-                    zerodha_connected
+                    sharekhan_connected
                 ]) / 5 * 100
                 
                 self.results["checks"]["autonomous_system"] = {
@@ -264,7 +264,7 @@ class ProductionSystemVerifier:
                     "strategies_loaded": strategies_loaded,
                     "risk_management": risk_management,
                     "live_trading_mode": not paper_trading,
-                    "zerodha_connected": zerodha_connected,
+                    "sharekhan_connected": sharekhan_connected,
                     "readiness_percentage": readiness_score,
                     "status": "PASS" if readiness_score >= 80 else "FAIL"
                 }
@@ -282,11 +282,11 @@ class ProductionSystemVerifier:
                     self.log("⚠️ Paper trading mode: Active", "WARNING")
                     self.results["recommendations"].append("Disable paper trading for live market operations")
                 
-                if zerodha_connected:
-                    self.log("✅ Zerodha connection: Active")
+                if sharekhan_connected:
+                    self.log("✅ ShareKhan connection: Active")
                 else:
-                    self.log("❌ Zerodha connection: Issues", "WARNING")
-                    self.results["recommendations"].append("Check Zerodha API credentials and connection")
+                    self.log("❌ ShareKhan connection: Issues", "WARNING")
+                    self.results["recommendations"].append("Check ShareKhan API credentials and connection")
                     
             else:
                 raise Exception(f"API returned {response.status_code}")
@@ -347,7 +347,7 @@ async def main():
     print("=" * 60)
     
     # Run all verification checks
-    await verifier.verify_truedata_connectivity()
+    await verifier.verify_sharekhan_connectivity()
     verifier.check_mock_data_removal()
     await verifier.verify_health_monitoring()
     await verifier.verify_elite_recommendations()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Add default Zerodha user for paper trading
+Add default ShareKhan user for paper trading
 """
 import requests
 import json
@@ -11,9 +11,9 @@ endpoint = f"{base_url}/api/v1/control/users/broker"
 
 # Default user data
 user_data = {
-    "user_id": "ZERODHA_DEFAULT",
-    "name": "Default Zerodha User",
-    "broker": "zerodha",
+    "user_id": "SHAREKHAN_DEFAULT",
+    "name": "Default ShareKhan User",
+    "broker": "sharekhan",
     "api_key": "sylcoq492qz6f7ej",
     "api_secret": "jm3h4iejwnxr4ngmma2qxccpkhevo8sy",
     "client_id": "QSW899",
@@ -28,7 +28,7 @@ try:
     print(f"Status Code: {response.status_code}")
     
     if response.status_code == 200:
-        print("✅ Successfully added default Zerodha user")
+        print("✅ Successfully added default ShareKhan user")
         print(json.dumps(response.json(), indent=2))
     else:
         print("❌ Failed to add user")

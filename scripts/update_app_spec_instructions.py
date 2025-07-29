@@ -22,7 +22,7 @@ def print_required_changes():
       preserve_path_prefix: true
     match:
       path:
-        prefix: /zerodha
+        prefix: /sharekhan
 """)
     
     print("\n2. UPDATE ROOT_PATH:")
@@ -34,14 +34,14 @@ def print_required_changes():
     print("     scope: RUN_AND_BUILD_TIME")
     print("     value: ''")
     
-    print("\n3. TRUEDATA SANDBOX MODE (Optional):")
+    print("\n3. SHAREKHAN SANDBOX MODE (Optional):")
     print("   If you're testing and not using real money:")
     print("   Change:")
-    print("   - key: TRUEDATA_IS_SANDBOX")
+    print("   - key: SHAREKHAN_IS_SANDBOX")
     print("     scope: RUN_AND_BUILD_TIME")
     print("     value: \"false\"")
     print("   To:")
-    print("   - key: TRUEDATA_IS_SANDBOX")
+    print("   - key: SHAREKHAN_IS_SANDBOX")
     print("     scope: RUN_AND_BUILD_TIME")
     print("     value: \"true\"")
     
@@ -71,7 +71,7 @@ def print_required_changes():
     print("- The WebSocket rule IS present but might not be working due to order")
     print("- Make sure the /ws rule comes BEFORE the / (frontend) rule")
     print("- The ingress rules are processed in order")
-    print("- TRUEDATA_IS_SANDBOX should be 'true' for testing without real trading")
+    print("- SHAREKHAN_IS_SANDBOX should be 'true' for testing without real trading")
 
 def generate_corrected_spec():
     """Generate the corrected ingress section"""
@@ -123,7 +123,7 @@ def generate_corrected_spec():
       preserve_path_prefix: true
     match:
       path:
-        prefix: /zerodha
+        prefix: /sharekhan
   - component:
       name: frontend
     match:

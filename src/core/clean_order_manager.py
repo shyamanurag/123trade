@@ -18,7 +18,7 @@ class OrderManager:
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.zerodha_client = None
+        self.sharekhan_client = None
         self.redis_client = None
         self.risk_manager = None
         self.notification_manager = None
@@ -29,14 +29,14 @@ class OrderManager:
         
         logger.info("OrderManager initialized - NO FALLBACKS")
     
-    async def initialize(self, zerodha_client=None, redis_client=None, risk_manager=None):
+    async def initialize(self, sharekhan_client=None, redis_client=None, risk_manager=None):
         """Initialize with required dependencies - FAIL if missing"""
-        self.zerodha_client = zerodha_client
+        self.sharekhan_client = sharekhan_client
         self.redis_client = redis_client
         self.risk_manager = risk_manager
         
-        if not self.zerodha_client:
-            logger.warning("⚠️ No Zerodha client - orders will be rejected")
+        if not self.sharekhan_client:
+            logger.warning("⚠️ No ShareKhan client - orders will be rejected")
         
         if not self.redis_client:
             logger.warning("⚠️ No Redis client - using memory only")
@@ -49,8 +49,8 @@ class OrderManager:
     async def place_order(self, user_id: str, order_data: Dict[str, Any]) -> str:
         """Place an order - FAIL if requirements not met"""
         try:
-            if not self.zerodha_client:
-                raise Exception("No Zerodha client available - order rejected")
+            if not self.sharekhan_client:
+                raise Exception("No ShareKhan client available - order rejected")
             
             # Generate order ID
             order_id = str(uuid.uuid4())
@@ -67,8 +67,8 @@ class OrderManager:
                 if not risk_valid:
                     raise Exception("Order failed risk validation")
             
-            # Place order via Zerodha
-            zerodha_params = {
+            # Place order via ShareKhan
+            sharekhan_params = {
                 'symbol': order_data['symbol'],
                 'transaction_type': order_data['side'].upper(),
                 'quantity': order_data['quantity'],
@@ -79,12 +79,12 @@ class OrderManager:
             }
             
             if order_data['order_type'].upper() == 'LIMIT':
-                zerodha_params['price'] = order_data['price']
+                sharekhan_params['price'] = order_data['price']
             
-            broker_order_id = await self.zerodha_client.place_order(zerodha_params)
+            broker_order_id = await self.sharekhan_client.place_order(sharekhan_params)
             
             if not broker_order_id:
-                raise Exception("Zerodha order placement failed")
+                raise Exception("ShareKhan order placement failed")
             
             # Store order
             if user_id not in self.active_orders:
@@ -136,8 +136,8 @@ class OrderManager:
     async def cancel_order(self, user_id: str, order_id: str) -> bool:
         """Cancel order - FAIL if not possible"""
         try:
-            if not self.zerodha_client:
-                raise Exception("No Zerodha client available - cannot cancel order")
+            if not self.sharekhan_client:
+                raise Exception("No ShareKhan client available - cannot cancel order")
             
             # Get order details
             if self.redis_client:
@@ -154,11 +154,11 @@ class OrderManager:
             if not broker_order_id:
                 raise Exception("No broker order ID found")
             
-            # Cancel via Zerodha
-            success = await self.zerodha_client.cancel_order(broker_order_id)
+            # Cancel via ShareKhan
+            success = await self.sharekhan_client.cancel_order(broker_order_id)
             
             if not success:
-                raise Exception("Zerodha order cancellation failed")
+                raise Exception("ShareKhan order cancellation failed")
             
             # Remove from active orders
             if user_id in self.active_orders:
@@ -174,7 +174,7 @@ class OrderManager:
     def get_status(self) -> Dict[str, Any]:
         """Get OrderManager status"""
         return {
-            "zerodha_client": self.zerodha_client is not None,
+            "sharekhan_client": self.sharekhan_client is not None,
             "redis_client": self.redis_client is not None,
             "risk_manager": self.risk_manager is not None,
             "active_users": len(self.active_orders),

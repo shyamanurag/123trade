@@ -330,11 +330,11 @@ class ConfigValidator:
                 "foreign_investment_limit_percent": 49.0
             },
             "brokers": {
-                "zerodha": {
-                    "name": "zerodha",
-                    "api_key": "your_zerodha_api_key",
-                    "api_secret": "your_zerodha_api_secret",
-                    "base_url": "https://api.kite.trade",
+                "sharekhan": {
+                    "name": "sharekhan",
+                    "api_key": "your_sharekhan_api_key",
+                    "api_secret": "your_sharekhan_api_secret",
+                    "base_url": "https://api.sharekhan.com",
                     "timeout_seconds": 30,
                     "rate_limit_per_minute": 60,
                     "sandbox_mode": False

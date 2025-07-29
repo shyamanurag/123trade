@@ -69,8 +69,8 @@ The frontend config is missing several endpoints that exist in the backend:
 - `/api/v1/risk/*` - Risk management endpoints
 - `/api/v1/strategies/*` - Strategy management
 - `/api/v1/autonomous/*` - Autonomous trading
-- `/zerodha/*` - Zerodha authentication endpoints
-- `/api/v1/truedata/*` - TrueData integration
+- `/sharekhan/*` - ShareKhan authentication endpoints
+- `/api/v1/sharekhan/*` - ShareKhan integration
 
 ## 📋 Complete Route Mapping
 
@@ -107,8 +107,8 @@ The frontend config is missing several endpoints that exist in the backend:
 - `/api/v1/dashboard/*` - Dashboard data
 
 ### External Integrations
-- `/zerodha/*` - Zerodha authentication
-- `/api/v1/truedata/*` - TrueData integration
+- `/sharekhan/*` - ShareKhan authentication
+- `/api/v1/sharekhan/*` - ShareKhan integration
 - `/api/v1/webhooks/*` - Webhook endpoints
 
 ### WebSocket

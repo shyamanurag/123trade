@@ -15,7 +15,7 @@ from datetime import datetime
 class TradingSystemDeployer:
     def __init__(self):
         self.deployment_id = f"deploy_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-        self.base_url = "https://trading-system-new-g8v4d.ondigitalocean.app"
+        self.base_url = "https://trade123-edtd2.ondigitalocean.app"
         self.local_url = "http://localhost:8000"
         
     def log(self, message, level="INFO"):

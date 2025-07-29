@@ -21,7 +21,7 @@ BEGIN
             current_balance DECIMAL(15,2) DEFAULT 50000,
             risk_tolerance VARCHAR(20) DEFAULT 'medium',
             is_active BOOLEAN DEFAULT true,
-            zerodha_client_id VARCHAR(50),
+            sharekhan_client_id VARCHAR(50),
             last_login TIMESTAMP WITH TIME ZONE,
             trading_enabled BOOLEAN DEFAULT true,
             max_daily_trades INTEGER DEFAULT 100,
@@ -68,7 +68,7 @@ BEGIN
             current_balance, 
             risk_tolerance, 
             is_active, 
-            zerodha_client_id,
+            sharekhan_client_id,
             trading_enabled,
             max_daily_trades,
             max_position_size

@@ -77,9 +77,9 @@ def test_direct_redis_connection():
             result = redis_client.get('production_test')
             logger.info(f"✅ Get operation successful: {result}")
             
-            # Test Zerodha token simulation
-            logger.info("🔄 Testing Zerodha token operations...")
-            token_key = 'zerodha:token:PAPER_TRADER_001'
+            # Test ShareKhan token simulation
+            logger.info("🔄 Testing ShareKhan token operations...")
+            token_key = 'sharekhan:token:PAPER_TRADER_001'
             token_value = 'production_test_token_12345'
             
             redis_client.set(token_key, token_value, ex=3600)
@@ -150,9 +150,9 @@ def test_production_redis_fallback():
             get_result = redis_fallback.get('production_fallback_test')
             logger.info(f"Get result: {get_result}")
             
-            # Test Zerodha token
-            logger.info("🔄 Testing Zerodha token with production Redis...")
-            token_key = 'zerodha:token:PAPER_TRADER_001'
+            # Test ShareKhan token
+            logger.info("🔄 Testing ShareKhan token with production Redis...")
+            token_key = 'sharekhan:token:PAPER_TRADER_001'
             token_value = 'production_redis_token_67890'
             
             redis_fallback.set(token_key, token_value, ex=3600)
@@ -210,12 +210,12 @@ def test_orchestrator_with_production_redis():
         connected = redis_fallback_manager.connect()
         logger.info(f"Connection result: {connected}")
         
-        # Test Zerodha token simulation
-        logger.info("🔄 Simulating Zerodha token workflow...")
+        # Test ShareKhan token simulation
+        logger.info("🔄 Simulating ShareKhan token workflow...")
         
         # Simulate frontend storing token
         user_id = 'PAPER_TRADER_001'
-        token_key = f'zerodha:token:{user_id}'
+        token_key = f'sharekhan:token:{user_id}'
         mock_token = 'production_orchestrator_token_abc123'
         
         redis_fallback_manager.set(token_key, mock_token, ex=3600)
@@ -225,7 +225,7 @@ def test_orchestrator_with_production_redis():
         retrieved_token = redis_fallback_manager.get(token_key)
         if retrieved_token:
             logger.info(f"✅ Orchestrator simulation: Retrieved token {retrieved_token[:15]}...")
-            logger.info("✅ Zerodha authentication workflow should work!")
+            logger.info("✅ ShareKhan authentication workflow should work!")
         else:
             logger.warning("❌ Token retrieval failed")
         
@@ -263,7 +263,7 @@ def main():
         logger.info("\n🎉 ALL PRODUCTION REDIS TESTS PASSED!")
         logger.info("✅ Production Redis connection working")
         logger.info("✅ Fallback system functional")
-        logger.info("✅ Zerodha token workflow ready")
+        logger.info("✅ ShareKhan token workflow ready")
         logger.info("🚀 System ready for production deployment!")
     else:
         logger.warning("\n⚠️ SOME TESTS FAILED")

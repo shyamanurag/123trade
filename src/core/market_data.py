@@ -41,7 +41,7 @@ class MarketDataManager:
         # Use DYNAMIC symbol list from autonomous configuration
         if symbols is None:
             try:
-                from config.truedata_symbols import get_complete_fo_symbols, get_autonomous_symbol_status
+                from config.sharekhan_symbols import get_complete_fo_symbols, get_autonomous_symbol_status
                 
                 # Get DYNAMIC symbols from autonomous symbol manager
                 self.symbols = get_complete_fo_symbols()
@@ -140,17 +140,17 @@ class MarketDataManager:
             return {}
     
     def _get_real_market_data(self, symbols: List[str]) -> Dict[str, MarketData]:
-        """Get REAL market data from TrueData feed using proper symbol mapping"""
+        """Get REAL market data from ShareKhan feed using proper symbol mapping"""
         data = {}
         base_time = datetime.now()
         
         for symbol in symbols:
             try:
                 # Get REAL price using proper symbol mapping
-                real_price, real_volume, real_ohlc = self._get_real_data_from_truedata(symbol)
+                real_price, real_volume, real_ohlc = self._get_real_data_from_sharekhan(symbol)
                 
                 if real_price is None:
-                    logger.warning(f"⚠️ No TrueData for {symbol}, skipping")
+                    logger.warning(f"⚠️ No ShareKhan for {symbol}, skipping")
                     continue
                 
                 # Generate price history based on REAL current price and OHLC
@@ -172,7 +172,7 @@ class MarketDataManager:
                 )
                 
                 data[symbol] = market_data
-                logger.info(f"✅ REAL TrueData for {symbol}: ₹{real_price:,.2f} | Vol: {real_volume:,}")
+                logger.info(f"✅ REAL ShareKhan for {symbol}: ₹{real_price:,.2f} | Vol: {real_volume:,}")
                 
             except Exception as e:
                 logger.error(f"Error getting real data for {symbol}: {e}")
@@ -180,25 +180,25 @@ class MarketDataManager:
         
         return data
     
-    def _get_real_data_from_truedata(self, symbol: str) -> tuple[Optional[float], int, dict]:
+    def _get_real_data_from_sharekhan(self, symbol: str) -> tuple[Optional[float], int, dict]:
         """Get REAL price, volume, and OHLC data using proper symbol mapping - OPTIONS PREMIUM AWARE"""
         try:
-            # Import TrueData client and symbol mapping
-            from data.truedata_client import live_market_data, subscribe_to_symbols
-            from config.truedata_symbols import get_truedata_symbol, is_premium_data, validate_options_premium, _is_options_symbol
+            # Import ShareKhan client and symbol mapping
+            from data.sharekhan_client import live_market_data, subscribe_to_symbols
+            from config.sharekhan_symbols import get_sharekhan_symbol, is_premium_data, validate_options_premium, _is_options_symbol
             
-            # STEP 1: Convert to proper TrueData symbol format
-            truedata_symbol = get_truedata_symbol(symbol)
-            logger.debug(f"🔄 Symbol mapping: {symbol} → {truedata_symbol}")
+            # STEP 1: Convert to proper ShareKhan symbol format
+            sharekhan_symbol = get_sharekhan_symbol(symbol)
+            logger.debug(f"🔄 Symbol mapping: {symbol} → {sharekhan_symbol}")
             
             # STEP 2: Try to get data using mapped symbol
-            if truedata_symbol in live_market_data:
-                symbol_data = live_market_data[truedata_symbol]
+            if sharekhan_symbol in live_market_data:
+                symbol_data = live_market_data[sharekhan_symbol]
                 
                 # Extract price
                 ltp = symbol_data.get('ltp', 0)
                 if not ltp or ltp <= 0:
-                    logger.warning(f"⚠️ Invalid LTP for {truedata_symbol}: {ltp}")
+                    logger.warning(f"⚠️ Invalid LTP for {sharekhan_symbol}: {ltp}")
                     return None, 0, {}
                 
                 # CRITICAL FIX: Validate options premium
@@ -250,19 +250,19 @@ class MarketDataManager:
                     return float(ltp), symbol_data.get('volume', 0), {'open': ltp, 'high': ltp, 'low': ltp, 'close': ltp}
             
             # STEP 4: AUTO-SUBSCRIBE if symbol not found but is valid
-            logger.info(f"🔄 AUTO-SUBSCRIBE: {symbol} ({truedata_symbol}) not found, attempting subscription...")
+            logger.info(f"🔄 AUTO-SUBSCRIBE: {symbol} ({sharekhan_symbol}) not found, attempting subscription...")
             
             # CRITICAL FIX: Don't call subscribe_to_symbols() - it creates connection conflicts
-            # Instead, just log that symbol is missing and let main TrueData client handle it
-            logger.info(f"📝 SYMBOL MISSING: {truedata_symbol} - will be available when main TrueData client subscribes")
+            # Instead, just log that symbol is missing and let main ShareKhan client handle it
+            logger.info(f"📝 SYMBOL MISSING: {sharekhan_symbol} - will be available when main ShareKhan client subscribes")
             # Return None for now, symbol may become available later
             return None, 0, {}
             
         except ImportError as e:
-            logger.error(f"❌ Cannot import TrueData modules: {e}")
+            logger.error(f"❌ Cannot import ShareKhan modules: {e}")
             return None, 0, {}
         except Exception as e:
-            logger.error(f"❌ Error getting TrueData for {symbol}: {e}")
+            logger.error(f"❌ Error getting ShareKhan for {symbol}: {e}")
             return None, 0, {}
     
     def _generate_candle_history_from_real_data(self, current_price: float, real_ohlc: dict, count: int = 50) -> List[Candle]:
@@ -322,11 +322,11 @@ class MarketDataManager:
         """Background task to continuously update REAL market data - NO FAKE DATA FALLBACKS"""
         while self.is_running:
             try:
-                # Get available TrueData symbols
-                available_symbols = await self._get_all_available_truedata_symbols()
+                # Get available ShareKhan symbols
+                available_symbols = await self._get_all_available_sharekhan_symbols()
                 
                 if available_symbols:
-                    # Process ONLY real TrueData symbols - NO FALLBACKS
+                    # Process ONLY real ShareKhan symbols - NO FALLBACKS
                     self.market_data_cache = self._get_real_market_data(available_symbols)
                     if self.market_data_cache:
                         logger.info(f"📊 Updated REAL market data for {len(self.market_data_cache)} symbols")
@@ -335,7 +335,7 @@ class MarketDataManager:
                         # DO NOT GENERATE FAKE DATA - keep cache empty
                         self.market_data_cache = {}
                 else:
-                    logger.warning("📊 No TrueData symbols available - keeping cache empty")
+                    logger.warning("📊 No ShareKhan symbols available - keeping cache empty")
                     # DO NOT FALLBACK TO FAKE DATA
                     self.market_data_cache = {}
                 
@@ -346,11 +346,11 @@ class MarketDataManager:
                 self.market_data_cache = {}
                 await asyncio.sleep(5)
 
-    async def _get_all_available_truedata_symbols(self) -> List[str]:
-        """Get expanded list of available TrueData symbols for F&O trading"""
+    async def _get_all_available_sharekhan_symbols(self) -> List[str]:
+        """Get expanded list of available ShareKhan symbols for F&O trading"""
         try:
-            # Method 1: Get from truedata symbols config
-            from config.truedata_symbols import get_complete_fo_symbols
+            # Method 1: Get from sharekhan symbols config
+            from config.sharekhan_symbols import get_complete_fo_symbols
             available_symbols = get_complete_fo_symbols()
             
             if available_symbols:
@@ -392,7 +392,7 @@ class MarketDataManager:
                 return True
             
             # Get expanded symbol list
-            from config.truedata_symbols import get_complete_fo_symbols
+            from config.sharekhan_symbols import get_complete_fo_symbols
             expanded_symbols = get_complete_fo_symbols()
             
             # Limit to target
@@ -405,7 +405,7 @@ class MarketDataManager:
             
             logger.info(f"🚀 SYMBOL EXPANSION ENABLED: {old_count} → {len(self.symbols)} symbols")
             
-            # Try to auto-subscribe new symbols if TrueData is available
+            # Try to auto-subscribe new symbols if ShareKhan is available
             try:
                 await self._auto_subscribe_missing_symbols()
             except Exception as e:
@@ -420,29 +420,29 @@ class MarketDataManager:
     async def _auto_subscribe_missing_symbols(self):
         """Auto-subscribe to symbols that aren't already subscribed - FIXED TO PREVENT CONNECTION CONFLICTS"""
         try:
-            from data.truedata_client import live_market_data
-            from config.truedata_symbols import get_truedata_symbol
+            from data.sharekhan_client import live_market_data
+            from config.sharekhan_symbols import get_sharekhan_symbol
             
             # Find missing symbols
             subscribed_symbols = set(live_market_data.keys())
             missing_symbols = []
             
             for symbol in self.symbols:
-                truedata_symbol = get_truedata_symbol(symbol)
-                if truedata_symbol not in subscribed_symbols:
-                    missing_symbols.append(truedata_symbol)
+                sharekhan_symbol = get_sharekhan_symbol(symbol)
+                if sharekhan_symbol not in subscribed_symbols:
+                    missing_symbols.append(sharekhan_symbol)
             
             if missing_symbols:
                 logger.info(f"📝 MISSING SYMBOLS: {len(missing_symbols)} symbols not yet available: {missing_symbols[:10]}...")
-                logger.info("📊 These symbols will become available when main TrueData client subscribes to them")
+                logger.info("📊 These symbols will become available when main ShareKhan client subscribes to them")
                 
                 # CRITICAL FIX: Don't call subscribe_to_symbols() - it creates connection conflicts
                 # Instead, just log the missing symbols for monitoring
-                logger.info("💡 Symbols will be automatically available when TrueData client connects to them")
+                logger.info("💡 Symbols will be automatically available when ShareKhan client connects to them")
                 
                 return False  # Return False to indicate symbols not immediately available
             else:
-                logger.info("✅ All symbols already available in TrueData cache")
+                logger.info("✅ All symbols already available in ShareKhan cache")
                 return True
                 
         except Exception as e:
@@ -465,12 +465,12 @@ async def get_market_data(symbol: str) -> Dict[str, Any]:
     """Get market data for a symbol - REAL DATA ONLY"""
     # ELIMINATED MOCK DATA - Return error if real data unavailable
     try:
-        # TODO: Connect to real TrueData API here
+        # TODO: Connect to real ShareKhan API here
         # For now, return error to prevent fake data usage
         return {
             'success': False,
             'error': 'Real market data API not connected',
-            'message': 'SAFETY: Mock data eliminated - implement real TrueData connection',
+            'message': 'SAFETY: Mock data eliminated - implement real ShareKhan connection',
             'symbol': symbol,
             'timestamp': datetime.now().isoformat()
         }

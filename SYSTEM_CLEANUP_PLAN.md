@@ -1,14 +1,14 @@
 # System Cleanup Plan - ShareKhan Uniformity Implementation
 
 ## 🎯 **OBJECTIVE**
-Complete migration to ShareKhan-only architecture, eliminating TrueData + Zerodha dual system for uniformity as requested by user.
+Complete migration to ShareKhan-only architecture, eliminating ShareKhan + ShareKhan dual system for uniformity as requested by user.
 
 ## 🚨 **CRITICAL ISSUES IDENTIFIED**
 
 ### **1. DUAL ORCHESTRATOR CONFLICT** - **IMMEDIATE FIX REQUIRED**
 
 **Current State:**
-- `main.py` uses `TradingOrchestrator` (OLD: TrueData + Zerodha)
+- `main.py` uses `TradingOrchestrator` (OLD: ShareKhan + ShareKhan)
 - `main_sharekhan.py` uses `ShareKhanTradingOrchestrator` (NEW: ShareKhan-only)
 - 18+ API files still importing OLD orchestrator
 
@@ -26,7 +26,7 @@ src/api/performance.py             → Update import
 src/api/debug_endpoints.py         → Update import
 src/api/dashboard_api.py           → Update import
 src/api/monitoring.py              → Update import
-src/api/zerodha_manual_auth.py     → Update import (or remove if not needed)
+src/api/sharekhan_manual_auth.py     → Update import (or remove if not needed)
 src/api/simple_daily_auth.py       → Update import (or remove if not needed)
 src/api/daily_auth_workflow.py     → Update import (or remove if not needed)
 src/api/autonomous_trading.py      → Update import
@@ -126,19 +126,19 @@ import redis.asyncio as redis
 
 ### **Phase 4: Legacy Code Removal** (Low Priority)
 
-**Step 4.1**: Remove TrueData dependencies
+**Step 4.1**: Remove ShareKhan dependencies
 ```bash
 # Files to review for removal/deprecation:
-data/truedata_client.py                # Keep for compatibility layer only
+data/sharekhan_client.py                # Keep for compatibility layer only
 src/core/orchestrator.py               # Archive as backup
-config/truedata_symbols.py             # Archive as backup
+config/sharekhan_symbols.py             # Archive as backup
 ```
 
-**Step 4.2**: Remove Zerodha dependencies
+**Step 4.2**: Remove ShareKhan dependencies
 ```bash
 # Files to review for removal/deprecation:
-brokers/zerodha.py                     # Archive as backup
-src/api/*zerodha*.py                   # Archive/remove Zerodha-specific endpoints
+brokers/sharekhan.py                     # Archive as backup
+src/api/*sharekhan*.py                   # Archive/remove ShareKhan-specific endpoints
 ```
 
 ## ✅ **IMMEDIATE FIXES COMPLETED**
@@ -165,9 +165,9 @@ src/core/simple_order_manager.py      # Duplicate implementation
 
 ### **Archive for Compatibility:**
 ```
-data/truedata_client.py               # Keep compatibility layer only
-brokers/zerodha.py                    # Archive as backup
-config/truedata_symbols.py            # Archive as backup
+data/sharekhan_client.py               # Keep compatibility layer only
+brokers/sharekhan.py                    # Archive as backup
+config/sharekhan_symbols.py            # Archive as backup
 ```
 
 ## 🎯 **SUCCESS CRITERIA**

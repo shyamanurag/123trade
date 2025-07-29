@@ -16,7 +16,7 @@ These are all the features that **REQUIRED live data flow** and are now **FULLY 
 - **Live Price Updates**: 51 symbols updating in real-time
 - **Market Data Quality**: BANKNIFTY-I: ₹57,419, MARUTI: ₹12,719, etc.
 - **Data Freshness**: Prices updating every second
-- **Symbol Expansion**: Full 51-symbol coverage from TrueData
+- **Symbol Expansion**: Full 51-symbol coverage from ShareKhan
 
 ### **Test Commands:**
 ```bash
@@ -139,7 +139,7 @@ Elite Trade #2: ICICIBANK LONG
 
 ### **Execution Readiness:**
 ```
-✅ Zerodha Integration: Connected
+✅ ShareKhan Integration: Connected
 ✅ Order APIs: Functional
 ✅ Risk Checks: Active
 ✅ Execution Speed: Optimized

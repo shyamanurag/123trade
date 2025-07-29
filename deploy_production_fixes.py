@@ -29,8 +29,8 @@ class ProductionDeployment:
         required_env_vars = [
             'DATABASE_URL',
             'REDIS_URL', 
-            'TRUEDATA_LOGIN_ID',
-            'TRUEDATA_PASSWORD'
+            'SHAREKHAN_LOGIN_ID',
+            'SHAREKHAN_PASSWORD'
         ]
         
         missing_vars = []
@@ -43,8 +43,8 @@ class ProductionDeployment:
             print("\n🔧 TO FIX: Set these environment variables on production server:")
             print("export DATABASE_URL='<your_database_url>'")
             print("export REDIS_URL='<your_redis_url>'")
-            print("export TRUEDATA_LOGIN_ID='<your_truedata_login>'")
-            print("export TRUEDATA_PASSWORD='<your_truedata_password>'")
+            print("export SHAREKHAN_LOGIN_ID='<your_sharekhan_login>'")
+            print("export SHAREKHAN_PASSWORD='<your_sharekhan_password>'")
             return False
         
         print("✅ All environment variables present")

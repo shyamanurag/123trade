@@ -17,25 +17,25 @@ sys.path.insert(0, project_root)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def check_truedata_connection():
-    """Check TrueData connection and price feed status"""
-    logger.info("🔍 Checking TrueData Connection Status")
+def check_sharekhan_connection():
+    """Check ShareKhan connection and price feed status"""
+    logger.info("🔍 Checking ShareKhan Connection Status")
     logger.info("=" * 50)
     
     try:
-        # Import TrueData components
-        from src.feeds.truedata_feed import TrueDataFeed
-        from src.api.market_data import get_truedata_proxy
+        # Import ShareKhan components
+        from src.feeds.sharekhan_feed import ShareKhanFeed
+        from src.api.market_data import get_sharekhan_proxy
         
-        # Check TrueData proxy status
-        proxy_status = get_truedata_proxy()
-        logger.info(f"📊 TrueData Proxy Status:")
+        # Check ShareKhan proxy status
+        proxy_status = get_sharekhan_proxy()
+        logger.info(f"📊 ShareKhan Proxy Status:")
         logger.info(f"   Connected: {proxy_status.get('connected', False)}")
         logger.info(f"   Symbols Count: {proxy_status.get('symbols_count', 0)}")
         logger.info(f"   Source: {proxy_status.get('source', 'Unknown')}")
         
         if proxy_status.get('error'):
-            logger.error(f"❌ TrueData Error: {proxy_status['error']}")
+            logger.error(f"❌ ShareKhan Error: {proxy_status['error']}")
         
         # Check if we have live data
         data = proxy_status.get('data', {})
@@ -47,7 +47,7 @@ def check_truedata_connection():
             logger.warning("⚠️ No live price data available")
             
     except Exception as e:
-        logger.error(f"❌ Error checking TrueData: {e}")
+        logger.error(f"❌ Error checking ShareKhan: {e}")
 
 def check_redis_price_cache():
     """Check Redis price cache for live updates"""
@@ -65,10 +65,10 @@ def check_redis_price_cache():
         logger.info(f"   Fallback Mode: {status.get('fallback_mode', True)}")
         
         if status.get('connected'):
-            # Check for TrueData cache
-            cache_data = redis_manager.get("truedata:live_cache")
+            # Check for ShareKhan cache
+            cache_data = redis_manager.get("sharekhan:live_cache")
             if cache_data:
-                logger.info("✅ TrueData cache found in Redis")
+                logger.info("✅ ShareKhan cache found in Redis")
                 # Parse and show sample
                 import json
                 try:
@@ -77,7 +77,7 @@ def check_redis_price_cache():
                 except:
                     logger.info("   Cache data exists but format unknown")
             else:
-                logger.warning("⚠️ No TrueData cache in Redis")
+                logger.warning("⚠️ No ShareKhan cache in Redis")
                 
             # Check for specific symbols
             test_symbols = ['GODREJCP', 'JSWSTEEL', 'TVSMOTOR']
@@ -110,7 +110,7 @@ def check_position_updates():
         
         # Check the update mechanism
         logger.info("\n🔧 Required Fixes:")
-        logger.info("1. Ensure TrueData feed is running and updating Redis")
+        logger.info("1. Ensure ShareKhan feed is running and updating Redis")
         logger.info("2. Verify position tracker reads from live price feed")
         logger.info("3. Check frontend polling for updated positions")
         logger.info("4. Ensure database position updates include current_price")
@@ -145,8 +145,8 @@ def suggest_immediate_fixes():
     logger.info("\n🔧 IMMEDIATE FIXES REQUIRED")
     logger.info("=" * 50)
     
-    logger.info("1. **TrueData Price Feed Fix:**")
-    logger.info("   - Verify TrueData WebSocket is running")
+    logger.info("1. **ShareKhan Price Feed Fix:**")
+    logger.info("   - Verify ShareKhan WebSocket is running")
     logger.info("   - Check if prices are being stored in Redis")
     logger.info("   - Ensure price updates are continuous")
     
@@ -174,13 +174,13 @@ def create_price_update_test():
 # Test Script: test_price_updates.py
 import asyncio
 from src.core.position_tracker import ProductionPositionTracker
-from src.api.market_data import get_truedata_proxy
+from src.api.market_data import get_sharekhan_proxy
 
 async def test_price_updates():
     """Test if prices are updating"""
     
-    # Get current TrueData prices
-    proxy_data = get_truedata_proxy()
+    # Get current ShareKhan prices
+    proxy_data = get_sharekhan_proxy()
     live_prices = proxy_data.get('data', {})
     
     print(f"Live Prices Available: {len(live_prices)}")
@@ -224,7 +224,7 @@ def main():
     logger.info("🚀 P&L and Price Update Analysis")
     logger.info("=" * 50)
     
-    check_truedata_connection()
+    check_sharekhan_connection()
     check_redis_price_cache()
     check_position_updates()
     check_frontend_polling()
@@ -240,7 +240,7 @@ def main():
     
     logger.info("\n🎯 NEXT STEPS:")
     logger.info("1. Wait for Redis deployment to complete")
-    logger.info("2. Check TrueData price feed status")
+    logger.info("2. Check ShareKhan price feed status")
     logger.info("3. Verify position update mechanism")
     logger.info("4. Test with live price data")
 

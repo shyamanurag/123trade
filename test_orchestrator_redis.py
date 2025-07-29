@@ -60,12 +60,12 @@ def main():
                 exists_result = redis_manager.exists('orchestrator_test')
                 logger.info(f"Exists result: {exists_result}")
         
-        # Test Zerodha token simulation
-        logger.info("🔄 Testing Zerodha token simulation...")
+        # Test ShareKhan token simulation
+        logger.info("🔄 Testing ShareKhan token simulation...")
         user_ids = ['PAPER_TRADER_001', 'MASTER_USER_001']
         
         for user_id in user_ids:
-            token_key = f'zerodha:token:{user_id}'
+            token_key = f'sharekhan:token:{user_id}'
             mock_token = f'mock_token_{user_id.lower()}_12345'
             
             # Store token

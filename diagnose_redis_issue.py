@@ -162,9 +162,9 @@ def test_production_redis_manager():
     
     return False
 
-def test_zerodha_token_retrieval():
-    """Test Zerodha token retrieval from Redis"""
-    logger.info("\n🔍 Testing Zerodha Token Retrieval:")
+def test_sharekhan_token_retrieval():
+    """Test ShareKhan token retrieval from Redis"""
+    logger.info("\n🔍 Testing ShareKhan Token Retrieval:")
     
     try:
         from src.core.redis_connection_manager import redis_manager
@@ -177,7 +177,7 @@ def test_zerodha_token_retrieval():
         user_ids = ['PAPER_TRADER_001', 'MASTER_USER_001', 'USER_001']
         
         for user_id in user_ids:
-            token_key = f'zerodha:token:{user_id}'
+            token_key = f'sharekhan:token:{user_id}'
             token = redis_manager.get(token_key)
             
             if token:
@@ -209,7 +209,7 @@ def main():
     manager_success = test_production_redis_manager()
     
     # Test token retrieval
-    token_success = test_zerodha_token_retrieval()
+    token_success = test_sharekhan_token_retrieval()
     
     # Summary
     logger.info("\n" + "=" * 60)

@@ -76,7 +76,7 @@ async def get_trades_status():
         return {
             "success": True,
             "trade_engine_status": "active",
-            "zerodha_client_available": True,
+            "sharekhan_client_available": True,
             "total_trades_today": 0,
             "pending_orders": 0,
             "last_trade_time": None,
@@ -92,10 +92,10 @@ async def get_broker_status():
     try:
         from src.core.orchestrator import TradingOrchestrator
         orchestrator = TradingOrchestrator.get_instance()
-        status = orchestrator.connection_manager.get_connection_status('zerodha')
+        status = orchestrator.connection_manager.get_connection_status('sharekhan')
         return {
             "success": True,
-            "broker": "zerodha",
+            "broker": "sharekhan",
             "status": status.get('state', 'unknown'),
             "last_heartbeat": datetime.utcnow().isoformat(),
             "api_calls_today": status.get('api_calls_today', 0),
@@ -114,7 +114,7 @@ async def get_broker_connection():
         return {
             "success": True,
             "connected": True,
-            "broker": "zerodha",
+            "broker": "sharekhan",
             "connection_status": "active",
             "auth_status": "authenticated",
             "last_connected": datetime.utcnow().isoformat(),
@@ -128,12 +128,12 @@ async def get_broker_connection():
 async def connect_broker():
     """Connect to broker - for frontend compatibility"""
     try:
-        # In your system, broker connection is handled by Zerodha auth
+        # In your system, broker connection is handled by ShareKhan auth
         # This endpoint is for frontend compatibility
         return {
             "success": True,
-            "message": "Broker connection handled by Zerodha authentication",
-            "broker": "zerodha",
+            "message": "Broker connection handled by ShareKhan authentication",
+            "broker": "sharekhan",
             "status": "connected",
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -148,7 +148,7 @@ async def disconnect_broker():
         return {
             "success": True,
             "message": "Broker disconnection handled by system",
-            "broker": "zerodha", 
+            "broker": "sharekhan", 
             "status": "disconnected",
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -163,7 +163,7 @@ async def get_broker_auth_status():
         return {
             "success": True,
             "authenticated": True,
-            "broker": "zerodha",
+            "broker": "sharekhan",
             "auth_method": "api_key",
             "token_valid": True,
             "expires_at": None,
@@ -174,13 +174,13 @@ async def get_broker_auth_status():
         logger.error(f"Error getting broker auth status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/api/v1/zerodha/status")
-async def get_zerodha_status():
-    """Get Zerodha-specific status"""
+@router.get("/api/v1/sharekhan/status")
+async def get_sharekhan_status():
+    """Get ShareKhan-specific status"""
     try:
         return {
             "success": True,
-            "broker": "zerodha",
+            "broker": "sharekhan",
             "kite_status": "connected",
             "api_version": "3.0",
             "user_id": "DEMO_USER",
@@ -191,7 +191,7 @@ async def get_zerodha_status():
             "last_heartbeat": datetime.utcnow().isoformat()
         }
     except Exception as e:
-        logger.error(f"Error getting Zerodha status: {str(e)}")
+        logger.error(f"Error getting ShareKhan status: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/api/v1/system/refresh-connections")
@@ -227,13 +227,13 @@ async def refresh_broker_connection():
         if not orchestrator.connection_manager:
             raise HTTPException(status_code=500, detail="Connection manager not available")
         
-        # Refresh only Zerodha connection
-        refresh_success = await orchestrator.connection_manager.refresh_zerodha_connection()
+        # Refresh only ShareKhan connection
+        refresh_success = await orchestrator.connection_manager.refresh_sharekhan_connection()
         
         return {
             "success": True,
             "message": "Broker connection refreshed successfully",
-            "broker": "zerodha",
+            "broker": "sharekhan",
             "refresh_successful": refresh_success,
             "timestamp": datetime.utcnow().isoformat()
         }

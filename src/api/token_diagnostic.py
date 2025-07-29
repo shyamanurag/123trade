@@ -1,5 +1,5 @@
 """
-Zerodha Token Diagnostic API
+ShareKhan Token Diagnostic API
 Comprehensive token debugging and repair functionality
 """
 
@@ -71,13 +71,13 @@ async def get_token_diagnostic_status():
             })
         
         # Get environment variables
-        env_user_id = os.getenv('ZERODHA_USER_ID', 'NOT_SET')
-        env_api_key = os.getenv('ZERODHA_API_KEY', 'NOT_SET')
-        env_access_token = os.getenv('ZERODHA_ACCESS_TOKEN', 'NOT_SET')
+        env_user_id = os.getenv('SHAREKHAN_USER_ID', 'NOT_SET')
+        env_api_key = os.getenv('SHAREKHAN_API_KEY', 'NOT_SET')
+        env_access_token = os.getenv('SHAREKHAN_ACCESS_TOKEN', 'NOT_SET')
         
-        # Search for all zerodha tokens
-        all_token_keys = await client.keys("zerodha:token:*")
-        all_expiry_keys = await client.keys("zerodha:token_expiry:*")
+        # Search for all sharekhan tokens
+        all_token_keys = await client.keys("sharekhan:token:*")
+        all_expiry_keys = await client.keys("sharekhan:token_expiry:*")
         
         tokens_found = {}
         for key in all_token_keys:
@@ -88,7 +88,7 @@ async def get_token_diagnostic_status():
                     tokens_found[key_str] = {
                         'token_preview': token[:15] + '...' if len(token) > 15 else token,
                         'token_length': len(token),
-                        'user_id': key_str.replace('zerodha:token:', '')
+                        'user_id': key_str.replace('sharekhan:token:', '')
                     }
             except Exception as e:
                 tokens_found[key_str] = {'error': str(e)}
@@ -115,10 +115,10 @@ async def get_token_diagnostic_status():
         
         # Check orchestrator expected keys
         orchestrator_keys = [
-            f"zerodha:token:{env_user_id}",
-            "zerodha:token:PAPER_TRADER_001",
-            "zerodha:token:QSW899",
-            "zerodha:token:PAPER_TRADER_MAIN"
+            f"sharekhan:token:{env_user_id}",
+            "sharekhan:token:PAPER_TRADER_001",
+            "sharekhan:token:QSW899",
+            "sharekhan:token:PAPER_TRADER_MAIN"
         ]
         
         orchestrator_tokens = {}
@@ -190,29 +190,29 @@ async def repair_token_issue(request: TokenRepairRequest):
         if request.action == "migrate":
             # Migrate token from one user ID to another
             source_id = request.source_user_id
-            target_id = request.target_user_id or os.getenv('ZERODHA_USER_ID', 'QSW899')
+            target_id = request.target_user_id or os.getenv('SHAREKHAN_USER_ID', 'QSW899')
             
             if not source_id:
                 # Find any existing token
-                all_keys = await client.keys("zerodha:token:*")
+                all_keys = await client.keys("sharekhan:token:*")
                 if all_keys:
                     source_key = all_keys[0]
-                    source_id = source_key.decode().replace('zerodha:token:', '') if isinstance(source_key, bytes) else source_key.replace('zerodha:token:', '')
+                    source_id = source_key.decode().replace('sharekhan:token:', '') if isinstance(source_key, bytes) else source_key.replace('sharekhan:token:', '')
                 else:
                     raise HTTPException(status_code=404, detail="No tokens found to migrate")
             
             # Get source token
-            source_token = await client.get(f"zerodha:token:{source_id}")
+            source_token = await client.get(f"sharekhan:token:{source_id}")
             if not source_token:
                 raise HTTPException(status_code=404, detail=f"No token found for source user {source_id}")
             
             # Copy to target
-            await client.set(f"zerodha:token:{target_id}", source_token)
+            await client.set(f"sharekhan:token:{target_id}", source_token)
             
             # Copy expiry if exists
-            source_expiry = await client.get(f"zerodha:token_expiry:{source_id}")
+            source_expiry = await client.get(f"sharekhan:token_expiry:{source_id}")
             if source_expiry:
-                await client.set(f"zerodha:token_expiry:{target_id}", source_expiry)
+                await client.set(f"sharekhan:token_expiry:{target_id}", source_expiry)
             
             await client.close()
             
@@ -226,16 +226,16 @@ async def repair_token_issue(request: TokenRepairRequest):
         
         elif request.action == "cleanup":
             # Clean up expired tokens
-            all_keys = await client.keys("zerodha:token:*")
+            all_keys = await client.keys("sharekhan:token:*")
             cleaned_count = 0
             
             for key in all_keys:
                 try:
                     key_str = key.decode() if isinstance(key, bytes) else key
-                    user_id = key_str.replace('zerodha:token:', '')
+                    user_id = key_str.replace('sharekhan:token:', '')
                     
                     # Check if expired
-                    expiry_key = f"zerodha:token_expiry:{user_id}"
+                    expiry_key = f"sharekhan:token_expiry:{user_id}"
                     expiry_time = await client.get(expiry_key)
                     
                     if expiry_time:
@@ -278,19 +278,19 @@ async def debug_orchestrator_token_access():
                 "error": "Redis connection failed"
             })
         
-        env_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+        env_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
         
         # Simulate orchestrator token search
         # DYNAMIC TOKEN PATTERNS: Use environment-based user ID
-        master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+        master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
         token_keys_to_check = [
-            f"zerodha:token:{env_user_id}",
-            f"zerodha:token:{master_user_id}",  # Dynamic master user
-            f"zerodha:token:PAPER_TRADER_MAIN",
-            f"zerodha:token:QSW899",  # Backup specific user
-            f"zerodha:{env_user_id}:access_token",
-            f"zerodha:access_token",
-            f"zerodha_token_{env_user_id}"
+            f"sharekhan:token:{env_user_id}",
+            f"sharekhan:token:{master_user_id}",  # Dynamic master user
+            f"sharekhan:token:PAPER_TRADER_MAIN",
+            f"sharekhan:token:QSW899",  # Backup specific user
+            f"sharekhan:{env_user_id}:access_token",
+            f"sharekhan:access_token",
+            f"sharekhan_token_{env_user_id}"
         ]
         
         search_results = {}
@@ -310,7 +310,7 @@ async def debug_orchestrator_token_access():
                 search_results[key] = {'error': str(e)}
         
         # Also check wildcard search
-        wildcard_keys = await client.keys("zerodha:token:*")
+        wildcard_keys = await client.keys("sharekhan:token:*")
         wildcard_results = {}
         
         for key in wildcard_keys:

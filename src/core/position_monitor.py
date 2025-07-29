@@ -14,7 +14,7 @@ Key Features:
 - Non-disruptive background operation
 
 Safety Features:
-- Uses existing TrueData cache system
+- Uses existing ShareKhan cache system
 - Respects orchestrator synchronization
 - Integrates with existing risk manager
 - Maintains all existing component relationships

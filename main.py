@@ -1,6 +1,6 @@
 """
 ShareKhan Trading System - Main Application Entry Point
-Complete replacement for TrueData + Zerodha with unified ShareKhan API
+Complete replacement for ShareKhan + ShareKhan with unified ShareKhan API
 Multi-user trading system with comprehensive market data and trading capabilities
 """
 
@@ -148,7 +148,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI application
 app = FastAPI(
     title="ShareKhan Trading System",
-    description="Unified trading system with ShareKhan integration - Complete replacement for TrueData + Zerodha",
+    description="Unified trading system with ShareKhan integration - Complete replacement for ShareKhan + ShareKhan",
     version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -331,6 +331,14 @@ try:
     logger.info("✅ System Control API loaded")
 except Exception as e:
     logger.warning(f"⚠️ System Control API not loaded: {e}")
+
+# Market Data Fallback API (NEW - for reliable market data)
+try:
+    from src.api.market_data_fallback import router as market_data_fallback_router
+    app.include_router(market_data_fallback_router, tags=["market-data-fallback"])
+    logger.info("✅ Market Data Fallback API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Market Data Fallback API not loaded: {e}")
 
 # Frontend API (fallback compatibility)
 try:

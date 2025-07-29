@@ -4,7 +4,7 @@
 ======================
 
 This script implements the missing production APIs to address:
-1. TrueData connectivity and historical data endpoints
+1. ShareKhan connectivity and historical data endpoints
 2. Elite recommendations system
 3. Health monitoring endpoints  
 4. Performance tracking APIs
@@ -235,7 +235,7 @@ async def get_elite_recommendations():
     try:
         # CRITICAL: Real analysis required - no mock data allowed
         # This should connect to actual analysis engine
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         
         if not live_market_data:
             raise HTTPException(status_code=503, detail="No live market data available for analysis")
@@ -419,12 +419,12 @@ async def get_connection_status():
         return {
             "success": True,
             "connections": {
-                "truedata": {
+                "sharekhan": {
                     "status": "connected",
                     "last_heartbeat": datetime.now().isoformat(),
                     "latency_ms": random.randint(45, 120)
                 },
-                "zerodha": {
+                "sharekhan": {
                     "status": "connected", 
                     "last_api_call": datetime.now().isoformat(),
                     "rate_limit_remaining": random.randint(80, 100)
@@ -625,7 +625,7 @@ async def get_account_info():
                 "unrealized_pnl": round(random.uniform(-2500, 5500), 2),
                 "realized_pnl": round(random.uniform(15000, 45000), 2)
             },
-            "broker": "Zerodha",
+            "broker": "ShareKhan",
             "timestamp": datetime.now().isoformat()
         }
         

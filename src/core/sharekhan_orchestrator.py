@@ -1,6 +1,6 @@
 """
 ShareKhan Trading Orchestrator
-Complete replacement for TrueData + Zerodha dual architecture
+Complete replacement for ShareKhan + ShareKhan dual architecture
 Unified trading system using only ShareKhan for both data and trading operations
 """
 
@@ -15,7 +15,7 @@ import redis.asyncio as redis
 
 # ShareKhan components
 from brokers.sharekhan import ShareKhanIntegration, ShareKhanOrder, ShareKhanMarketData
-from src.feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanTrueDataCompatibility
+from src.feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanShareKhanCompatibility
 from .multi_user_sharekhan_manager import MultiUserShareKhanManager, UserRole, TradingPermission
 
 # ShareKhan service components
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class ShareKhanTradingOrchestrator:
     """
     Unified trading orchestrator using ShareKhan for everything
-    Complete replacement for the old TrueData + Zerodha dual-provider architecture
+    Complete replacement for the old ShareKhan + ShareKhan dual-provider architecture
     """
     
     _instance = None
@@ -62,7 +62,7 @@ class ShareKhanTradingOrchestrator:
         self.sharekhan_integration: Optional[ShareKhanIntegration] = None
         self.sharekhan_feed: Optional[ShareKhanDataFeed] = None
         self.multi_user_manager: Optional[MultiUserShareKhanManager] = None
-        self.truedata_compatibility: Optional[ShareKhanTrueDataCompatibility] = None
+        self.sharekhan_compatibility: Optional[ShareKhanShareKhanCompatibility] = None
         
         # CRITICAL FIX: Add missing service components for API compatibility
         self.trade_engine: Optional[Any] = None
@@ -509,13 +509,13 @@ class ShareKhanTradingOrchestrator:
     # COMPATIBILITY METHODS FOR EXISTING CODE
     
     def get_live_market_data(self):
-        """Compatibility method for existing TrueData code"""
-        if self.truedata_compatibility:
-            return self.truedata_compatibility.live_market_data
+        """Compatibility method for existing ShareKhan code"""
+        if self.sharekhan_compatibility:
+            return self.sharekhan_compatibility.live_market_data
         return {}
     
     def is_connected(self) -> bool:
         """Compatibility method for connection status"""
-        if self.truedata_compatibility:
-            return self.truedata_compatibility.is_connected()
+        if self.sharekhan_compatibility:
+            return self.sharekhan_compatibility.is_connected()
         return False 

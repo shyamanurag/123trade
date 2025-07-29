@@ -15,8 +15,8 @@
 - ✅ NotificationManager: Redis connection instead of in-memory fallback
 - ✅ UserTracker: Redis connection instead of in-memory fallback  
 - ✅ Position tracker: Redis connection instead of memory-only mode
-- ✅ TrueData cache: `truedata_cache: True` instead of `False`
-- ✅ Market data flow: TrueData → Redis → Orchestrator → Strategies → Trades
+- ✅ ShareKhan cache: `sharekhan_cache: True` instead of `False`
+- ✅ Market data flow: ShareKhan → Redis → Orchestrator → Strategies → Trades
 
 **Deployment ID**: `redis_ssl_fix_2025_01_11_${Date.now()}`
 
@@ -24,4 +24,4 @@
 
 **Previous Deployment**: 2025-01-11 07:15:03 UTC
 **New Deployment**: 2025-01-11 [Current] UTC
-**Critical Fix**: YES - Trading system functionality restored # Deployment trigger to restore TrueData functionality - 07/17/2025 00:56:54
+**Critical Fix**: YES - Trading system functionality restored # Deployment trigger to restore ShareKhan functionality - 07/17/2025 00:56:54

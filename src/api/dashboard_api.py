@@ -30,7 +30,7 @@ async def get_detailed_health():
             "database": await _check_database_health(),
             "redis": await _check_redis_health(),
             "api": await _check_api_health(),
-            "truedata": await _check_truedata_health(),
+            "sharekhan": await _check_sharekhan_health(),
             "trading": await _check_trading_health()
         }
         
@@ -186,13 +186,13 @@ async def _check_api_health() -> Dict[str, Any]:
             "error": str(e)
         }
 
-async def _check_truedata_health() -> Dict[str, Any]:
-    """Check real TrueData connection"""
+async def _check_sharekhan_health() -> Dict[str, Any]:
+    """Check real ShareKhan connection"""
     try:
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         
         if not live_market_data:
-            raise Exception("TrueData cache is empty")
+            raise Exception("ShareKhan cache is empty")
         
         symbol_count = len(live_market_data)
         

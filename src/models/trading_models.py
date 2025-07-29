@@ -92,7 +92,7 @@ class User(Base):
     current_balance = Column(DECIMAL(15,2), default=50000)
     risk_tolerance = Column(String(20), default='medium')
     is_active = Column(Boolean, default=True)
-    zerodha_client_id = Column(String(50))
+    sharekhan_client_id = Column(String(50))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

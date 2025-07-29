@@ -26,12 +26,12 @@ from brokers.sharekhan import ShareKhanIntegration
 logger = logging.getLogger(__name__)
 
 class OrderManager:
-    """Clean OrderManager - ShareKhan integration only (Zerodha completely removed)"""
+    """Clean OrderManager - ShareKhan integration only (ShareKhan completely removed)"""
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         
-        # Store ShareKhan client from config (COMPLETELY REPLACED ZERODHA)
+        # Store ShareKhan client from config (COMPLETELY REPLACED SHAREKHAN)
         self.sharekhan_client = config.get('sharekhan_client')
         if self.sharekhan_client:
             logger.info("✅ OrderManager initialized with ShareKhan client")
@@ -320,13 +320,13 @@ class OrderManager:
     async def _get_current_price(self, symbol: str) -> Optional[float]:
         """Get current price for a symbol from ShareKhan data feed"""
         try:
-            # Try to get from ShareKhan data feed instead of TrueData
+            # Try to get from ShareKhan data feed instead of ShareKhan
             from src.feeds.sharekhan_feed import ShareKhanDataFeed
             
             # Get price from ShareKhan feed if available
             # This would be connected to the ShareKhan orchestrator's data feed
-            # For now, fallback to TrueData until ShareKhan feed is fully connected
-            from data.truedata_client import live_market_data
+            # For now, fallback to ShareKhan until ShareKhan feed is fully connected
+            from data.sharekhan_client import live_market_data
             
             if symbol in live_market_data:
                 price = live_market_data[symbol].get('ltp', 0)
@@ -398,6 +398,6 @@ class OrderManager:
             'users': len(self.order_queues),
             'status': 'active',
             'broker': 'ShareKhan',
-            'zerodha_references_removed': True,
+            'sharekhan_references_removed': True,
             'clean_implementation': True
         } 

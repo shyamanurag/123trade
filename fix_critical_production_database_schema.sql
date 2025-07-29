@@ -20,13 +20,13 @@ END $$;
 -- Ensure all other essential columns exist
 DO $$
 BEGIN
-    -- Check and add zerodha_client_id if missing
+    -- Check and add sharekhan_client_id if missing
     IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
-        WHERE table_name = 'users' AND column_name = 'zerodha_client_id'
+        WHERE table_name = 'users' AND column_name = 'sharekhan_client_id'
     ) THEN
-        ALTER TABLE users ADD COLUMN zerodha_client_id VARCHAR(50);
-        RAISE NOTICE 'Added zerodha_client_id column to users table';
+        ALTER TABLE users ADD COLUMN sharekhan_client_id VARCHAR(50);
+        RAISE NOTICE 'Added sharekhan_client_id column to users table';
     END IF;
     
     -- Check and add trading_enabled if missing
@@ -50,7 +50,7 @@ END $$;
 
 -- Now ensure PAPER_TRADER_001 user exists with correct broker_user_id
 INSERT INTO users (username, email, password_hash, broker_user_id, is_active, trading_enabled, 
-                 full_name, initial_capital, current_balance, zerodha_client_id)
+                 full_name, initial_capital, current_balance, sharekhan_client_id)
 VALUES ('PAPER_TRADER_001', 'paper.trader@algoauto.com', 'dummy_hash', 'QSW899', true, true,
        'Autonomous Paper Trader', 100000.00, 100000.00, 'QSW899')
 ON CONFLICT (username) DO UPDATE SET
@@ -62,6 +62,6 @@ ON CONFLICT (username) DO UPDATE SET
 COMMIT;
 
 -- Verify the fix
-SELECT username, broker_user_id, zerodha_client_id, trading_enabled, is_active 
+SELECT username, broker_user_id, sharekhan_client_id, trading_enabled, is_active 
 FROM users 
 WHERE username = 'PAPER_TRADER_001'; 

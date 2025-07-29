@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS users (
     current_balance DECIMAL(15,2) DEFAULT 50000,
     risk_tolerance VARCHAR(20) DEFAULT 'medium',
     is_active BOOLEAN DEFAULT true,
-    zerodha_client_id VARCHAR(50),
+    sharekhan_client_id VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -240,7 +240,7 @@ INSERT INTO users (
     current_balance, 
     risk_tolerance, 
     is_active, 
-    zerodha_client_id,
+    sharekhan_client_id,
     trading_enabled,
     max_daily_trades,
     max_position_size
@@ -264,7 +264,7 @@ INSERT INTO users (
     current_balance = EXCLUDED.current_balance,
     risk_tolerance = EXCLUDED.risk_tolerance,
     is_active = EXCLUDED.is_active,
-    zerodha_client_id = EXCLUDED.zerodha_client_id,
+    sharekhan_client_id = EXCLUDED.sharekhan_client_id,
     trading_enabled = EXCLUDED.trading_enabled,
     max_daily_trades = EXCLUDED.max_daily_trades,
     max_position_size = EXCLUDED.max_position_size,

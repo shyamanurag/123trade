@@ -19,7 +19,7 @@ class SimpleOrderManager:
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.zerodha_client = config.get('zerodha_client')
+        self.sharekhan_client = config.get('sharekhan_client')
         self.redis = config.get('redis')
         self.active_orders = {}
         self.order_history = []
@@ -84,9 +84,9 @@ class SimpleOrderManager:
     async def _execute_simple_order(self, order: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a simplified order"""
         try:
-            if self.zerodha_client:
-                # Try to execute through Zerodha
-                self.logger.info(f"🔄 Executing order {order['order_id']} through Zerodha")
+            if self.sharekhan_client:
+                # Try to execute through ShareKhan
+                self.logger.info(f"🔄 Executing order {order['order_id']} through ShareKhan")
                 
                 # Simple execution logic
                 order['status'] = 'FILLED'
@@ -128,7 +128,7 @@ class SimpleOrderManager:
             'type': 'SimpleOrderManager',
             'active_orders': len(self.active_orders),
             'total_orders': len(self.order_history),
-            'zerodha_available': bool(self.zerodha_client),
+            'sharekhan_available': bool(self.sharekhan_client),
             'redis_available': bool(self.redis),
             'initialized': self._async_components_initialized
         } 

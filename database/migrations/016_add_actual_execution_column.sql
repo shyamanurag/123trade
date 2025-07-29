@@ -20,5 +20,5 @@ UPDATE trades SET actual_execution = FALSE WHERE actual_execution IS NULL;
 
 -- Log the changes
 INSERT INTO schema_migrations (version, description, executed_at) 
-VALUES (16, 'Add actual_execution and P&L columns for real Zerodha data sync', NOW())
+VALUES (16, 'Add actual_execution and P&L columns for real Sharekhan data sync', NOW())
 ON CONFLICT (version) DO NOTHING; 

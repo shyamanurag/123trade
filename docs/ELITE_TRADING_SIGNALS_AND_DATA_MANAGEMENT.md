@@ -87,7 +87,7 @@ CREATE TABLE users (
     current_balance DECIMAL(15,2) DEFAULT 50000,
     risk_tolerance VARCHAR(20) DEFAULT 'medium',
     is_active BOOLEAN DEFAULT true,
-    zerodha_client_id VARCHAR(50),
+    sharekhan_client_id VARCHAR(50),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -226,7 +226,7 @@ required_fields = {
 ### 2. Real-time Data Flow
 
 ```
-TrueData API → WebSocket → Data Manager → Validation → Database
+ShareKhan API → WebSocket → Data Manager → Validation → Database
                     ↓
             Strategy Engines → Signal Generation → Order Execution
 ```

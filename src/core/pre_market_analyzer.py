@@ -83,7 +83,7 @@ class PreMarketAnalyzer:
         # ELIMINATED: Fallback to fake paper mode analysis
         # 
         # REAL IMPLEMENTATION NEEDED:
-        # - Connect to real TrueData API for live market data
+        # - Connect to real ShareKhan API for live market data
         # - Fetch real global markets data
         # - Get real previous day data from exchanges
         # - Calculate real technical levels from historical data
@@ -101,7 +101,7 @@ class PreMarketAnalyzer:
             'error': 'REAL_MARKET_DATA_INTEGRATION_REQUIRED',
             'message': 'Live analysis requires real market data integration. All fake data fallbacks eliminated for safety.',
             'required_integrations': [
-                'TrueData API for live Indian market data',
+                'ShareKhan API for live Indian market data',
                 'Global markets data feed (Bloomberg, Reuters, etc.)',
                 'Real-time news API integration',
                 'Economic calendar API',
@@ -251,7 +251,7 @@ class PreMarketAnalyzer:
         }
     
     async def _calculate_key_levels(self) -> Dict:
-        """ELIMINATED: Key levels calculation was using fake pivot points despite TrueData import attempt"""
+        """ELIMINATED: Key levels calculation was using fake pivot points despite ShareKhan import attempt"""
         # 
         # ELIMINATED FAKE DATA GENERATORS:
         # ❌ Fake high/low/close (19850, 19720, 19800)
@@ -259,22 +259,22 @@ class PreMarketAnalyzer:
         # ❌ Fake resistance levels (R1, R2, R3)
         # ❌ Fake support levels (S1, S2, S3)
         # ❌ Fake opening range expectations (close ± 50)
-        # ❌ Fallback to fake data when TrueData import fails
+        # ❌ Fallback to fake data when ShareKhan import fails
         # 
         # REAL IMPLEMENTATION NEEDED:
-        # - Successfully connect to real TrueData API
+        # - Successfully connect to real ShareKhan API
         # - Fetch real historical high/low/close data
         # - Calculate real pivot points from actual market data
         # - Determine real support/resistance from price action analysis
         
-        logger.error("CRITICAL: Key levels calculation requires real TrueData integration")
+        logger.error("CRITICAL: Key levels calculation requires real ShareKhan integration")
         logger.error("Fake pivot points calculation ELIMINATED for safety")
         
         # SAFETY: Return error state instead of fake levels
         return {
             'status': 'FAILED',
-            'error': 'REAL_TRUEDATA_INTEGRATION_REQUIRED',
-            'message': 'Key levels calculation requires real TrueData API integration. Fake pivot points eliminated for safety.'
+            'error': 'REAL_SHAREKHAN_INTEGRATION_REQUIRED',
+            'message': 'Key levels calculation requires real ShareKhan API integration. Fake pivot points eliminated for safety.'
         }
     
     async def _check_news_events(self) -> List[Dict]:

@@ -3,7 +3,7 @@
 Test Production Deployment
 ==========================
 Test the deployed app to verify P&L fixes and orchestrator status
-WITHOUT touching TrueData
+WITHOUT touching ShareKhan
 """
 
 import requests
@@ -117,7 +117,7 @@ def test_position_tracker():
         return False
 
 def test_market_data():
-    """Test market data availability (without TrueData)"""
+    """Test market data availability (without ShareKhan)"""
     logger.info("\n📈 Testing Market Data Availability")
     logger.info("=" * 40)
     

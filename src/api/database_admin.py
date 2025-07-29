@@ -830,7 +830,7 @@ async def execute_migration_016():
                 # Log the migration
                 conn.execute(text("""
                     INSERT INTO schema_migrations (version, description, executed_at) 
-                    VALUES (16, 'Add actual_execution and P&L columns for real Zerodha data sync', CURRENT_TIMESTAMP)
+                    VALUES (16, 'Add actual_execution and P&L columns for real ShareKhan data sync', CURRENT_TIMESTAMP)
                     ON CONFLICT (version) DO NOTHING
                 """))
                 
@@ -862,12 +862,12 @@ async def execute_migration_016():
                 
                 return {
                     "success": True,
-                    "message": "Migration 016 executed successfully - Zerodha sync database fixed!",
+                    "message": "Migration 016 executed successfully - ShareKhan sync database fixed!",
                     "details": {
                         "updated_trades": updated_rows,
                         "columns_created": column_info,
                         "migration_version": 16,
-                        "description": "Add actual_execution and P&L columns for real Zerodha data sync"
+                        "description": "Add actual_execution and P&L columns for real ShareKhan data sync"
                     },
                     "timestamp": datetime.now().isoformat()
                 }
@@ -938,7 +938,7 @@ async def urgent_migration_016():
                 # Log the migration
                 conn.execute(text("""
                     INSERT INTO schema_migrations (version, description, executed_at) 
-                    VALUES (16, 'Add actual_execution and P&L columns for real Zerodha data sync', CURRENT_TIMESTAMP)
+                    VALUES (16, 'Add actual_execution and P&L columns for real ShareKhan data sync', CURRENT_TIMESTAMP)
                     ON CONFLICT (version) DO NOTHING
                 """))
                 
@@ -975,8 +975,8 @@ async def urgent_migration_016():
                         "updated_trades": updated_rows,
                         "columns_created": column_info,
                         "migration_version": 16,
-                        "description": "Add actual_execution and P&L columns for real Zerodha data sync",
-                        "zerodha_sync_status": "DATABASE SCHEMA FIXED - Zerodha sync will now work!"
+                        "description": "Add actual_execution and P&L columns for real ShareKhan data sync",
+                        "sharekhan_sync_status": "DATABASE SCHEMA FIXED - ShareKhan sync will now work!"
                     },
                     "timestamp": datetime.now().isoformat(),
                     "urgent_fix": True

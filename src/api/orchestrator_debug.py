@@ -121,7 +121,7 @@ async def check_dependencies():
     except Exception as e:
         dependencies["brokers.sharekhan"]["error"] = str(e)
 
-    # REMOVED: Zerodha testing - no longer supported
-    # brokers.zerodha testing has been removed as system now uses ShareKhan only
+    # REMOVED: ShareKhan testing - no longer supported
+    # brokers.sharekhan testing has been removed as system now uses ShareKhan only
     
     return dependencies 

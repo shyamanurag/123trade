@@ -15,13 +15,13 @@ import uuid
 import redis
 import pandas as pd
 
-from ..brokers.zerodha import ZerodhaIntegration
-from ..data.truedata_client import (
-    initialize_truedata,
-    get_truedata_status, 
+from ..brokers.sharekhan import ShareKhanIntegration
+from ..data.sharekhan_client import (
+    initialize_sharekhan,
+    get_sharekhan_status, 
     is_connected,
     live_market_data,
-    truedata_connection_status
+    sharekhan_connection_status
 )
 from ..core.orchestrator import TradingOrchestrator
 
@@ -177,7 +177,7 @@ class PaperOrder:
         async def _execute_order(self, order: PaperOrder) -> Dict:
             """Execute paper trading order using REAL market data but virtual money"""
             try:
-                # Get REAL market price from TrueData
+                # Get REAL market price from ShareKhan
                 market_price = await self._get_real_market_price(order.symbol)
                 if not market_price:
                     logger.error(f"No real market data available for {order.symbol}")
@@ -193,7 +193,7 @@ class PaperOrder:
                     }
                 
                 # Use REAL price for execution (no fake slippage, just real market price)
-                execution_price = market_price['ltp']  # Last Traded Price from TrueData
+                execution_price = market_price['ltp']  # Last Traded Price from ShareKhan
                 
                 # Execute trade with REAL market data
                 order.status = 'FILLED'
@@ -255,7 +255,7 @@ class PaperOrder:
                     'total_cost': total_cost,
                     'remaining_capital': self.account.current_capital,
                     'position_id': position.position_id,
-                    'data_source': 'REAL_TRUEDATA',
+                    'data_source': 'REAL_SHAREKHAN',
                     'timestamp': order.execution_time.isoformat()
                 }
                 
@@ -273,10 +273,10 @@ class PaperOrder:
                 }
 
         async def _get_real_market_price(self, symbol: str) -> Optional[Dict]:
-            """Get REAL market price from TrueData"""
+            """Get REAL market price from ShareKhan"""
             try:
-                # Import TrueData client
-                from data.truedata_client import live_market_data
+                # Import ShareKhan client
+                from data.sharekhan_client import live_market_data
                 
                 # Get real market data
                 if symbol in live_market_data:
@@ -285,11 +285,11 @@ class PaperOrder:
                         'ltp': market_data.get('ltp', 0),
                         'volume': market_data.get('volume', 0),
                         'change': market_data.get('change', 0),
-                        'source': 'TrueData_Real',
+                        'source': 'ShareKhan_Real',
                         'timestamp': datetime.now().isoformat()
                     }
                 else:
-                    logger.warning(f"Symbol {symbol} not found in TrueData feed")
+                    logger.warning(f"Symbol {symbol} not found in ShareKhan feed")
                     return None
                     
             except Exception as e:

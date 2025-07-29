@@ -353,7 +353,7 @@ class RealIntegrationTest:
 grep -r "mock\|fake\|demo\|simulation" config/ || echo "✅ No mock data found"
 
 # 2. Check real API credentials are set
-[ -n "$ZERODHA_API_KEY" ] && echo "✅ Zerodha API key set"
+[ -n "$SHAREKHAN_API_KEY" ] && echo "✅ ShareKhan API key set"
 [ -n "$SHAREKHAN_API_KEY" ] && echo "✅ ShareKhan API key set"
 
 # 3. Validate database contains only real data
@@ -443,8 +443,8 @@ class SecureCredentialManager:
     
     def __init__(self):
         self.required_env_vars = [
-            'ZERODHA_API_KEY',
-            'ZERODHA_SECRET_KEY', 
+            'SHAREKHAN_API_KEY',
+            'SHAREKHAN_SECRET_KEY', 
             'SHAREKHAN_API_KEY',
             'SHAREKHAN_SECRET_KEY',
             'DATABASE_URL',
@@ -544,7 +544,7 @@ Every component must:
 ## 🔗 **RELATED DOCUMENTATION**
 
 - `README_SHAREKHAN.md` - ShareKhan integration specifics
-- `ZERODHA_AUTH_FIX_DEPLOYMENT.md` - Zerodha authentication
+- `SHAREKHAN_AUTH_FIX_DEPLOYMENT.md` - ShareKhan authentication
 - `TRADING_SESSION_READINESS.md` - Daily operation checklist
 - `STRATEGY_CODE_REVIEW.md` - Strategy implementation standards
 

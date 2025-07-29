@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Setup Default Zerodha Broker User
-Creates a pre-configured Zerodha broker user that only needs daily auth token updates
+Setup Default ShareKhan Broker User
+Creates a pre-configured ShareKhan broker user that only needs daily auth token updates
 """
 
 import requests
@@ -11,11 +11,11 @@ from datetime import datetime
 
 BASE_URL = "https://algoauto-9gx56.ondigitalocean.app"
 
-# Default Zerodha broker configuration (hardcoded in system)
-DEFAULT_ZERODHA_BROKER = {
-    "user_id": "ZERODHA_MAIN",
-    "name": "Main Zerodha Trading Account",
-    "broker": "zerodha",
+# Default ShareKhan broker configuration (hardcoded in system)
+DEFAULT_SHAREKHAN_BROKER = {
+    "user_id": "SHAREKHAN_MAIN",
+    "name": "Main ShareKhan Trading Account",
+    "broker": "sharekhan",
     "api_key": "sylcoq492qz6f7ej",  # Your actual API key
     "api_secret": "jm3h4iejwnxr4ngmma2qxccpkhevo8sy",  # Your actual API secret
     "client_id": "QSW899",  # Your actual client ID
@@ -27,8 +27,8 @@ DEFAULT_ZERODHA_BROKER = {
 }
 
 def setup_default_broker():
-    """Set up the default Zerodha broker user"""
-    print("🏦 SETTING UP DEFAULT ZERODHA BROKER")
+    """Set up the default ShareKhan broker user"""
+    print("🏦 SETTING UP DEFAULT SHAREKHAN BROKER")
     print("=" * 60)
     
     try:
@@ -36,7 +36,7 @@ def setup_default_broker():
         print("🗑️  Removing existing default user...")
         try:
             delete_response = requests.delete(
-                f"{BASE_URL}/api/v1/control/users/broker/ZERODHA_MAIN",
+                f"{BASE_URL}/api/v1/control/users/broker/SHAREKHAN_MAIN",
                 timeout=10
             )
             if delete_response.status_code == 200:
@@ -47,10 +47,10 @@ def setup_default_broker():
             print("   ℹ️  No existing user to remove")
         
         # Add the default broker user
-        print("\n📤 Adding default Zerodha broker...")
+        print("\n📤 Adding default ShareKhan broker...")
         response = requests.post(
             f"{BASE_URL}/api/v1/control/users/broker",
-            json=DEFAULT_ZERODHA_BROKER,
+            json=DEFAULT_SHAREKHAN_BROKER,
             headers={'Content-Type': 'application/json'},
             timeout=15
         )
@@ -59,11 +59,11 @@ def setup_default_broker():
         
         if response.status_code == 200:
             result = response.json()
-            print("   ✅ Default Zerodha broker added successfully!")
-            print(f"   📊 User ID: {DEFAULT_ZERODHA_BROKER['user_id']}")
-            print(f"   💰 Capital: ₹{DEFAULT_ZERODHA_BROKER['initial_capital']:,.2f}")
-            print(f"   🔴 Live Trading: {not DEFAULT_ZERODHA_BROKER['paper_trading']}")
-            print(f"   🔑 API Key: {DEFAULT_ZERODHA_BROKER['api_key']}")
+            print("   ✅ Default ShareKhan broker added successfully!")
+            print(f"   📊 User ID: {DEFAULT_SHAREKHAN_BROKER['user_id']}")
+            print(f"   💰 Capital: ₹{DEFAULT_SHAREKHAN_BROKER['initial_capital']:,.2f}")
+            print(f"   🔴 Live Trading: {not DEFAULT_SHAREKHAN_BROKER['paper_trading']}")
+            print(f"   🔑 API Key: {DEFAULT_SHAREKHAN_BROKER['api_key']}")
             return True
         else:
             print(f"   ❌ Failed: {response.text[:300]}")
@@ -78,9 +78,9 @@ def create_daily_auth_endpoint():
     print("\n🔐 DAILY AUTHENTICATION PROCESS")
     print("=" * 60)
     print("📋 From now on, you only need to:")
-    print("   1. Visit: https://algoauto-9gx56.ondigitalocean.app/zerodha")
-    print("   2. Click 'Login to Zerodha'")
-    print("   3. Enter your Zerodha PIN")
+    print("   1. Visit: https://algoauto-9gx56.ondigitalocean.app/sharekhan")
+    print("   2. Click 'Login to ShareKhan'")
+    print("   3. Enter your ShareKhan PIN")
     print("   4. System will automatically get the daily token")
     print("   5. Trading will start automatically")
     print()
@@ -130,7 +130,7 @@ def test_broker_setup():
 
 def main():
     """Main setup process"""
-    print("🚀 DEFAULT ZERODHA BROKER SETUP")
+    print("🚀 DEFAULT SHAREKHAN BROKER SETUP")
     print("=" * 70)
     print(f"Target: {BASE_URL}")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -145,7 +145,7 @@ def main():
             
             print("\n" + "=" * 70)
             print("🎉 SETUP COMPLETE!")
-            print("✅ Default Zerodha broker is now configured")
+            print("✅ Default ShareKhan broker is now configured")
             print("📱 Ready for daily auth token workflow")
             print("🚀 Autonomous trading system ready!")
             print("=" * 70)

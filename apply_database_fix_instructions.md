@@ -2,8 +2,8 @@
 
 ## Current Status:
 - ✅ Code fixes deployed successfully
-- ✅ Zerodha authentication working
-- ✅ TrueData real-time data flowing  
+- ✅ ShareKhan authentication working
+- ✅ ShareKhan real-time data flowing  
 - ❌ Database schema error still blocking user operations
 - ❌ Redis ping method causing connection issues
 
@@ -72,7 +72,7 @@ After applying this fix:
 
 ## ⏱️ URGENCY: 
 
-This fix should be applied **immediately** while the market is open and TrueData is connected. The system is currently operational for market data but blocked for user operations.
+This fix should be applied **immediately** while the market is open and ShareKhan is connected. The system is currently operational for market data but blocked for user operations.
 
 **Time Required: 2 minutes**
 **Risk: None (safe ALTER TABLE operation)**

@@ -1,7 +1,7 @@
 """
 Multi-User ShareKhan Manager
 Comprehensive user management system for ShareKhan integration
-Complete replacement for Zerodha multi-user system
+Complete replacement for ShareKhan multi-user system
 """
 
 import os
@@ -102,7 +102,7 @@ class UserTradingStats:
 class MultiUserShareKhanManager:
     """
     Comprehensive multi-user management for ShareKhan trading system
-    Complete replacement for Zerodha multi-user architecture
+    Complete replacement for ShareKhan multi-user architecture
     """
     
     def __init__(self, redis_client: redis.Redis, auth_manager: AuthManager):

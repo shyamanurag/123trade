@@ -1,0 +1,35 @@
+# Production Environment Configuration
+# Use these values in DigitalOcean App Platform environment variables
+
+# Application URLs
+APP_URL=https://trade123-edtd2.ondigitalocean.app
+FRONTEND_URL=https://trade123-edtd2.ondigitalocean.app
+CORS_ORIGINS=https://trade123-edtd2.ondigitalocean.app
+TRUSTED_HOSTS=trade123-edtd2.ondigitalocean.app
+
+# Frontend Configuration
+VITE_API_URL=https://trade123-edtd2.ondigitalocean.app
+VITE_WS_URL=wss://trade123-edtd2.ondigitalocean.app/ws
+VITE_APP_NAME=Trade123
+
+# ShareKhan Configuration (set your real values in deployment)
+SHAREKHAN_API_KEY=your_sharekhan_api_key_here
+SHAREKHAN_SECRET_KEY=your_sharekhan_secret_key_here
+SHAREKHAN_CUSTOMER_ID=your_customer_id_here
+
+# Database Configuration (set your real values in deployment)
+DATABASE_URL=postgresql://username:password@host:port/database?sslmode=require
+
+# Redis Configuration (set your real values in deployment)
+REDIS_URL=rediss://username:password@host:port
+
+# Security
+JWT_SECRET_KEY=your_jwt_secret_key_here
+SECRET_KEY=your_app_secret_key_here
+
+# Trading Configuration
+PAPER_TRADING=false
+MAX_POSITION_SIZE=100000
+MAX_DAILY_LOSS=10000
+EMAIL_NOTIFICATIONS=true
+SMS_NOTIFICATIONS=false

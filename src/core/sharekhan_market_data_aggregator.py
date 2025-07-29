@@ -1,6 +1,6 @@
 """
 ShareKhan Market Data Aggregator
-Unified market data system replacing TrueData and Zerodha integrations
+Unified market data system replacing ShareKhan and ShareKhan integrations
 """
 
 import asyncio
@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Callable, Any
 from datetime import datetime, timedelta
 import redis.asyncio as redis
 
-from ..feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanTrueDataCompatibility
+from ..feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanShareKhanCompatibility
 from ...brokers.sharekhan import ShareKhanIntegration
 from .websocket_manager import WebSocketManager, MarketDataUpdate
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class ShareKhanMarketDataAggregator:
     """
     Unified market data aggregator using only ShareKhan
-    Replaces the old TrueData + Zerodha architecture
+    Replaces the old ShareKhan + ShareKhan architecture
     """
     
     def __init__(self, 
@@ -36,8 +36,8 @@ class ShareKhanMarketDataAggregator:
         self.sharekhan_feed = ShareKhanDataFeed(api_key, access_token, redis_client)
         self.sharekhan_integration = None
         
-        # Compatibility layer for old TrueData code
-        self.truedata_compatibility = ShareKhanTrueDataCompatibility(self.sharekhan_feed)
+        # Compatibility layer for old ShareKhan code
+        self.sharekhan_compatibility = ShareKhanShareKhanCompatibility(self.sharekhan_feed)
         
         # Market data state
         self.is_running = False
@@ -494,17 +494,17 @@ class ShareKhanMarketDataAggregator:
     # COMPATIBILITY METHODS (for migration from old system)
     
     @property
-    def truedata_feed(self):
-        """Compatibility property for old TrueData references"""
-        return self.truedata_compatibility
+    def sharekhan_feed(self):
+        """Compatibility property for old ShareKhan references"""
+        return self.sharekhan_compatibility
     
     @property
-    def zerodha_integration(self):
-        """Compatibility property for old Zerodha references"""
+    def sharekhan_integration(self):
+        """Compatibility property for old ShareKhan references"""
         return self.sharekhan_integration
     
-    async def get_truedata_cache(self) -> Dict[str, Any]:
-        """Compatibility method for TrueData cache access"""
+    async def get_sharekhan_cache(self) -> Dict[str, Any]:
+        """Compatibility method for ShareKhan cache access"""
         return await self.get_live_data()
     
     # STATUS AND UTILITY

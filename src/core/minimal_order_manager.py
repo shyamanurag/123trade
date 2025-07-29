@@ -18,7 +18,7 @@ class MinimalOrderManager:
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.zerodha_client = config.get('zerodha_client')
+        self.sharekhan_client = config.get('sharekhan_client')
         self.order_count = 0
         self.logger = logger
         
@@ -82,7 +82,7 @@ class MinimalOrderManager:
             'type': 'MinimalOrderManager',
             'orders_logged': self.order_count,
             'execution_capability': False,
-            'zerodha_available': bool(self.zerodha_client),
+            'sharekhan_available': bool(self.sharekhan_client),
             'initialized': self._async_components_initialized,
             'warning': 'This is a last resort fallback - orders are logged only, not executed'
         } 

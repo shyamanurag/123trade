@@ -4,7 +4,7 @@ CRITICAL PRODUCTION FIXES - Clean Version
 Fixes the three major system-breaking issues:
 1. Missing broker_user_id database column
 2. Redis await expression error 
-3. TrueData connection overlap issues
+3. ShareKhan connection overlap issues
 """
 
 import os
@@ -66,7 +66,7 @@ def fix_database_schema():
         # Ensure PAPER_TRADER_001 user exists
         cursor.execute("""
             INSERT INTO users (username, email, password_hash, broker_user_id, is_active, trading_enabled, 
-                             full_name, initial_capital, current_balance, zerodha_client_id)
+                             full_name, initial_capital, current_balance, sharekhan_client_id)
             VALUES ('PAPER_TRADER_001', 'paper.trader@algoauto.com', 'dummy_hash', 'QSW899', true, true,
                    'Autonomous Paper Trader', 100000.00, 100000.00, 'QSW899')
             ON CONFLICT (username) DO UPDATE SET
@@ -158,23 +158,23 @@ async def test_redis_connection():
         logger.error(f"❌ Redis connection test failed: {e}")
         return False
 
-def check_truedata_status():
-    """Check TrueData connection status"""
+def check_sharekhan_status():
+    """Check ShareKhan connection status"""
     try:
-        logger.info("🔧 CHECKING TRUEDATA STATUS...")
+        logger.info("🔧 CHECKING SHAREKHAN STATUS...")
         
         # Add project root to path for imports
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         if project_root not in sys.path:
             sys.path.insert(0, project_root)
         
-        # Import TrueData client
+        # Import ShareKhan client
         try:
-            from data.truedata_client import live_market_data
+            from data.sharekhan_client import live_market_data
             
             # Check live data
             if live_market_data and len(live_market_data) > 0:
-                logger.info(f"✅ TrueData has {len(live_market_data)} symbols streaming")
+                logger.info(f"✅ ShareKhan has {len(live_market_data)} symbols streaming")
                 # Show sample data
                 sample_symbols = list(live_market_data.keys())[:3]
                 for symbol in sample_symbols:
@@ -183,15 +183,15 @@ def check_truedata_status():
                     logger.info(f"   📈 {symbol}: ₹{price}")
                 return True
             else:
-                logger.warning("⚠️ TrueData has no live data")
+                logger.warning("⚠️ ShareKhan has no live data")
                 return False
                 
         except ImportError as e:
-            logger.error(f"❌ Cannot import TrueData client: {e}")
+            logger.error(f"❌ Cannot import ShareKhan client: {e}")
             return False
         
     except Exception as e:
-        logger.error(f"❌ TrueData status check failed: {e}")
+        logger.error(f"❌ ShareKhan status check failed: {e}")
         return False
 
 async def main():
@@ -207,18 +207,18 @@ async def main():
     logger.info("\nFIX 2: REDIS CONNECTION")
     redis_working = await test_redis_connection()
     
-    # Fix 3: TrueData Status
-    logger.info("\nFIX 3: TRUEDATA CONNECTION")
-    truedata_working = check_truedata_status()
+    # Fix 3: ShareKhan Status
+    logger.info("\nFIX 3: SHAREKHAN CONNECTION")
+    sharekhan_working = check_sharekhan_status()
     
     # Summary
     logger.info("\n" + "=" * 60)
     logger.info("🎯 CRITICAL FIXES SUMMARY:")
     logger.info(f"   Database Schema: {'✅ FIXED' if db_fixed else '❌ FAILED'}")
     logger.info(f"   Redis Connection: {'✅ WORKING' if redis_working else '❌ FAILED'}")
-    logger.info(f"   TrueData Connection: {'✅ WORKING' if truedata_working else '❌ FAILED'}")
+    logger.info(f"   ShareKhan Connection: {'✅ WORKING' if sharekhan_working else '❌ FAILED'}")
     
-    all_fixed = db_fixed and redis_working and truedata_working
+    all_fixed = db_fixed and redis_working and sharekhan_working
     
     if all_fixed:
         logger.info("🎉 ALL CRITICAL ISSUES RESOLVED!")

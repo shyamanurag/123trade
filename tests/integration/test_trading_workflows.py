@@ -210,27 +210,27 @@ class TestTradingWorkflows:
     async def test_multiple_broker_operations(self, test_client, auth_headers):
         """Test operations across multiple brokers"""
         
-        # Test Zerodha operations
-        zerodha_order = {
+        # Test ShareKhan operations
+        sharekhan_order = {
             "symbol": "INFY",
             "side": "BUY", 
             "quantity": 2,
             "order_type": "MARKET",
             "product": "CNC",
-            "broker": "zerodha"
+            "broker": "sharekhan"
         }
         
-        response = await test_client.post("/api/v1/orders", json=zerodha_order, headers=auth_headers)
+        response = await test_client.post("/api/v1/orders", json=sharekhan_order, headers=auth_headers)
         if response.status_code == 201:
-            # Zerodha integration is working
-            zerodha_order_id = response.json()["order_id"]
+            # ShareKhan integration is working
+            sharekhan_order_id = response.json()["order_id"]
             
             # Check order status
-            response = await test_client.get(f"/api/v1/orders/{zerodha_order_id}", headers=auth_headers)
+            response = await test_client.get(f"/api/v1/orders/{sharekhan_order_id}", headers=auth_headers)
             assert response.status_code == 200
-            assert response.json()["broker"] == "zerodha"
+            assert response.json()["broker"] == "sharekhan"
         else:
-            # Zerodha integration might not be configured
+            # ShareKhan integration might not be configured
             assert response.status_code in [400, 503]
     
     @pytest.mark.asyncio

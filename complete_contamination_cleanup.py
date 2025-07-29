@@ -158,7 +158,7 @@ class CompleteContaminationCleanup:
                 'pnl:*',
                 'strategy:*:trades:*',
                 'compliance:trades:*',
-                'zerodha:orders:*',
+                'sharekhan:orders:*',
                 'autonomous:trades:*'
             ]
             

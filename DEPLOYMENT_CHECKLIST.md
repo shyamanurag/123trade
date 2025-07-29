@@ -119,7 +119,7 @@ The ingress rules in `app.yaml` route traffic between them.
 2. **Monitor Logs**:
    - Watch for any runtime errors
    - Check WebSocket connections
-   - Verify TrueData integration
+   - Verify ShareKhan integration
 
 3. **Database Migration** (if needed):
    - Run Alembic migrations

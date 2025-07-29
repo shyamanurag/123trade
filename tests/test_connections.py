@@ -15,8 +15,8 @@ import time
 
 from core.orchestrator import TradingOrchestrator
 from core.connection_manager import ConnectionState, ConnectionHealth
-from brokers.zerodha import ZerodhaConnection
-from data.truedata import TrueDataConnection
+from brokers.sharekhan import ShareKhanConnection
+from data.sharekhan import ShareKhanConnection
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # Test configuration
 TEST_CONFIG = {
     'broker': {
-        'zerodha': {
+        'sharekhan': {
             'api_key': 'sylcoq492qz6f7ej',
             'api_secret': 'test_api_secret',
             'max_reconnect_attempts': 3,
@@ -37,7 +37,7 @@ TEST_CONFIG = {
         }
     },
     'data': {
-        'truedata': {
+        'sharekhan': {
             'api_key': 'test_api_key',
             'max_reconnect_attempts': 3,
             'reconnect_delay': 1,
@@ -62,8 +62,8 @@ async def setup_test_environment() -> tuple[Dict, redis.Redis]:
         logger.error(f"Failed to set up test environment: {e}")
         raise
 
-async def test_zerodha_connection(orchestrator: TradingOrchestrator):
-    """Test Zerodha connection and health monitoring"""
+async def test_sharekhan_connection(orchestrator: TradingOrchestrator):
+    """Test ShareKhan connection and health monitoring"""
     try:
         # Get initial health
         health = orchestrator.broker_connection.get_health()
@@ -89,14 +89,14 @@ async def test_zerodha_connection(orchestrator: TradingOrchestrator):
         assert health.last_error == "Test error", "Should record error"
         assert health.state == ConnectionState.RECONNECTING, "Should be reconnecting after error"
         
-        logger.info("✓ Zerodha connection tests passed")
+        logger.info("✓ ShareKhan connection tests passed")
         return True
     except Exception as e:
-        logger.error(f"Zerodha connection test failed: {e}")
+        logger.error(f"ShareKhan connection test failed: {e}")
         return False
 
-async def test_truedata_connection(orchestrator: TradingOrchestrator):
-    """Test TrueData connection and health monitoring"""
+async def test_sharekhan_connection(orchestrator: TradingOrchestrator):
+    """Test ShareKhan connection and health monitoring"""
     try:
         # Get initial health
         health = orchestrator.data_connection.get_health()
@@ -122,10 +122,10 @@ async def test_truedata_connection(orchestrator: TradingOrchestrator):
         assert health.last_error == "Test error", "Should record error"
         assert health.state == ConnectionState.RECONNECTING, "Should be reconnecting after error"
         
-        logger.info("✓ TrueData connection tests passed")
+        logger.info("✓ ShareKhan connection tests passed")
         return True
     except Exception as e:
-        logger.error(f"TrueData connection test failed: {e}")
+        logger.error(f"ShareKhan connection test failed: {e}")
         return False
 
 async def test_connection_resilience(orchestrator: TradingOrchestrator):
@@ -207,8 +207,8 @@ async def run_tests():
         
         # Run tests
         tests = [
-            ("Zerodha Connection", test_zerodha_connection(orchestrator)),
-            ("TrueData Connection", test_truedata_connection(orchestrator)),
+            ("ShareKhan Connection", test_sharekhan_connection(orchestrator)),
+            ("ShareKhan Connection", test_sharekhan_connection(orchestrator)),
             ("Connection Resilience", test_connection_resilience(orchestrator)),
             ("Health Monitoring", test_health_monitoring(orchestrator))
         ]

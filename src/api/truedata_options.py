@@ -1,5 +1,5 @@
 """
-TrueData Options & Greeks API
+ShareKhan Options & Greeks API
 Handles options data including Greeks calculation
 """
 
@@ -11,15 +11,15 @@ from datetime import datetime
 import json
 import asyncio
 
-from data.truedata_client import (
-    truedata_client,
+from data.sharekhan_client import (
+    sharekhan_client,
     live_market_data,
-    get_truedata_status
+    get_sharekhan_status
 )
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/truedata/options", tags=["truedata-options"])
+router = APIRouter(prefix="/api/v1/sharekhan/options", tags=["sharekhan-options"])
 
 class SymbolSubscription(BaseModel):
     """Symbol subscription request"""
@@ -53,25 +53,25 @@ class GreeksData(BaseModel):
 async def subscribe_options(request: SymbolSubscription):
     """Subscribe to options symbols with Greeks"""
     try:
-        # FIXED: Read from existing TrueData cache instead of trying to connect
-        # TrueData is already connected and flowing data - just check cache availability
+        # FIXED: Read from existing ShareKhan cache instead of trying to connect
+        # ShareKhan is already connected and flowing data - just check cache availability
         if not live_market_data:
             # Cache is empty - this indicates real connection issue, not missing connection
             raise HTTPException(
                 status_code=503,
-                detail="TrueData cache is empty. Market data not available."
+                detail="ShareKhan cache is empty. Market data not available."
             )
         
-        # Note: TrueData subscription is handled automatically during connection
+        # Note: ShareKhan subscription is handled automatically during connection
         return {
             "success": True,
-            "message": f"Options subscription noted - TrueData handles symbols automatically",
+            "message": f"Options subscription noted - ShareKhan handles symbols automatically",
             "symbols": request.symbols,
             "features": {
                 "greeks": request.include_greeks,
                 "bidask": request.include_bidask
             },
-            "note": "TrueData client subscribes to default symbols automatically",
+            "note": "ShareKhan client subscribes to default symbols automatically",
             "cache_symbols": len(live_market_data)  # Show how many symbols are available
         }
             
@@ -255,7 +255,7 @@ async def options_data_stream(websocket: WebSocket):
             # Also send connection status
             await websocket.send_json({
                 "type": "status",
-                "connected": truedata_client.connected,
+                "connected": sharekhan_client.connected,
                 "symbols_count": len([s for s in live_market_data.keys() if not s.endswith('_GREEKS')]),
                 "timestamp": datetime.now().isoformat()
             })
@@ -283,15 +283,15 @@ async def subscribe_crude_oil_options():
             'CRUDEOIL2506165500PE'
         ]
         
-        if not truedata_client.connected:
-            success = truedata_client.connect()
+        if not sharekhan_client.connected:
+            success = sharekhan_client.connect()
             if not success:
                 raise HTTPException(
                     status_code=503,
-                    detail="TrueData connection failed"
+                    detail="ShareKhan connection failed"
                 )
         
-        # Note: TrueData subscription is handled automatically during connection
+        # Note: ShareKhan subscription is handled automatically during connection
         success = True
         
         if success:

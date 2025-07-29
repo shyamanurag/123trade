@@ -67,7 +67,7 @@ async def execute_migration_016():
                 # Log the migration
                 conn.execute(text("""
                     INSERT INTO schema_migrations (version, description, executed_at) 
-                    VALUES (16, 'Add actual_execution and P&L columns for real Zerodha data sync', :executed_at)
+                    VALUES (16, 'Add actual_execution and P&L columns for real ShareKhan data sync', :executed_at)
                     ON CONFLICT (version) DO NOTHING
                 """), {'executed_at': datetime.now()})
                 

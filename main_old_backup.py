@@ -58,20 +58,20 @@ router_imports = {
     'market': ('src.api.market', 'router'),
     'users': ('src.api.users', 'router'),
     'trading_control': ('src.api.trading_control', 'router'),
-    'truedata': ('src.api.truedata_integration', 'router'),
-    'truedata_options': ('src.api.truedata_options', 'router'),
+    'sharekhan': ('src.api.sharekhan_integration', 'router'),
+    'sharekhan_options': ('src.api.sharekhan_options', 'router'),
     'market_data': ('src.api.market_data', 'router'),
     'autonomous_trading': ('src.api.autonomous_trading', 'router'),
     'database_admin': ('src.api.database_admin', 'router'),
     'recommendations': ('src.api.recommendations', 'router'),
     'elite_recommendations': ('src.api.elite_recommendations', 'router'),
     'trade_management': ('src.api.trade_management', 'router'),
-    'zerodha_auth': ('src.api.zerodha_auth', 'router'),
-    'zerodha_daily_auth': ('src.api.zerodha_daily_auth', 'router'),
+    'sharekhan_auth': ('src.api.sharekhan_auth', 'router'),
+    'sharekhan_daily_auth': ('src.api.sharekhan_daily_auth', 'router'),
     'token_diagnostic': ('src.api.token_diagnostic', 'router'),
-    'zerodha_multi_user': ('src.api.zerodha_multi_user_auth', 'router'),
-    'zerodha_manual_auth': ('src.api.zerodha_manual_auth', 'router'),
-    'zerodha_refresh': ('src.api.zerodha_refresh', 'router'),
+    'sharekhan_multi_user': ('src.api.sharekhan_multi_user_auth', 'router'),
+    'sharekhan_manual_auth': ('src.api.sharekhan_manual_auth', 'router'),
+    'sharekhan_refresh': ('src.api.sharekhan_refresh', 'router'),
     'daily_auth_workflow': ('src.api.daily_auth_workflow', 'router'),
     'websocket': ('src.api.websocket', 'router'),
     'monitoring': ('src.api.monitoring', 'router'),
@@ -122,68 +122,68 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager - FIXED LOADING SEQUENCE"""
     logger.info("Starting AlgoAuto Trading System...")
     
-    # STEP 1: Initialize TrueData FIRST (synchronously) - CRITICAL FIX
+    # STEP 1: Initialize ShareKhan FIRST (synchronously) - CRITICAL FIX
     try:
-        logger.info("🚀 STEP 1: Initializing TrueData (SYNCHRONOUS - highest priority)...")
-        from data.truedata_client import initialize_truedata
+        logger.info("🚀 STEP 1: Initializing ShareKhan (SYNCHRONOUS - highest priority)...")
+        from data.sharekhan_client import initialize_sharekhan
         import os
         
         # DEPLOYMENT FIX: Check if we're in deployment mode 
         is_deployment = os.getenv('DEPLOYMENT_MODE', 'false').lower() == 'true'
         # ALTERNATIVE: Use production environment as deployment indicator
         is_production = os.getenv('ENVIRONMENT', 'development').lower() == 'production'
-        skip_truedata = os.getenv('SKIP_TRUEDATA_AUTO_INIT', 'false').lower() == 'true'
+        skip_sharekhan = os.getenv('SKIP_SHAREKHAN_AUTO_INIT', 'false').lower() == 'true'
         
-        if skip_truedata:
-            logger.info("⏭️ TrueData auto-init SKIPPED (SKIP_TRUEDATA_AUTO_INIT=true)")
+        if skip_sharekhan:
+            logger.info("⏭️ ShareKhan auto-init SKIPPED (SKIP_SHAREKHAN_AUTO_INIT=true)")
         elif is_deployment or is_production:
-            logger.info("🚀 DEPLOYMENT MODE: TrueData will initialize in background after health checks")
-            # Start TrueData initialization in background thread to not block health checks
+            logger.info("🚀 DEPLOYMENT MODE: ShareKhan will initialize in background after health checks")
+            # Start ShareKhan initialization in background thread to not block health checks
             import threading
             def background_init():
                 import time
                 time.sleep(5)  # Wait for health checks to pass first
-                logger.info("🔄 Starting background TrueData initialization...")
+                logger.info("🔄 Starting background ShareKhan initialization...")
                 try:
-                    truedata_success = initialize_truedata()
-                    if truedata_success:
-                        logger.info("✅ Background TrueData initialization successful!")
+                    sharekhan_success = initialize_sharekhan()
+                    if sharekhan_success:
+                        logger.info("✅ Background ShareKhan initialization successful!")
                     else:
-                        logger.warning("⚠️ Background TrueData initialization failed")
+                        logger.warning("⚠️ Background ShareKhan initialization failed")
                 except Exception as e:
-                    logger.error(f"❌ Background TrueData error: {e}")
+                    logger.error(f"❌ Background ShareKhan error: {e}")
             
             # Start in background thread
             init_thread = threading.Thread(target=background_init, daemon=True)
             init_thread.start()
-            logger.info("✅ Background TrueData initialization started")
+            logger.info("✅ Background ShareKhan initialization started")
         else:
-            # PRODUCTION: Initialize TrueData synchronously (normal operation)
-            logger.info("🎯 PRODUCTION MODE: Initializing TrueData synchronously...")
+            # PRODUCTION: Initialize ShareKhan synchronously (normal operation)
+            logger.info("🎯 PRODUCTION MODE: Initializing ShareKhan synchronously...")
             
             # Initialize immediately - no background thread, no delay
-            truedata_success = initialize_truedata()
+            sharekhan_success = initialize_sharekhan()
             
-            if truedata_success:
-                logger.info("✅ TrueData initialized successfully! Cache will be populated.")
+            if sharekhan_success:
+                logger.info("✅ ShareKhan initialized successfully! Cache will be populated.")
                 logger.info("📊 Market data is now available for cache system")
                 
-                # Give TrueData a moment to establish connection and populate cache
+                # Give ShareKhan a moment to establish connection and populate cache
                 import time
                 time.sleep(3)
                 
                 # Verify cache is populated
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 if live_market_data and len(live_market_data) > 0:
                     logger.info(f"✅ Cache populated: {len(live_market_data)} symbols available")
                 else:
                     logger.warning("⚠️ Cache still empty after initialization")
                     
             else:
-                logger.warning("⚠️ TrueData initialization failed")
+                logger.warning("⚠️ ShareKhan initialization failed")
                 
     except Exception as e:
-        logger.error(f"❌ TrueData initialization error: {e}")
+        logger.error(f"❌ ShareKhan initialization error: {e}")
         logger.info("📊 App continues - cache will be empty initially")
     
     # STEP 2: Initialize Database
@@ -199,7 +199,7 @@ async def lifespan(app: FastAPI):
     # STEP 3: Load routers (cache system will now find populated data)
     logger.info("🚀 STEP 3: Loading API routers (cache system will find populated data)...")
     
-    # STEP 4: Initialize Symbol Management System (after TrueData is ready)
+    # STEP 4: Initialize Symbol Management System (after ShareKhan is ready)
     try:
         logger.info("🤖 STEP 4: Starting Intelligent Symbol Management System...")
         from src.core.intelligent_symbol_manager import start_intelligent_symbol_management
@@ -237,7 +237,7 @@ async def lifespan(app: FastAPI):
 
     # App state for debugging
     app.state.build_timestamp = datetime.now().isoformat()
-    app.state.truedata_auto_init = True  # Re-enabled with fixed sequence
+    app.state.sharekhan_auto_init = True  # Re-enabled with fixed sequence
     
     # Store successfully loaded routers count
     loaded_count = sum(1 for r in routers_loaded.values() if r is not None)
@@ -256,11 +256,11 @@ async def lifespan(app: FastAPI):
     # Cleanup
     logger.info("Shutting down AlgoAuto Trading System...")
     try:
-        from data.truedata_client import truedata_client
-        truedata_client.disconnect()
-        logger.info("✅ TrueData disconnected cleanly")
+        from data.sharekhan_client import sharekhan_client
+        sharekhan_client.disconnect()
+        logger.info("✅ ShareKhan disconnected cleanly")
     except Exception as e:
-        logger.error(f"TrueData cleanup error: {e}")
+        logger.error(f"ShareKhan cleanup error: {e}")
     # Add cleanup code here (close connections, etc.)
         
 # Create FastAPI application
@@ -268,7 +268,7 @@ app = FastAPI(
     title="AlgoAuto Trading System API",
     description="""
     A comprehensive automated trading system with:
-    - Real-time market data from TrueData and Zerodha
+    - Real-time market data from ShareKhan and ShareKhan
     - Automated trade execution and position management
     - Risk management and compliance monitoring
     - User authentication and authorization
@@ -279,7 +279,7 @@ app = FastAPI(
     
     Deployment: 2024-12-22 10:40 UTC - Fixed health check endpoints
     """,
-    version="4.2.0",  # Simplified TrueData - removed over-engineering, intelligence over complexity
+    version="4.2.0",  # Simplified ShareKhan - removed over-engineering, intelligence over complexity
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
@@ -598,14 +598,14 @@ async def health_ready_json():
     global app_startup_complete
     
     try:
-        # Check TrueData status
-        truedata_healthy = False
-        truedata_connected = False
+        # Check ShareKhan status
+        sharekhan_healthy = False
+        sharekhan_connected = False
         try:
-            from data.truedata_client import get_truedata_status
-            td_status = get_truedata_status()
-            truedata_connected = td_status.get('connected', False)
-            truedata_healthy = td_status.get('data_flowing', False)
+            from data.sharekhan_client import get_sharekhan_status
+            td_status = get_sharekhan_status()
+            sharekhan_connected = td_status.get('connected', False)
+            sharekhan_healthy = td_status.get('data_flowing', False)
         except:
             pass
         
@@ -627,14 +627,14 @@ async def health_ready_json():
                 "database_connected": True,  # We'll assume DB is working if app started
                 "redis_connected": True,     # We'll assume Redis is working if app started  
                 "trading_enabled": True,
-                "truedata_connected": truedata_connected,
-                "truedata_healthy": truedata_healthy,
+                "sharekhan_connected": sharekhan_connected,
+                "sharekhan_healthy": sharekhan_healthy,
                 "app_startup_complete": app_startup_complete,
                 "components": {
                     "api": "healthy",
                     "database": "healthy",
                     "redis": "healthy", 
-                    "truedata": "healthy" if truedata_connected else "degraded",
+                    "sharekhan": "healthy" if sharekhan_connected else "degraded",
                     "trading": "active"
                 }
             },
@@ -657,7 +657,7 @@ async def health_ready_json():
                     "api": "error",
                     "database": "unknown",
                     "redis": "unknown",
-                    "truedata": "unknown",
+                    "sharekhan": "unknown",
                     "trading": "inactive"
                 }
             },
@@ -708,8 +708,8 @@ router_configs = [
     # Market data endpoints - FIX: Correct routing
     ('market', '', ('market-data',)),  # Already has /api/market prefix
     ('market_data', '', ('market-data-v1',)),  # FIX: Mount at root, router has /api/v1 prefix
-    ('truedata', '/api/v1/truedata', ('truedata',)),
-    ('truedata_options', '', ('truedata-options',)),  # Already has /api/v1/truedata/options prefix
+    ('sharekhan', '/api/v1/sharekhan', ('sharekhan',)),
+    ('sharekhan_options', '', ('sharekhan-options',)),  # Already has /api/v1/sharekhan/options prefix
     
     # User management
     ('users', '', ('users',)),  # Already has /api/v1/users prefix
@@ -749,12 +749,12 @@ router_configs = [
     ('orchestrator_debug', '/api/v1', ('orchestrator-debug',)),
     
     # External integrations
-    ('zerodha_auth', '', ('zerodha',)),  # Already has /api/zerodha prefix
-    ('zerodha_daily_auth', '', ('zerodha-daily',)),  # Mount at root, has /zerodha prefix
-    ('zerodha_refresh', '/api/zerodha/refresh', ('zerodha-refresh',)),  # CRITICAL FIX: Mount zerodha refresh router with prefix
+    ('sharekhan_auth', '', ('sharekhan',)),  # Already has /api/sharekhan prefix
+    ('sharekhan_daily_auth', '', ('sharekhan-daily',)),  # Mount at root, has /sharekhan prefix
+    ('sharekhan_refresh', '/api/sharekhan/refresh', ('sharekhan-refresh',)),  # CRITICAL FIX: Mount sharekhan refresh router with prefix
     ('token_diagnostic', '/api/v1', ('token-diagnostic',)),  # Token debugging endpoints
-    ('zerodha_multi_user', '', ('zerodha-multi',)),  # Mount at root, has /zerodha-multi prefix
-    ('zerodha_manual_auth', '', ('zerodha-manual',)),  # Mount at root - router already has /auth/zerodha prefix
+    ('sharekhan_multi_user', '', ('sharekhan-multi',)),  # Mount at root, has /sharekhan-multi prefix
+    ('sharekhan_manual_auth', '', ('sharekhan-manual',)),  # Mount at root - router already has /auth/sharekhan prefix
     ('daily_auth_workflow', '', ('daily-auth',)),  # Mount at root, has /daily-auth prefix
     ('webhooks', '/api/v1/webhooks', ('webhooks',)),
     
@@ -974,7 +974,7 @@ async def legacy_system_status():
                     "database": "connected",
                     "redis": "connected", 
                     "websocket": "active",
-                    "truedata": "connected",
+                    "sharekhan": "connected",
                     "trading": "autonomous"
                 },
                 "version": "4.2.0",
@@ -1144,13 +1144,13 @@ async def get_all_market_data_direct():
     try:
         logger.info("📊 Direct market data endpoint called - fixing 404 error")
         
-        # Check TrueData cache availability instead of initializing
-        from data.truedata_client import live_market_data
-        truedata_success = len(live_market_data) > 0
-        if truedata_success:
-            logger.info(f"✅ TrueData cache available: {len(live_market_data)} symbols")
+        # Check ShareKhan cache availability instead of initializing
+        from data.sharekhan_client import live_market_data
+        sharekhan_success = len(live_market_data) > 0
+        if sharekhan_success:
+            logger.info(f"✅ ShareKhan cache available: {len(live_market_data)} symbols")
         else:
-            logger.warning("⚠️ TrueData cache empty - market data not available")
+            logger.warning("⚠️ ShareKhan cache empty - market data not available")
         
         return JSONResponse(
             status_code=200,
@@ -1337,7 +1337,7 @@ async def force_activate_autonomous_trading():
 
 # ELIMINATED: Emergency fallback mock market data endpoint removed
 # This endpoint was generating fake market data which violates the "NO MOCK DATA" policy
-# All market data must come from real sources like TrueData
+# All market data must come from real sources like ShareKhan
 
 # FIXED: User performance endpoint with proper trailing slash handling
 @app.get("/api/v1/users/performance/", tags=["users"])
@@ -1502,11 +1502,11 @@ async def redirect_users():
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/api/v1/users/performance", status_code=307)
 
-@app.post("/auth/zerodha/submit-token", tags=["auth"])
+@app.post("/auth/sharekhan/submit-token", tags=["auth"])
 async def redirect_submit_token(request: Request):
-    """Redirect to zerodha manual submit-token endpoint"""
+    """Redirect to sharekhan manual submit-token endpoint"""
     from fastapi.responses import RedirectResponse
-    return RedirectResponse(url="/zerodha/submit-token", status_code=307)
+    return RedirectResponse(url="/sharekhan/submit-token", status_code=307)
 
 @app.api_route("/{path:path}", methods=["GET"])
 async def catch_all(request: Request, path: str):
@@ -1528,7 +1528,7 @@ async def catch_all(request: Request, path: str):
         "redoc",        # Alternative docs
         "openapi.json", # OpenAPI spec
         "ws/",          # WebSocket paths
-        "zerodha-",     # Zerodha integration paths
+        "sharekhan-",     # ShareKhan integration paths
         "daily-auth",   # Daily auth workflow
         "daily-auth/",  # Daily auth workflow paths
         "favicon.ico",  # Favicon

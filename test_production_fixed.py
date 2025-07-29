@@ -63,8 +63,8 @@ def test_market_data_correct():
     endpoints_to_try = [
         "/api/market-data/proxy",
         "/api/v1/market-data/proxy", 
-        "/api/truedata/proxy",
-        "/api/v1/truedata/proxy"
+        "/api/sharekhan/proxy",
+        "/api/v1/sharekhan/proxy"
     ]
     
     for endpoint in endpoints_to_try:

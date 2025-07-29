@@ -216,10 +216,10 @@ async def get_components_status():
             },
             "market_data": {
                 "status": "operational",
-                "provider": "TrueData",
+                "provider": "ShareKhan",
                 "connection": "stable"
             },
-            "zerodha": {
+            "sharekhan": {
                 "status": "operational",
                 "auth_status": "ready",
                 "rate_limit": "ok"
@@ -295,12 +295,12 @@ async def get_connection_status():
         return {
             "success": True,
             "connections": {
-                "truedata": {
+                "sharekhan": {
                     "status": "configured",
                     "note": "Ready for paper trading",
                     "latency_ms": 0
                 },
-                "zerodha": {
+                "sharekhan": {
                     "status": "ready", 
                     "note": "Paper trading mode configured",
                     "rate_limit_remaining": 100
@@ -473,7 +473,7 @@ async def get_system_status_legacy():
                 "database": "connected", 
                 "redis": "connected",
                 "websocket": "active",
-                "truedata": "connected",
+                "sharekhan": "connected",
                 "trading": "autonomous"
             },
             "version": "4.2.0",

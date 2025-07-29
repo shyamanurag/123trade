@@ -25,7 +25,7 @@ async def test_position_updates():
     
     try:
         from src.core.position_tracker import get_position_tracker
-        from src.api.market_data import get_truedata_proxy
+        from src.api.market_data import get_sharekhan_proxy
         
         # Get position tracker
         position_tracker = await get_position_tracker()
@@ -51,7 +51,7 @@ async def test_position_updates():
         
         # Get live market data
         logger.info("\n📊 Getting Live Market Data:")
-        proxy_data = get_truedata_proxy()
+        proxy_data = get_sharekhan_proxy()
         
         if proxy_data and proxy_data.get('data'):
             market_prices = {}
@@ -103,7 +103,7 @@ async def test_position_updates():
         logger.info("\n" + "=" * 40)
         logger.info("🎯 TEST SUMMARY:")
         logger.info("If P&L is still zero after live price update:")
-        logger.info("1. Check if TrueData feed is working")
+        logger.info("1. Check if ShareKhan feed is working")
         logger.info("2. Verify position tracker update_market_prices method")
         logger.info("3. Check if background price updater is running")
         logger.info("4. Verify API endpoints return updated positions")

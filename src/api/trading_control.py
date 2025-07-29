@@ -25,7 +25,7 @@ class BrokerUser(BaseModel):
     """Model for broker user credentials"""
     user_id: str
     name: str
-    broker: str = "zerodha"
+    broker: str = "sharekhan"
     api_key: str
     api_secret: str
     client_id: str
@@ -41,16 +41,16 @@ class TradingCommand(BaseModel):
 broker_users = {}
 
 def initialize_default_users():
-    """Initialize master trading account dynamically based on environment Zerodha user"""
+    """Initialize master trading account dynamically based on environment ShareKhan user"""
     try:
-        # Get the master Zerodha user ID from environment (this is the primary trading account)
-        master_zerodha_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+        # Get the master ShareKhan user ID from environment (this is the primary trading account)
+        master_sharekhan_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
         
         # Only add if master user doesn't exist (prevent duplicates)
-        if master_zerodha_user_id not in broker_users:
+        if master_sharekhan_user_id not in broker_users:
             # Use production deployment credentials (matches app.yaml)
-            real_api_key = os.getenv('ZERODHA_API_KEY', 'vc9ft4zpknynpm3u')
-            real_api_secret = os.getenv('ZERODHA_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc')
+            real_api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')
+            real_api_secret = os.getenv('SHAREKHAN_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc')
             
             # VALIDATION: Ensure we're using the correct production credentials
             if real_api_key != 'vc9ft4zpknynpm3u':
@@ -58,16 +58,16 @@ def initialize_default_users():
                 logger.warning("Using production credentials from deployment")
                 real_api_key = 'vc9ft4zpknynpm3u'
             
-            # Create master user with ACTUAL Zerodha user ID as the key
+            # Create master user with ACTUAL ShareKhan user ID as the key
             master_user = {
-                "user_id": master_zerodha_user_id,  # Use real Zerodha user ID
-                "name": f"Zerodha Account ({master_zerodha_user_id})",
-                "broker": "zerodha",
+                "user_id": master_sharekhan_user_id,  # Use real ShareKhan user ID
+                "name": f"ShareKhan Account ({master_sharekhan_user_id})",
+                "broker": "sharekhan",
                 "api_key": real_api_key,
                 "api_secret": real_api_secret,
-                "client_id": master_zerodha_user_id,  # Same as user_id for Zerodha
-                "initial_capital": 0.0,  # Will be dynamically fetched from Zerodha API
-                "current_capital": 0.0,  # Will be dynamically fetched from Zerodha API
+                "client_id": master_sharekhan_user_id,  # Same as user_id for ShareKhan
+                "initial_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
+                "current_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
                 "risk_tolerance": "medium",
                 "paper_trading": True,  # Can be toggled per user
                 "is_active": True,
@@ -80,15 +80,15 @@ def initialize_default_users():
                 "open_trades": 0
             }
             
-            broker_users[master_zerodha_user_id] = master_user
+            broker_users[master_sharekhan_user_id] = master_user
             
-            logger.info(f"✅ Initialized master Zerodha user: {master_zerodha_user_id}")
+            logger.info(f"✅ Initialized master ShareKhan user: {master_sharekhan_user_id}")
             logger.info(f"✅ Using API key: {real_api_key[:8]}...")
-            logger.info("✅ System ready for multi-user Zerodha trading")
+            logger.info("✅ System ready for multi-user ShareKhan trading")
             
             return True
         else:
-            logger.info(f"✅ Master user {master_zerodha_user_id} already exists - skipping initialization")
+            logger.info(f"✅ Master user {master_sharekhan_user_id} already exists - skipping initialization")
             return True
     except Exception as e:
         logger.error(f"❌ Error initializing default users: {e}")
@@ -101,16 +101,16 @@ try:
 except Exception as e:
     logger.error(f"❌ Failed to initialize default users: {e}")
     # CRITICAL FIX: Force initialization as fallback with CORRECT production credentials
-    master_zerodha_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
-    broker_users[master_zerodha_user_id] = {
-        "user_id": master_zerodha_user_id,
-        "name": f"Zerodha Account ({master_zerodha_user_id})", 
-        "broker": "zerodha",
-        "api_key": os.getenv('ZERODHA_API_KEY', 'vc9ft4zpknynpm3u'),  # CRITICAL FIX: Use correct production key
-        "api_secret": os.getenv('ZERODHA_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc'),  # CRITICAL FIX: Use correct production secret
-        "client_id": master_zerodha_user_id,
-        "initial_capital": 0.0,  # Will be dynamically fetched from Zerodha API
-        "current_capital": 0.0,  # Will be dynamically fetched from Zerodha API
+    master_sharekhan_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
+    broker_users[master_sharekhan_user_id] = {
+        "user_id": master_sharekhan_user_id,
+        "name": f"ShareKhan Account ({master_sharekhan_user_id})", 
+        "broker": "sharekhan",
+        "api_key": os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u'),  # CRITICAL FIX: Use correct production key
+        "api_secret": os.getenv('SHAREKHAN_API_SECRET', '0nwjb2cncw9stf3m5cre73rqc3bc5xsc'),  # CRITICAL FIX: Use correct production secret
+        "client_id": master_sharekhan_user_id,
+        "initial_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
+        "current_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
         "risk_tolerance": "medium",
         "paper_trading": True,
         "is_active": True,
@@ -122,18 +122,18 @@ except Exception as e:
         "win_rate": 0,
         "open_trades": 0
     }
-    logger.info(f"✅ Forced default user initialization as fallback for {master_zerodha_user_id}")
+    logger.info(f"✅ Forced default user initialization as fallback for {master_sharekhan_user_id}")
 
-def create_or_update_zerodha_user(zerodha_user_id: str, user_profile: Optional[Dict[str, Any]] = None, api_credentials: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+def create_or_update_sharekhan_user(sharekhan_user_id: str, user_profile: Optional[Dict[str, Any]] = None, api_credentials: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     """
-    Dynamically create or update a Zerodha user when they authenticate
+    Dynamically create or update a ShareKhan user when they authenticate
     This enables multi-user support with individual analytics and tracking
     """
     try:
         # Check if user already exists
-        if zerodha_user_id in broker_users:
-            logger.info(f"✅ Zerodha user {zerodha_user_id} already exists, updating profile")
-            existing_user = broker_users[zerodha_user_id]
+        if sharekhan_user_id in broker_users:
+            logger.info(f"✅ ShareKhan user {sharekhan_user_id} already exists, updating profile")
+            existing_user = broker_users[sharekhan_user_id]
             
             # Update profile information if provided
             if user_profile:
@@ -141,7 +141,7 @@ def create_or_update_zerodha_user(zerodha_user_id: str, user_profile: Optional[D
                     "name": user_profile.get("user_name", existing_user["name"]),
                     "email": user_profile.get("email", ""),
                     "phone": user_profile.get("phone", ""),
-                    "broker": user_profile.get("broker", "zerodha"),
+                    "broker": user_profile.get("broker", "sharekhan"),
                     "last_login": datetime.now().isoformat()
                 })
             
@@ -155,21 +155,21 @@ def create_or_update_zerodha_user(zerodha_user_id: str, user_profile: Optional[D
             return existing_user
         
         # Create new user
-        logger.info(f"✅ Creating new Zerodha user: {zerodha_user_id}")
+        logger.info(f"✅ Creating new ShareKhan user: {sharekhan_user_id}")
         
         # Determine if this is the master account
-        master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
-        is_master = (zerodha_user_id == master_user_id)
+        master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
+        is_master = (sharekhan_user_id == master_user_id)
         
         new_user = {
-            "user_id": zerodha_user_id,
-            "name": user_profile.get("user_name", f"Zerodha User ({zerodha_user_id})") if user_profile else f"Zerodha User ({zerodha_user_id})",
+            "user_id": sharekhan_user_id,
+            "name": user_profile.get("user_name", f"ShareKhan User ({sharekhan_user_id})") if user_profile else f"ShareKhan User ({sharekhan_user_id})",
             "email": user_profile.get("email", "") if user_profile else "",
             "phone": user_profile.get("phone", "") if user_profile else "",
-            "broker": "zerodha",
-            "client_id": zerodha_user_id,
-            "initial_capital": 0.0,  # Will be dynamically fetched from Zerodha API
-            "current_capital": 0.0,  # Will be dynamically fetched from Zerodha API
+            "broker": "sharekhan",
+            "client_id": sharekhan_user_id,
+            "initial_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
+            "current_capital": 0.0,  # Will be dynamically fetched from ShareKhan API
             "risk_tolerance": "medium",
             "paper_trading": True,  # Start with paper trading, can be toggled
             "is_active": True,
@@ -189,34 +189,34 @@ def create_or_update_zerodha_user(zerodha_user_id: str, user_profile: Optional[D
         # Add API credentials only for master account
         if is_master and api_credentials:
             new_user.update({
-                "api_key": api_credentials.get("api_key", os.getenv('ZERODHA_API_KEY')),
-                "api_secret": api_credentials.get("api_secret", os.getenv('ZERODHA_API_SECRET'))
+                "api_key": api_credentials.get("api_key", os.getenv('SHAREKHAN_API_KEY')),
+                "api_secret": api_credentials.get("api_secret", os.getenv('SHAREKHAN_API_SECRET'))
             })
         
-        broker_users[zerodha_user_id] = new_user
+        broker_users[sharekhan_user_id] = new_user
         
-        logger.info(f"✅ Created Zerodha user {zerodha_user_id} (Master: {is_master})")
+        logger.info(f"✅ Created ShareKhan user {sharekhan_user_id} (Master: {is_master})")
         logger.info(f"✅ Total users in system: {len(broker_users)}")
         
         return new_user
         
     except Exception as e:
-        logger.error(f"❌ Failed to create/update user {zerodha_user_id}: {e}")
+        logger.error(f"❌ Failed to create/update user {sharekhan_user_id}: {e}")
         raise HTTPException(status_code=500, detail=f"User creation failed: {e}")
 
 def get_master_user() -> Optional[Dict[str, Any]]:
-    """Get the master Zerodha user (the one that can execute trades)"""
+    """Get the master ShareKhan user (the one that can execute trades)"""
     for user_id, user_data in broker_users.items():
         if user_data.get("is_master", False):
             return user_data
     return None
 
-def get_user_by_zerodha_id(zerodha_user_id: str) -> Optional[Dict[str, Any]]:
-    """Get user by their Zerodha user ID"""
-    return broker_users.get(zerodha_user_id)
+def get_user_by_sharekhan_id(sharekhan_user_id: str) -> Optional[Dict[str, Any]]:
+    """Get user by their ShareKhan user ID"""
+    return broker_users.get(sharekhan_user_id)
 
-def list_all_zerodha_users() -> List[Dict[str, Any]]:
-    """List all registered Zerodha users"""
+def list_all_sharekhan_users() -> List[Dict[str, Any]]:
+    """List all registered ShareKhan users"""
     return list(broker_users.values())
 
 @router.post("/users/broker")
@@ -259,9 +259,9 @@ async def add_broker_user(user: BrokerUser):
         }
         
         # Set environment variables for the broker
-        os.environ['ZERODHA_API_KEY'] = user.api_key
-        os.environ['ZERODHA_API_SECRET'] = user.api_secret
-        os.environ['ZERODHA_CLIENT_ID'] = user.client_id
+        os.environ['SHAREKHAN_API_KEY'] = user.api_key
+        os.environ['SHAREKHAN_API_SECRET'] = user.api_secret
+        os.environ['SHAREKHAN_CLIENT_ID'] = user.client_id
         os.environ['PAPER_TRADING'] = str(user.paper_trading).lower()
         
         logger.info(f"Added broker user: {user.user_id} for {user.broker} trading")
@@ -347,9 +347,9 @@ async def update_broker_user(user_id: str, user: BrokerUser):
         })
         
         # Update environment variables
-        os.environ['ZERODHA_API_KEY'] = user.api_key
-        os.environ['ZERODHA_API_SECRET'] = user.api_secret
-        os.environ['ZERODHA_CLIENT_ID'] = user.client_id
+        os.environ['SHAREKHAN_API_KEY'] = user.api_key
+        os.environ['SHAREKHAN_API_SECRET'] = user.api_secret
+        os.environ['SHAREKHAN_CLIENT_ID'] = user.client_id
         os.environ['PAPER_TRADING'] = str(user.paper_trading).lower()
         
         logger.info(f"Updated broker user: {user_id} - Paper Trading: {user.paper_trading}")
@@ -416,48 +416,48 @@ async def initialize_users():
         logger.error(f"Error in manual user initialization: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.post("/users/zerodha/register")
-async def register_zerodha_user_dynamically(request: Dict[str, Any]):
+@router.post("/users/sharekhan/register")
+async def register_sharekhan_user_dynamically(request: Dict[str, Any]):
     """
-    Register a new Zerodha user dynamically when they authenticate
+    Register a new ShareKhan user dynamically when they authenticate
     This is called automatically by auth endpoints when a new user submits token
     """
     try:
-        zerodha_user_id = request.get('zerodha_user_id')
-        if not zerodha_user_id:
-            raise HTTPException(status_code=400, detail="zerodha_user_id is required")
+        sharekhan_user_id = request.get('sharekhan_user_id')
+        if not sharekhan_user_id:
+            raise HTTPException(status_code=400, detail="sharekhan_user_id is required")
         
-        # Get user profile from Zerodha if available
+        # Get user profile from ShareKhan if available
         user_profile = request.get('user_profile', {})
         api_credentials = request.get('api_credentials', {})
         
         # Create or update the user
-        user_data = create_or_update_zerodha_user(
-            zerodha_user_id=zerodha_user_id,
+        user_data = create_or_update_sharekhan_user(
+            sharekhan_user_id=sharekhan_user_id,
             user_profile=user_profile,
             api_credentials=api_credentials
         )
         
-        logger.info(f"✅ Successfully registered/updated Zerodha user: {zerodha_user_id}")
+        logger.info(f"✅ Successfully registered/updated ShareKhan user: {sharekhan_user_id}")
         
         return {
             "success": True,
-            "message": f"Zerodha user {zerodha_user_id} registered successfully",
+            "message": f"ShareKhan user {sharekhan_user_id} registered successfully",
             "user": user_data,
             "total_users": len(broker_users)
         }
         
     except Exception as e:
-        logger.error(f"❌ Error registering Zerodha user: {e}")
+        logger.error(f"❌ Error registering ShareKhan user: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/users/zerodha/{zerodha_user_id}")
-async def get_zerodha_user_profile(zerodha_user_id: str):
-    """Get profile and analytics for a specific Zerodha user"""
+@router.get("/users/sharekhan/{sharekhan_user_id}")
+async def get_sharekhan_user_profile(sharekhan_user_id: str):
+    """Get profile and analytics for a specific ShareKhan user"""
     try:
-        user_data = get_user_by_zerodha_id(zerodha_user_id)
+        user_data = get_user_by_sharekhan_id(sharekhan_user_id)
         if not user_data:
-            raise HTTPException(status_code=404, detail=f"Zerodha user {zerodha_user_id} not found")
+            raise HTTPException(status_code=404, detail=f"ShareKhan user {sharekhan_user_id} not found")
         
         return {
             "success": True,
@@ -470,11 +470,11 @@ async def get_zerodha_user_profile(zerodha_user_id: str):
         logger.error(f"❌ Error getting user profile: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/users/zerodha")
-async def list_zerodha_users():
-    """List all registered Zerodha users with their analytics"""
+@router.get("/users/sharekhan")
+async def list_sharekhan_users():
+    """List all registered ShareKhan users with their analytics"""
     try:
-        all_users = list_all_zerodha_users()
+        all_users = list_all_sharekhan_users()
         
         return {
             "success": True,
@@ -484,7 +484,7 @@ async def list_zerodha_users():
         }
         
     except Exception as e:
-        logger.error(f"❌ Error listing Zerodha users: {e}")
+        logger.error(f"❌ Error listing ShareKhan users: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/trading/control")
@@ -514,12 +514,12 @@ async def control_trading(command: TradingCommand):
             
             # Import and initialize components
             from src.core.orchestrator import TradingOrchestrator
-            from data.truedata_client import (
-                initialize_truedata,
-                get_truedata_status, 
+            from data.sharekhan_client import (
+                initialize_sharekhan,
+                get_sharekhan_status, 
                 is_connected,
                 live_market_data,
-                truedata_connection_status
+                sharekhan_connection_status
             )
             
             # Create config
@@ -531,15 +531,15 @@ async def control_trading(command: TradingCommand):
                     'ssl': os.getenv('REDIS_SSL', 'false').lower() == 'true'
                 },
                 'broker': {
-                    'api_key': os.getenv('ZERODHA_API_KEY'),
-                    'api_secret': os.getenv('ZERODHA_API_SECRET'),
-                    'client_id': os.getenv('ZERODHA_CLIENT_ID')
+                    'api_key': os.getenv('SHAREKHAN_API_KEY'),
+                    'api_secret': os.getenv('SHAREKHAN_API_SECRET'),
+                    'client_id': os.getenv('SHAREKHAN_CLIENT_ID')
                 },
                 'data_provider': {
-                                    'username': os.getenv('TRUEDATA_USERNAME', 'tdwsp697'),
-                'password': os.getenv('TRUEDATA_PASSWORD', 'shyam@697'),
-                    'url': os.getenv('TRUEDATA_URL', 'push.truedata.in'),
-                    'port': int(os.getenv('TRUEDATA_PORT', 8084))
+                                    'username': os.getenv('SHAREKHAN_USERNAME', 'tdwsp697'),
+                'password': os.getenv('SHAREKHAN_PASSWORD', 'shyam@697'),
+                    'url': os.getenv('SHAREKHAN_URL', 'push.sharekhan.in'),
+                    'port': int(os.getenv('SHAREKHAN_PORT', 8084))
                 },
                 'strategies': {
                     'volatility_explosion': {'enabled': True},
@@ -558,11 +558,11 @@ async def control_trading(command: TradingCommand):
             trading_state["is_running"] = True
             trading_state["start_time"] = datetime.now().isoformat()
             
-            logger.info(f"Trading started - Zerodha API will handle paper/live mode automatically")
+            logger.info(f"Trading started - ShareKhan API will handle paper/live mode automatically")
             
             return {
                 "success": True,
-                "message": f"Trading started successfully - Zerodha API will handle paper/live mode automatically",
+                "message": f"Trading started successfully - ShareKhan API will handle paper/live mode automatically",
                 "status": "running",
                 "start_time": trading_state["start_time"]
             }
@@ -626,58 +626,58 @@ async def get_trading_status():
         logger.error(f"Error getting trading status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Add Zerodha Manual Authentication endpoints to existing working router
-@router.get("/zerodha-manual/auth-url")
-async def get_zerodha_manual_auth_url():
-    """Get Zerodha authorization URL for manual token extraction"""
+# Add ShareKhan Manual Authentication endpoints to existing working router
+@router.get("/sharekhan-manual/auth-url")
+async def get_sharekhan_manual_auth_url():
+    """Get ShareKhan authorization URL for manual token extraction"""
     try:
-        api_key = os.getenv('ZERODHA_API_KEY', 'vc9ft4zpknynpm3u')  # CRITICAL FIX: Use correct production key
-        auth_url = f"https://kite.zerodha.com/connect/login?api_key={api_key}"
+        api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')  # CRITICAL FIX: Use correct production key
+        auth_url = f"https://kite.sharekhan.com/connect/login?api_key={api_key}"
         
         return {
             "success": True,
             "auth_url": auth_url,
             "instructions": [
                 "1. Click the authorization URL",
-                "2. Login to Zerodha with your credentials", 
+                "2. Login to ShareKhan with your credentials", 
                 "3. After login, you'll be redirected to a URL",
                 "4. Copy the 'request_token' parameter from the redirected URL",
                 "5. Paste the token in the manual token entry"
             ],
             "example_redirect": "https://yourapp.com/callback?request_token=YOUR_TOKEN_HERE&action=login&status=success",
             "note": "Extract only the request_token value, not the full URL",
-            "status": "Ready for use after TrueData testing complete"
+            "status": "Ready for use after ShareKhan testing complete"
         }
     except Exception as e:
-        logger.error(f"Failed to generate Zerodha auth URL: {e}")
+        logger.error(f"Failed to generate ShareKhan auth URL: {e}")
         return {"success": False, "error": str(e)}
 
-@router.get("/zerodha-manual/status")
-async def get_zerodha_manual_status(user_id: str = "ZERODHA_DEFAULT"):
-    """Get current Zerodha manual authentication status"""
+@router.get("/sharekhan-manual/status")
+async def get_sharekhan_manual_status(user_id: str = "SHAREKHAN_DEFAULT"):
+    """Get current ShareKhan manual authentication status"""
     try:
         return {
             "success": True,
-            "message": "Zerodha manual auth ready - awaiting TrueData completion",
+            "message": "ShareKhan manual auth ready - awaiting ShareKhan completion",
             "authenticated": False,
             "user_id": user_id,
             "note": "System ready for manual token submission when needed",
-            "priority": "TrueData first, Zerodha second (as planned)"
+            "priority": "ShareKhan first, ShareKhan second (as planned)"
         }
     except Exception as e:
-        logger.error(f"Zerodha manual status check failed: {e}")
+        logger.error(f"ShareKhan manual status check failed: {e}")
         return {
             "success": False,
             "message": f"Status check failed: {str(e)}",
             "authenticated": False
         }
 
-@router.post("/zerodha-manual/submit-token")
-async def submit_zerodha_manual_token(request: dict):
-    """Submit manually extracted Zerodha request token (for future use)"""
+@router.post("/sharekhan-manual/submit-token")
+async def submit_sharekhan_manual_token(request: dict):
+    """Submit manually extracted ShareKhan request token (for future use)"""
     try:
         request_token = request.get('request_token', '')
-        user_id = request.get('user_id', 'ZERODHA_DEFAULT')
+        user_id = request.get('user_id', 'SHAREKHAN_DEFAULT')
         
         # Validate token format
         if not request_token or len(request_token) < 10:
@@ -687,34 +687,34 @@ async def submit_zerodha_manual_token(request: dict):
             }
         
         # For now, just validate the token format and return success
-        # Full implementation will be activated after TrueData testing
+        # Full implementation will be activated after ShareKhan testing
         return {
             "success": True,
-            "message": "Token format validated. Full processing ready after TrueData completion.",
+            "message": "Token format validated. Full processing ready after ShareKhan completion.",
             "user_id": user_id,
             "token_preview": f"{request_token[:8]}...",
             "status": "Stored for future activation",
-            "note": "Zerodha integration will be activated post-TrueData testing"
+            "note": "ShareKhan integration will be activated post-ShareKhan testing"
         }
         
     except Exception as e:
-        logger.error(f"Zerodha manual token submission failed: {e}")
+        logger.error(f"ShareKhan manual token submission failed: {e}")
         return {"success": False, "error": str(e)}
 
-@router.get("/zerodha-manual/test")
-async def test_zerodha_manual_system():
-    """Test Zerodha manual auth system readiness"""
+@router.get("/sharekhan-manual/test")
+async def test_sharekhan_manual_system():
+    """Test ShareKhan manual auth system readiness"""
     return {
         "success": True,
-        "message": "Zerodha manual authentication system ready",
+        "message": "ShareKhan manual authentication system ready",
         "timestamp": datetime.now().isoformat(),
         "version": "1.0.0",
-        "status": "Standby - awaiting TrueData completion",
+        "status": "Standby - awaiting ShareKhan completion",
         "endpoints": [
-            "/api/v1/control/zerodha-manual/auth-url",
-            "/api/v1/control/zerodha-manual/status", 
-            "/api/v1/control/zerodha-manual/submit-token",
-            "/api/v1/control/zerodha-manual/test"
+            "/api/v1/control/sharekhan-manual/auth-url",
+            "/api/v1/control/sharekhan-manual/status", 
+            "/api/v1/control/sharekhan-manual/submit-token",
+            "/api/v1/control/sharekhan-manual/test"
         ],
-        "workflow": "TrueData → Complete Testing → Zerodha Authorization → Trading Ready"
+        "workflow": "ShareKhan → Complete Testing → ShareKhan Authorization → Trading Ready"
     } 

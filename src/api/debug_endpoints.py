@@ -35,7 +35,7 @@ async def get_orchestrator_debug(
                 "active_positions": len(getattr(orchestrator, 'active_positions', [])),
             },
             "component_status": {
-                "zerodha": "AVAILABLE" if getattr(orchestrator, 'zerodha', None) else "NOT_SET",
+                "sharekhan": "AVAILABLE" if getattr(orchestrator, 'sharekhan', None) else "NOT_SET",
                 "risk_manager": type(getattr(orchestrator, 'risk_manager', None)).__name__ if getattr(orchestrator, 'risk_manager', None) else "NOT_SET",
                 "position_tracker": type(getattr(orchestrator, 'position_tracker', None)).__name__ if getattr(orchestrator, 'position_tracker', None) else "NOT_SET",
                 "market_data": type(getattr(orchestrator, 'market_data', None)).__name__ if getattr(orchestrator, 'market_data', None) else "NOT_SET",
@@ -435,7 +435,7 @@ async def check_initialization_status(orchestrator: TradingOrchestrator = Depend
         if hasattr(orchestrator, 'connection_manager') and orchestrator.connection_manager:
             try:
                 # Get connection status
-                connections = ['zerodha', 'database', 'redis', 'truedata']
+                connections = ['sharekhan', 'database', 'redis', 'sharekhan']
                 for conn in connections:
                     try:
                         status = orchestrator.connection_manager.get_status(conn)
@@ -845,7 +845,7 @@ async def debug_orchestrator_components():
         
         # Check component status - use actual attribute names from TradingOrchestrator
         components = {
-            "zerodha": hasattr(orchestrator, 'zerodha_client') and orchestrator.zerodha_client is not None,
+            "sharekhan": hasattr(orchestrator, 'sharekhan_client') and orchestrator.sharekhan_client is not None,
             "position_tracker": hasattr(orchestrator, 'position_tracker') and orchestrator.position_tracker is not None,
             "risk_manager": hasattr(orchestrator, 'risk_manager') and orchestrator.risk_manager is not None,
             "market_data": hasattr(orchestrator, 'market_data') and orchestrator.market_data is not None and len(orchestrator.market_data) > 0,

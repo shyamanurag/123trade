@@ -29,7 +29,7 @@ CREATE TABLE users (
     current_balance DECIMAL(15,2) DEFAULT 50000,
     risk_tolerance VARCHAR(20) DEFAULT 'medium',
     is_active BOOLEAN DEFAULT true,
-    zerodha_client_id VARCHAR(50),
+    sharekhan_client_id VARCHAR(50),
     last_login TIMESTAMP WITH TIME ZONE,
     trading_enabled BOOLEAN DEFAULT true,
     max_daily_trades INTEGER DEFAULT 100,
@@ -181,7 +181,7 @@ CREATE INDEX idx_audit_logs_user_timestamp ON audit_logs(user_id, timestamp);
 -- POST /api/v1/control/users/broker - Add broker credentials
 -- 
 -- Environment variables should provide real credentials:
--- ZERODHA_API_KEY, ZERODHA_API_SECRET, ZERODHA_CLIENT_ID
+-- SHAREKHAN_API_KEY, SHAREKHAN_API_SECRET, SHAREKHAN_CLIENT_ID
 --
 -- Database should only contain real users with real credentials
 -- No demo, test, or hardcoded users allowed in production

@@ -36,8 +36,8 @@ class TradingSystemInitializer:
         checks = {
             "Database": await self.check_database(),
             "Redis": await self.check_redis(),
-            "TrueData": await self.check_truedata(),
-            "Zerodha": await self.check_zerodha(),
+            "ShareKhan": await self.check_sharekhan(),
+            "ShareKhan": await self.check_sharekhan(),
             "Risk Manager": await self.check_risk_manager(),
             "Order Manager": await self.check_order_manager()
         }
@@ -68,22 +68,22 @@ class TradingSystemInitializer:
             logger.error(f"Redis check failed: {e}")
             return False
     
-    async def check_truedata(self):
-        """Check TrueData connection"""
+    async def check_sharekhan(self):
+        """Check ShareKhan connection"""
         try:
-            # Add actual TrueData check here
+            # Add actual ShareKhan check here
             return True
         except Exception as e:
-            logger.error(f"TrueData check failed: {e}")
+            logger.error(f"ShareKhan check failed: {e}")
             return False
     
-    async def check_zerodha(self):
-        """Check Zerodha authentication"""
+    async def check_sharekhan(self):
+        """Check ShareKhan authentication"""
         try:
-            # Add actual Zerodha check here
+            # Add actual ShareKhan check here
             return True
         except Exception as e:
-            logger.error(f"Zerodha check failed: {e}")
+            logger.error(f"ShareKhan check failed: {e}")
             return False
     
     async def check_risk_manager(self):

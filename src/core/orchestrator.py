@@ -1,7 +1,7 @@
 """
 Production-Level Trading Orchestrator
 ====================================
-Coordinates all trading system components with shared TrueData connection.
+Coordinates all trading system components with shared ShareKhan connection.
 Implements proper initialization, error handling, and component management.
 """
 
@@ -67,8 +67,8 @@ except ImportError:
     logger.warning("Could not import TradeEngine from trade_engine.py")
     TradeEngine = None
 
-# Use unified ZerodhaIntegration directly (no wrapper needed)
-# from brokers.zerodha import ZerodhaIntegration
+# Use unified ShareKhanIntegration directly (no wrapper needed)
+# from brokers.sharekhan import ShareKhanIntegration
 
 # CRITICAL FIX: Import redis_manager with production fallback support
 try:
@@ -183,23 +183,23 @@ class TradingOrchestrator:
         
         self.logger.warning("🚨 Legacy orchestrator initialized - migrate to ShareKhan system")
         
-        # Initialize TrueData access
-        self.logger.info("🚀 Initializing Trading Orchestrator with simple TrueData access...")
+        # Initialize ShareKhan access
+        self.logger.info("🚀 Initializing Trading Orchestrator with simple ShareKhan access...")
         
-        # Test TrueData cache access
-        self.logger.info("🔄 Testing access to existing TrueData cache...")
+        # Test ShareKhan cache access
+        self.logger.info("🔄 Testing access to existing ShareKhan cache...")
         
         try:
-            from data.truedata_client import live_market_data
+            from data.sharekhan_client import live_market_data
             if live_market_data:
-                self.logger.info(f"✅ TrueData cache contains {len(live_market_data)} symbols")
-                self.truedata_cache = live_market_data
+                self.logger.info(f"✅ ShareKhan cache contains {len(live_market_data)} symbols")
+                self.sharekhan_cache = live_market_data
             else:
-                self.logger.info("⚠️ TrueData cache is empty - will use API fallback")
-                self.truedata_cache = {}
+                self.logger.info("⚠️ ShareKhan cache is empty - will use API fallback")
+                self.sharekhan_cache = {}
         except ImportError:
-            self.logger.error("❌ TrueData client not available")
-            self.truedata_cache = {}
+            self.logger.error("❌ ShareKhan client not available")
+            self.sharekhan_cache = {}
         
         # Initialize Redis connection with enhanced error handling using new manager
         self.logger.info("🔄 Initializing Redis connection with ProductionRedisManager...")
@@ -250,9 +250,9 @@ class TradingOrchestrator:
         self.risk_manager = RiskManager(risk_manager_config, self.position_tracker, self.event_bus)
         self.logger.info("Risk manager initialized")
         
-        # Initialize Zerodha client with enhanced credential handling
-        self.logger.info("🔄 Initializing Zerodha client...")
-        self.zerodha_client = None  # Will be initialized async later
+        # Initialize ShareKhan client with enhanced credential handling
+        self.logger.info("🔄 Initializing ShareKhan client...")
+        self.sharekhan_client = None  # Will be initialized async later
         
         # CRITICAL FIX: Enhanced OrderManager initialization with multiple fallback levels
         self.logger.info("🔄 Initializing OrderManager with enhanced fallback system...")
@@ -280,7 +280,7 @@ class TradingOrchestrator:
         )
         
         # Set additional components after initialization
-        self.trade_engine.zerodha_client = self.zerodha_client
+        self.trade_engine.sharekhan_client = self.sharekhan_client
         self.trade_engine.risk_manager = self.risk_manager
         
         # CRITICAL FIX: Initialize real-time P&L calculator
@@ -298,8 +298,8 @@ class TradingOrchestrator:
         # System ready
         self.logger.info("✅ Trading orchestrator initialized successfully")
         
-        # Schedule TrueData manual connection
-        self._schedule_truedata_connection()
+        # Schedule ShareKhan manual connection
+        self._schedule_sharekhan_connection()
         
         # Log component status
         self._log_component_status()
@@ -398,38 +398,38 @@ class TradingOrchestrator:
             await self._load_strategies()
             self.logger.info("✅ Strategies loaded")
             
-            # Initialize Zerodha client
-            if not self.zerodha_client:
+            # Initialize ShareKhan client
+            if not self.sharekhan_client:
                 try:
-                    self.zerodha_client = await self._initialize_zerodha_client()
-                    if self.zerodha_client:
-                        self.logger.info("✅ Zerodha client initialized successfully")
+                    self.sharekhan_client = await self._initialize_sharekhan_client()
+                    if self.sharekhan_client:
+                        self.logger.info("✅ ShareKhan client initialized successfully")
                     else:
-                        self.logger.error("❌ Zerodha client initialization returned None")
+                        self.logger.error("❌ ShareKhan client initialization returned None")
                 except Exception as e:
-                    self.logger.error(f"❌ Zerodha client initialization failed: {e}")
-                    self.zerodha_client = None
+                    self.logger.error(f"❌ ShareKhan client initialization failed: {e}")
+                    self.sharekhan_client = None
             
-            # Initialize Zerodha client
-            if self.zerodha_client:
+            # Initialize ShareKhan client
+            if self.sharekhan_client:
                 try:
-                    await self.zerodha_client.initialize()
-                    self.logger.info("✅ Zerodha client initialized")
+                    await self.sharekhan_client.initialize()
+                    self.logger.info("✅ ShareKhan client initialized")
                 except Exception as e:
-                    self.logger.warning(f"⚠️ Zerodha client initialization failed: {e}")
+                    self.logger.warning(f"⚠️ ShareKhan client initialization failed: {e}")
             
-            # CRITICAL FIX: Set Zerodha client in trade engine after initialization
-            if hasattr(self, 'trade_engine') and self.trade_engine and self.zerodha_client:
-                self.trade_engine.zerodha_client = self.zerodha_client
-                self.logger.info("✅ Zerodha client assigned to trade engine")
+            # CRITICAL FIX: Set ShareKhan client in trade engine after initialization
+            if hasattr(self, 'trade_engine') and self.trade_engine and self.sharekhan_client:
+                self.trade_engine.sharekhan_client = self.sharekhan_client
+                self.logger.info("✅ ShareKhan client assigned to trade engine")
             else:
-                self.logger.error("❌ Failed to assign Zerodha client to trade engine")
+                self.logger.error("❌ Failed to assign ShareKhan client to trade engine")
                 if not hasattr(self, 'trade_engine'):
                     self.logger.error("❌ Trade engine not found")
                 if not self.trade_engine:
                     self.logger.error("❌ Trade engine is None")
-                if not self.zerodha_client:
-                    self.logger.error("❌ Zerodha client is None")
+                if not self.sharekhan_client:
+                    self.logger.error("❌ ShareKhan client is None")
             
             # Initialize Position Monitor for continuous auto square-off
             try:
@@ -463,7 +463,7 @@ class TradingOrchestrator:
             
             # Clean config - no fake fallbacks
             config = {
-                'zerodha_client': self.zerodha_client,
+                'sharekhan_client': self.sharekhan_client,
                 'redis_client': self.redis_manager,
                 'database_url': os.environ.get('DATABASE_URL')
             }
@@ -486,7 +486,7 @@ class TradingOrchestrator:
             # CRITICAL FIX: Add redis_url to config for consistency
             redis_url = os.environ.get('REDIS_URL')
             config = {
-                'zerodha_client': self.zerodha_client,
+                'sharekhan_client': self.sharekhan_client,
                 'redis_url': redis_url,  # Add redis_url for consistency
                 'redis': self.redis_manager
             }
@@ -509,7 +509,7 @@ class TradingOrchestrator:
             # CRITICAL FIX: Add redis_url to config for consistency
             redis_url = os.environ.get('REDIS_URL')
             config = {
-                'zerodha_client': self.zerodha_client,
+                'sharekhan_client': self.sharekhan_client,
                 'redis_url': redis_url  # Add redis_url for consistency
             }
             
@@ -524,49 +524,49 @@ class TradingOrchestrator:
             self.logger.error("❌ System will NOT be able to execute trades")
             return None
             
-    def _schedule_truedata_connection(self):
-        """Schedule TrueData connection after deployment stabilizes"""
+    def _schedule_sharekhan_connection(self):
+        """Schedule ShareKhan connection after deployment stabilizes"""
         import asyncio
         import threading
         
-        def connect_truedata_delayed():
-            """Connect TrueData after delay"""
+        def connect_sharekhan_delayed():
+            """Connect ShareKhan after delay"""
             import time
             time.sleep(30)  # Wait 30 seconds for deployment to stabilize
             
             try:
-                self.logger.info("🔄 Attempting delayed TrueData connection...")
-                from data.truedata_client import truedata_client
+                self.logger.info("🔄 Attempting delayed ShareKhan connection...")
+                from data.sharekhan_client import sharekhan_client
                 
                 # Reset circuit breaker and connection attempts
-                truedata_client._circuit_breaker_active = False
-                truedata_client._connection_attempts = 0
+                sharekhan_client._circuit_breaker_active = False
+                sharekhan_client._connection_attempts = 0
                 
                 # Attempt connection
-                if truedata_client.connect():
-                    self.logger.info("✅ TrueData connected successfully after deployment")
+                if sharekhan_client.connect():
+                    self.logger.info("✅ ShareKhan connected successfully after deployment")
                     # Update our cache reference
-                    from data.truedata_client import live_market_data
-                    self.truedata_cache = live_market_data
+                    from data.sharekhan_client import live_market_data
+                    self.sharekhan_cache = live_market_data
                 else:
-                    self.logger.warning("⚠️ TrueData connection failed - will retry later")
+                    self.logger.warning("⚠️ ShareKhan connection failed - will retry later")
                     
             except Exception as e:
-                self.logger.error(f"❌ Delayed TrueData connection failed: {e}")
+                self.logger.error(f"❌ Delayed ShareKhan connection failed: {e}")
         
         # Start delayed connection in background thread
-        connection_thread = threading.Thread(target=connect_truedata_delayed, daemon=True)
+        connection_thread = threading.Thread(target=connect_sharekhan_delayed, daemon=True)
         connection_thread.start()
-        self.logger.info("🔄 TrueData connection scheduled for 30 seconds")
+        self.logger.info("🔄 ShareKhan connection scheduled for 30 seconds")
         
     def _log_component_status(self):
         """Log comprehensive component status"""
         self.logger.info("📊 Component Status:")
-        self.logger.info(f"   {'✅' if self.truedata_cache else '❌'} truedata_cache: {bool(self.truedata_cache)}")
+        self.logger.info(f"   {'✅' if self.sharekhan_cache else '❌'} sharekhan_cache: {bool(self.sharekhan_cache)}")
         self.logger.info(f"   {'✅' if self.event_bus else '❌'} event_bus: {bool(self.event_bus)}")
         self.logger.info(f"   {'✅' if self.position_tracker else '❌'} position_tracker: {bool(self.position_tracker)}")
         self.logger.info(f"   {'✅' if self.risk_manager else '❌'} risk_manager: {bool(self.risk_manager)}")
-        self.logger.info(f"   {'✅' if self.zerodha_client else '❌'} zerodha: {bool(self.zerodha_client)}")
+        self.logger.info(f"   {'✅' if self.sharekhan_client else '❌'} sharekhan: {bool(self.sharekhan_client)}")
         self.logger.info(f"   {'✅' if self.order_manager else '❌'} order_manager: {bool(self.order_manager)}")
         self.logger.info(f"   {'✅' if self.trade_engine else '❌'} trade_engine: {bool(self.trade_engine)}")
         
@@ -578,41 +578,41 @@ class TradingOrchestrator:
         else:
             self.logger.info("✅ OrderManager available - trade execution enabled")
             
-    async def _initialize_zerodha_client(self):
-        """Initialize Zerodha client with enhanced credential handling"""
+    async def _initialize_sharekhan_client(self):
+        """Initialize ShareKhan client with enhanced credential handling"""
         try:
             # CRITICAL FIX: Get credentials from trading_control first
-            zerodha_credentials = await self._get_zerodha_credentials_from_trading_control()
+            sharekhan_credentials = await self._get_sharekhan_credentials_from_trading_control()
             
-            logger.info(f"🔍 DEBUG: Credentials from trading_control: {zerodha_credentials}")
+            logger.info(f"🔍 DEBUG: Credentials from trading_control: {sharekhan_credentials}")
             
-            if zerodha_credentials:
-                api_key = zerodha_credentials.get('api_key')
-                user_id = zerodha_credentials.get('user_id')
-                access_token = zerodha_credentials.get('access_token')
+            if sharekhan_credentials:
+                api_key = sharekhan_credentials.get('api_key')
+                user_id = sharekhan_credentials.get('user_id')
+                access_token = sharekhan_credentials.get('access_token')
                 
                 logger.info(f"🔍 DEBUG: API Key: {api_key[:8] if api_key else None}")
                 logger.info(f"🔍 DEBUG: User ID: {user_id if user_id else None}")
                 logger.info(f"🔍 DEBUG: Access Token: {access_token[:10] if access_token else None}")
                 
                 if api_key and user_id:
-                    self.logger.info(f"✅ Using Zerodha credentials from trading_control: API Key: {api_key[:8]}..., User ID: {user_id}")
+                    self.logger.info(f"✅ Using ShareKhan credentials from trading_control: API Key: {api_key[:8]}..., User ID: {user_id}")
                     
-                    # Create Zerodha client
-                    # from brokers.zerodha import ZerodhaIntegration
+                    # Create ShareKhan client
+                    # from brokers.sharekhan import ShareKhanIntegration
                     
                     # Set environment variables for the client
-                    os.environ['ZERODHA_API_KEY'] = api_key
-                    os.environ['ZERODHA_USER_ID'] = user_id
+                    os.environ['SHAREKHAN_API_KEY'] = api_key
+                    os.environ['SHAREKHAN_USER_ID'] = user_id
                     
                     # Create broker instance with proper config dictionary
                     has_valid_credentials = all([api_key, user_id, access_token])
-                    zerodha_config = {
+                    sharekhan_config = {
                         'api_key': api_key,
                         'user_id': user_id,
                         'access_token': access_token,
                         'mock_mode': not has_valid_credentials,  # False when we have all credentials
-                        'sandbox_mode': os.getenv('ZERODHA_SANDBOX_MODE', 'true').lower() == 'true'  # Default to sandbox for safety
+                        'sandbox_mode': os.getenv('SHAREKHAN_SANDBOX_MODE', 'true').lower() == 'true'  # Default to sandbox for safety
                     }
                     
                     # Create config for resilient connection
@@ -626,54 +626,54 @@ class TradingOrchestrator:
                     }
                     
                     # Create unified broker instance with built-in resilience
-                    unified_config = {**zerodha_config, **resilient_config}
-                    zerodha_client = ZerodhaIntegration(unified_config)
-                    logger.info(f"✅ Zerodha client initialized in {'REAL' if not zerodha_config['mock_mode'] else 'MOCK'} mode")
-                    logger.info(f"   Sandbox: {'ON' if zerodha_config['sandbox_mode'] else 'OFF'}")
-                    return zerodha_client
+                    unified_config = {**sharekhan_config, **resilient_config}
+                    sharekhan_client = ShareKhanIntegration(unified_config)
+                    logger.info(f"✅ ShareKhan client initialized in {'REAL' if not sharekhan_config['mock_mode'] else 'MOCK'} mode")
+                    logger.info(f"   Sandbox: {'ON' if sharekhan_config['sandbox_mode'] else 'OFF'}")
+                    return sharekhan_client
                 else:
-                    self.logger.error("❌ Incomplete Zerodha credentials from trading_control")
+                    self.logger.error("❌ Incomplete ShareKhan credentials from trading_control")
             else:
-                self.logger.warning("⚠️ No Zerodha credentials found in trading_control")
+                self.logger.warning("⚠️ No ShareKhan credentials found in trading_control")
                 
             # Fallback to environment variables
-            self.logger.info("🔄 Falling back to environment variables for Zerodha credentials")
-            return await self._initialize_zerodha_from_env()
+            self.logger.info("🔄 Falling back to environment variables for ShareKhan credentials")
+            return await self._initialize_sharekhan_from_env()
             
         except Exception as e:
-            self.logger.error(f"❌ Zerodha client initialization error: {e}")
+            self.logger.error(f"❌ ShareKhan client initialization error: {e}")
             return None
             
-    async def _get_zerodha_credentials_from_trading_control(self):
-        """Get Zerodha credentials from trading_control module with dynamic user support"""
+    async def _get_sharekhan_credentials_from_trading_control(self):
+        """Get ShareKhan credentials from trading_control module with dynamic user support"""
         try:
-            from src.api.trading_control import broker_users, get_master_user, get_user_by_zerodha_id
+            from src.api.trading_control import broker_users, get_master_user, get_user_by_sharekhan_id
             
             # First try to get the master user (the one that can execute trades)
             try:
                 master_user = get_master_user()
                 if master_user:
-                    zerodha_user_id = master_user['user_id']  # This is the real Zerodha user ID
+                    sharekhan_user_id = master_user['user_id']  # This is the real ShareKhan user ID
                     credentials = {
                         'api_key': master_user.get('api_key'),
                         'api_secret': master_user.get('api_secret'), 
-                        'user_id': zerodha_user_id  # Use real Zerodha user ID
+                        'user_id': sharekhan_user_id  # Use real ShareKhan user ID
                     }
                     
-                    self.logger.info(f"✅ Found master Zerodha user credentials: {zerodha_user_id}")
+                    self.logger.info(f"✅ Found master ShareKhan user credentials: {sharekhan_user_id}")
                     
-                    # Get access token from Redis using the REAL Zerodha user ID
-                    access_token = await self._get_access_token_from_redis(zerodha_user_id)
+                    # Get access token from Redis using the REAL ShareKhan user ID
+                    access_token = await self._get_access_token_from_redis(sharekhan_user_id)
                     if access_token:
                         credentials['access_token'] = access_token
-                        self.logger.info(f"✅ Retrieved access token from Redis for Zerodha user: {zerodha_user_id}")
+                        self.logger.info(f"✅ Retrieved access token from Redis for ShareKhan user: {sharekhan_user_id}")
                         return credentials
                     else:
-                        self.logger.warning(f"⚠️ No access token found in Redis for Zerodha user: {zerodha_user_id}")
+                        self.logger.warning(f"⚠️ No access token found in Redis for ShareKhan user: {sharekhan_user_id}")
                         # Try alternative patterns for backward compatibility
                         # DYNAMIC FALLBACK: Use environment-based alternatives
-                        master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
-                        for alt_user_id in [zerodha_user_id, master_user_id, 'QSW899', 'PAPER_TRADER_MAIN']:
+                        master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
+                        for alt_user_id in [sharekhan_user_id, master_user_id, 'QSW899', 'PAPER_TRADER_MAIN']:
                             access_token = await self._get_access_token_from_redis(alt_user_id)
                             if access_token:
                                 credentials['access_token'] = access_token
@@ -682,31 +682,31 @@ class TradingOrchestrator:
             except Exception as master_error:
                 self.logger.warning(f"⚠️ Error getting master user: {master_error}")
             
-            # Fallback: Look for any active Zerodha user
+            # Fallback: Look for any active ShareKhan user
             for user_id, user_data in broker_users.items():
-                if user_data.get('is_active') and user_data.get('broker') == 'zerodha':
-                    zerodha_user_id = user_data.get('client_id', user_id)
+                if user_data.get('is_active') and user_data.get('broker') == 'sharekhan':
+                    sharekhan_user_id = user_data.get('client_id', user_id)
                     credentials = {
                         'api_key': user_data.get('api_key'),
-                        'user_id': zerodha_user_id,  # client_id is the Zerodha user_id
+                        'user_id': sharekhan_user_id,  # client_id is the ShareKhan user_id
                         'api_secret': user_data.get('api_secret')
                     }
                     
                     if credentials.get('api_key') and credentials.get('user_id'):
-                        self.logger.info(f"✅ Found fallback Zerodha credentials for user: {zerodha_user_id}")
+                        self.logger.info(f"✅ Found fallback ShareKhan credentials for user: {sharekhan_user_id}")
                         
                         # Get access token from Redis
-                        access_token = await self._get_access_token_from_redis(zerodha_user_id)
+                        access_token = await self._get_access_token_from_redis(sharekhan_user_id)
                         if access_token:
                             credentials['access_token'] = access_token
-                            self.logger.info(f"✅ Retrieved access token from Redis for user: {zerodha_user_id}")
+                            self.logger.info(f"✅ Retrieved access token from Redis for user: {sharekhan_user_id}")
                             return credentials
                         
-            self.logger.warning("⚠️ No active Zerodha users found in trading_control")
+            self.logger.warning("⚠️ No active ShareKhan users found in trading_control")
             return None
             
         except Exception as e:
-            self.logger.error(f"❌ Error getting Zerodha credentials from trading_control: {e}")
+            self.logger.error(f"❌ Error getting ShareKhan credentials from trading_control: {e}")
             return None
     
     async def _get_access_token_from_redis(self, user_id: str) -> Optional[str]:
@@ -740,15 +740,15 @@ class TradingOrchestrator:
             self.logger.info(f"🔍 EXHAUSTIVE token search for user: {user_id}")
             
             # PRIORITIZED TOKEN SEARCH: Check specific user ID first, then fallbacks
-            master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+            master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
             token_keys_to_check = [
-                f"zerodha:token:{user_id}",                    # 1. Exact user ID (highest priority)
-                f"zerodha:token:{master_user_id}",             # 2. Master user ID  
-                f"zerodha:token:QSW899",                       # 3. Specific known user
-                f"zerodha:access_token",                       # 4. Simple pattern
-                f"zerodha:{user_id}:access_token",             # 5. Alternative pattern
-                f"zerodha_token_{user_id}",                    # 6. Alternative format
-                f"zerodha:token:ZERODHA_DEFAULT"               # 7. Default pattern
+                f"sharekhan:token:{user_id}",                    # 1. Exact user ID (highest priority)
+                f"sharekhan:token:{master_user_id}",             # 2. Master user ID  
+                f"sharekhan:token:QSW899",                       # 3. Specific known user
+                f"sharekhan:access_token",                       # 4. Simple pattern
+                f"sharekhan:{user_id}:access_token",             # 5. Alternative pattern
+                f"sharekhan_token_{user_id}",                    # 6. Alternative format
+                f"sharekhan:token:SHAREKHAN_DEFAULT"               # 7. Default pattern
             ]
             
             # First check priority keys for the specific user
@@ -764,9 +764,9 @@ class TradingOrchestrator:
             
             # Only if no priority keys found, do wildcard search as fallback
             try:
-                all_zerodha_keys = await redis_client.keys("zerodha:token:*")
-                self.logger.info(f"🔍 No priority token found, checking {len(all_zerodha_keys)} wildcard keys")
-                for key in all_zerodha_keys:
+                all_sharekhan_keys = await redis_client.keys("sharekhan:token:*")
+                self.logger.info(f"🔍 No priority token found, checking {len(all_sharekhan_keys)} wildcard keys")
+                for key in all_sharekhan_keys:
                     key_str = key.decode() if isinstance(key, bytes) else key
                     # Skip if we already checked this key in priority list
                     if key_str in token_keys_to_check:
@@ -781,7 +781,7 @@ class TradingOrchestrator:
                     except Exception as e:
                         self.logger.warning(f"⚠️ Error reading fallback key {key_str}: {e}")
             except Exception as e:
-                self.logger.warning(f"⚠️ Error listing zerodha keys: {e}")
+                self.logger.warning(f"⚠️ Error listing sharekhan keys: {e}")
             
             self.logger.warning(f"⚠️ No access token found in Redis for user: {user_id} with any key pattern")
             await redis_client.close()
@@ -798,10 +798,10 @@ class TradingOrchestrator:
             self.logger.error(f"❌ Error retrieving access token from Redis: {e}")
             return None
     
-    async def update_zerodha_token(self, user_id: str, access_token: str):
-        """Update Zerodha access token dynamically without restart"""
+    async def update_sharekhan_token(self, user_id: str, access_token: str):
+        """Update ShareKhan access token dynamically without restart"""
         try:
-            self.logger.info(f"✅ Updating Zerodha access token for user: {user_id}")
+            self.logger.info(f"✅ Updating ShareKhan access token for user: {user_id}")
             
             # CRITICAL FIX: Store token in memory as fallback if Redis fails
             if not hasattr(self, '_memory_token_store'):
@@ -824,7 +824,7 @@ class TradingOrchestrator:
                     )
                     
                     # Store token with expiration (8 hours)
-                    redis_key = f"zerodha:token:{user_id}"
+                    redis_key = f"sharekhan:token:{user_id}"
                     await redis_client.set(redis_key, access_token, ex=28800)  # 8 hours
                     await redis_client.close()
                     self.logger.info(f"✅ Token stored in Redis at {redis_key}")
@@ -833,54 +833,54 @@ class TradingOrchestrator:
             except Exception as redis_error:
                 self.logger.warning(f"⚠️ Redis storage failed, using memory storage: {redis_error}")
             
-            # Update the token in the existing Zerodha client if available
-            if hasattr(self, 'zerodha_client') and self.zerodha_client:
-                # CRITICAL FIX: ZerodhaIntegration IS the broker directly, no .broker attribute
-                self.zerodha_client.access_token = access_token
-                if hasattr(self.zerodha_client, 'kite') and self.zerodha_client.kite:
-                    self.zerodha_client.kite.set_access_token(access_token)
-                    self.logger.info(f"✅ Updated KiteConnect access token in Zerodha client")
+            # Update the token in the existing ShareKhan client if available
+            if hasattr(self, 'sharekhan_client') and self.sharekhan_client:
+                # CRITICAL FIX: ShareKhanIntegration IS the broker directly, no .broker attribute
+                self.sharekhan_client.access_token = access_token
+                if hasattr(self.sharekhan_client, 'kite') and self.sharekhan_client.kite:
+                    self.sharekhan_client.kite.set_access_token(access_token)
+                    self.logger.info(f"✅ Updated ShareKhanConnect access token in ShareKhan client")
                 
                 # Use the update_access_token method for proper token handling
-                if hasattr(self.zerodha_client, 'update_access_token'):
-                    await self.zerodha_client.update_access_token(access_token)
-                    self.logger.info(f"✅ Updated access token using ZerodhaIntegration method")
+                if hasattr(self.sharekhan_client, 'update_access_token'):
+                    await self.sharekhan_client.update_access_token(access_token)
+                    self.logger.info(f"✅ Updated access token using ShareKhanIntegration method")
                     
             # Update the token in trade engine if available
             if hasattr(self, 'trade_engine') and self.trade_engine:
-                if hasattr(self.trade_engine, 'zerodha_client') and self.trade_engine.zerodha_client:
-                    # CRITICAL FIX: ZerodhaIntegration IS the broker directly, no .broker attribute
-                    self.trade_engine.zerodha_client.access_token = access_token
-                    if hasattr(self.trade_engine.zerodha_client, 'kite') and self.trade_engine.zerodha_client.kite:
-                        self.trade_engine.zerodha_client.kite.set_access_token(access_token)
-                        self.logger.info(f"✅ Updated KiteConnect access token in trade engine Zerodha client")
+                if hasattr(self.trade_engine, 'sharekhan_client') and self.trade_engine.sharekhan_client:
+                    # CRITICAL FIX: ShareKhanIntegration IS the broker directly, no .broker attribute
+                    self.trade_engine.sharekhan_client.access_token = access_token
+                    if hasattr(self.trade_engine.sharekhan_client, 'kite') and self.trade_engine.sharekhan_client.kite:
+                        self.trade_engine.sharekhan_client.kite.set_access_token(access_token)
+                        self.logger.info(f"✅ Updated ShareKhanConnect access token in trade engine ShareKhan client")
                     
                     # Use the update_access_token method for proper token handling
-                    if hasattr(self.trade_engine.zerodha_client, 'update_access_token'):
-                        await self.trade_engine.zerodha_client.update_access_token(access_token)
-                        self.logger.info(f"✅ Updated trade engine access token using ZerodhaIntegration method")
+                    if hasattr(self.trade_engine.sharekhan_client, 'update_access_token'):
+                        await self.trade_engine.sharekhan_client.update_access_token(access_token)
+                        self.logger.info(f"✅ Updated trade engine access token using ShareKhanIntegration method")
             
-            # Re-initialize the Zerodha client with the new token
-            await self._initialize_zerodha_client()
+            # Re-initialize the ShareKhan client with the new token
+            await self._initialize_sharekhan_client()
             
-            self.logger.info(f"✅ Successfully updated Zerodha access token for user: {user_id}")
+            self.logger.info(f"✅ Successfully updated ShareKhan access token for user: {user_id}")
             return True
             
         except Exception as e:
-            self.logger.error(f"❌ Error updating Zerodha access token: {e}")
+            self.logger.error(f"❌ Error updating ShareKhan access token: {e}")
             return False
             
-    async def _initialize_zerodha_from_env(self):
-        """Initialize Zerodha client from environment variables"""
+    async def _initialize_sharekhan_from_env(self):
+        """Initialize ShareKhan client from environment variables"""
         try:
-            api_key = os.environ.get('ZERODHA_API_KEY')
-            user_id = os.environ.get('ZERODHA_USER_ID')  # Note: corrected variable name
+            api_key = os.environ.get('SHAREKHAN_API_KEY')
+            user_id = os.environ.get('SHAREKHAN_USER_ID')  # Note: corrected variable name
             
             if api_key and user_id:
-                self.logger.info(f"✅ Using Zerodha credentials from environment: API Key: {api_key[:8]}..., User ID: {user_id}")
+                self.logger.info(f"✅ Using ShareKhan credentials from environment: API Key: {api_key[:8]}..., User ID: {user_id}")
                 
                 # Get access token from environment or Redis
-                access_token = os.getenv('ZERODHA_ACCESS_TOKEN')
+                access_token = os.getenv('SHAREKHAN_ACCESS_TOKEN')
                 
                 # If no access token in environment, check Redis with multiple key patterns using new manager
                 if not access_token:
@@ -891,33 +891,33 @@ class TradingOrchestrator:
                             
                             # Check multiple Redis key patterns to find the token
                             # DYNAMIC TOKEN PATTERNS: Use environment-based user ID
-                            master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+                            master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
                             token_keys_to_check = [
-                                f"zerodha:token:{user_id}",  # Standard pattern with env user_id
-                                f"zerodha:token:{master_user_id}",  # Dynamic master user pattern
-                                f"zerodha:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
-                                f"zerodha:token:QSW899",  # Backup specific user ID
-                                f"zerodha:{user_id}:access_token",  # Alternative pattern
-                                f"zerodha:access_token",  # Simple pattern
-                                f"zerodha_token_{user_id}",  # Alternative format
+                                f"sharekhan:token:{user_id}",  # Standard pattern with env user_id
+                                f"sharekhan:token:{master_user_id}",  # Dynamic master user pattern
+                                f"sharekhan:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
+                                f"sharekhan:token:QSW899",  # Backup specific user ID
+                                f"sharekhan:{user_id}:access_token",  # Alternative pattern
+                                f"sharekhan:access_token",  # Simple pattern
+                                f"sharekhan_token_{user_id}",  # Alternative format
                             ]
                             
                             for key in token_keys_to_check:
                                 stored_token = await self.redis_manager.safe_get(key)
                                 if stored_token:
                                     access_token = stored_token
-                                    self.logger.info(f"✅ Found Zerodha token in Redis with key: {key}")
+                                    self.logger.info(f"✅ Found ShareKhan token in Redis with key: {key}")
                                     break
                             
-                            # If still no token, check all zerodha:token:* keys
+                            # If still no token, check all sharekhan:token:* keys
                             if not access_token:
-                                self.logger.info("🔍 Searching all zerodha:token:* keys in Redis...")
-                                all_keys = await self.redis_manager.safe_keys("zerodha:token:*")
+                                self.logger.info("🔍 Searching all sharekhan:token:* keys in Redis...")
+                                all_keys = await self.redis_manager.safe_keys("sharekhan:token:*")
                                 for key in all_keys:
                                     stored_token = await self.redis_manager.safe_get(key)
                                     if stored_token:
                                         access_token = stored_token
-                                        self.logger.info(f"✅ Found Zerodha token in Redis with key: {key}")
+                                        self.logger.info(f"✅ Found ShareKhan token in Redis with key: {key}")
                                         break
                         else:
                             # Fallback to direct Redis connection with proper SSL configuration
@@ -937,16 +937,16 @@ class TradingOrchestrator:
                             
                             # Check multiple Redis key patterns to find the token
                             # DYNAMIC TOKEN PATTERNS: Use environment-based user ID
-                            master_user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+                            master_user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
                             token_keys_to_check = [
-                                f"zerodha:token:{user_id}",  # Standard pattern with env user_id
-                                f"zerodha:token:{master_user_id}",  # Dynamic master user pattern
-                                f"zerodha:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
-                                f"zerodha:token:QSW899",  # Backup specific user ID
-                                f"zerodha:access_token",  # Simple pattern
-                                f"zerodha:{user_id}:access_token",  # Alternative pattern
-                                f"zerodha_token_{user_id}",  # Alternative format
-                                f"zerodha:token:ZERODHA_DEFAULT"  # Default pattern
+                                f"sharekhan:token:{user_id}",  # Standard pattern with env user_id
+                                f"sharekhan:token:{master_user_id}",  # Dynamic master user pattern
+                                f"sharekhan:token:PAPER_TRADER_MAIN",  # Alternative paper trader ID
+                                f"sharekhan:token:QSW899",  # Backup specific user ID
+                                f"sharekhan:access_token",  # Simple pattern
+                                f"sharekhan:{user_id}:access_token",  # Alternative pattern
+                                f"sharekhan_token_{user_id}",  # Alternative format
+                                f"sharekhan:token:SHAREKHAN_DEFAULT"  # Default pattern
                             ]
                             
                             for key in token_keys_to_check:
@@ -954,7 +954,7 @@ class TradingOrchestrator:
                                     stored_token = await redis_client.get(key)
                                     if stored_token:
                                         access_token = stored_token.decode() if isinstance(stored_token, bytes) else stored_token
-                                        self.logger.info(f"✅ Found Zerodha token in Redis with key: {key}")
+                                        self.logger.info(f"✅ Found ShareKhan token in Redis with key: {key}")
                                         break
                                 except Exception as key_error:
                                     self.logger.warning(f"⚠️ Error checking Redis key {key}: {key_error}")
@@ -966,7 +966,7 @@ class TradingOrchestrator:
                         self.logger.warning(f"Could not check Redis for stored token: {redis_error}")
                 
                 # Create proper broker instance and config
-                # from brokers.zerodha import ZerodhaIntegration
+                # from brokers.sharekhan import ShareKhanIntegration
                 
                 # Create unified config with built-in resilience features
                 has_valid_credentials = all([api_key, user_id, access_token])
@@ -977,7 +977,7 @@ class TradingOrchestrator:
                     'user_id': user_id,
                     'access_token': access_token,  # Can be None initially
                     'mock_mode': not has_api_credentials,  # Only require API credentials, not token
-                    'sandbox_mode': os.getenv('ZERODHA_SANDBOX_MODE', 'true').lower() == 'true',
+                    'sandbox_mode': os.getenv('SHAREKHAN_SANDBOX_MODE', 'true').lower() == 'true',
                     'allow_token_update': True,  # Allow token to be set later
                     # Built-in resilience configuration
                     'max_retries': 3,
@@ -991,24 +991,24 @@ class TradingOrchestrator:
                 # Log initialization status
                 if has_api_credentials:
                     if access_token:
-                        self.logger.info(f"✅ Zerodha initializing with token for user {user_id}: {access_token[:10]}...")
+                        self.logger.info(f"✅ ShareKhan initializing with token for user {user_id}: {access_token[:10]}...")
                     else:
-                        self.logger.info(f"🔧 Zerodha initializing WITHOUT token for user {user_id} - will accept token from frontend")
-                    self.logger.info("🔄 Zerodha will use REAL API with built-in resilience")
+                        self.logger.info(f"🔧 ShareKhan initializing WITHOUT token for user {user_id} - will accept token from frontend")
+                    self.logger.info("🔄 ShareKhan will use REAL API with built-in resilience")
                 else:
-                    self.logger.warning(f"❌ Missing Zerodha API credentials - running in mock mode")
+                    self.logger.warning(f"❌ Missing ShareKhan API credentials - running in mock mode")
                 
                 # Create unified broker instance with built-in resilience
-                # zerodha_client = ZerodhaIntegration(unified_config)
-                self.logger.info("✅ Zerodha client initialized from environment with proper config")
+                # sharekhan_client = ShareKhanIntegration(unified_config)
+                self.logger.info("✅ ShareKhan client initialized from environment with proper config")
                 return unified_config
             else:
-                self.logger.error("❌ Missing Zerodha credentials in environment variables")
-                self.logger.error("❌ Required: ZERODHA_API_KEY and ZERODHA_USER_ID")
+                self.logger.error("❌ Missing ShareKhan credentials in environment variables")
+                self.logger.error("❌ Required: SHAREKHAN_API_KEY and SHAREKHAN_USER_ID")
                 return None
                 
         except Exception as e:
-            self.logger.error(f"❌ Zerodha client initialization error: {e}")
+            self.logger.error(f"❌ ShareKhan client initialization error: {e}")
             return None
     
     async def _get_market_data_from_api(self) -> Dict[str, Any]:
@@ -1085,7 +1085,7 @@ class TradingOrchestrator:
             # Try to get data from Redis first
             if self.redis_client:
                 try:
-                    cached_data = self.redis_client.hgetall("truedata:live_cache")
+                    cached_data = self.redis_client.hgetall("sharekhan:live_cache")
                     
                     if cached_data:
                         # Parse JSON data
@@ -1098,26 +1098,26 @@ class TradingOrchestrator:
                         
                         if parsed_data:
                             self.logger.info(f"📊 Using Redis cache: {len(parsed_data)} symbols")
-                            # CRITICAL FIX: Update orchestrator's truedata_cache reference
-                            self.truedata_cache = parsed_data
+                            # CRITICAL FIX: Update orchestrator's sharekhan_cache reference
+                            self.sharekhan_cache = parsed_data
                             return parsed_data
                 except Exception as redis_error:
                     self.logger.warning(f"⚠️ Redis cache read failed: {redis_error}")
             
-            # STRATEGY 2: Direct TrueData cache access (FALLBACK)
-            from data.truedata_client import live_market_data, get_all_live_data
+            # STRATEGY 2: Direct ShareKhan cache access (FALLBACK)
+            from data.sharekhan_client import live_market_data, get_all_live_data
             
             # Try direct access first (most reliable)
             if live_market_data:
-                self.logger.info(f"📊 Using direct TrueData cache: {len(live_market_data)} symbols")
-                # CRITICAL FIX: Update orchestrator's truedata_cache reference
-                self.truedata_cache = live_market_data
+                self.logger.info(f"📊 Using direct ShareKhan cache: {len(live_market_data)} symbols")
+                # CRITICAL FIX: Update orchestrator's sharekhan_cache reference
+                self.sharekhan_cache = live_market_data
                 return live_market_data.copy()  # Return copy to avoid modification issues
             
             # Fallback to get_all_live_data() function
             all_data = get_all_live_data()
             if all_data:
-                self.logger.info(f"📊 Using TrueData get_all_live_data(): {len(all_data)} symbols")
+                self.logger.info(f"📊 Using ShareKhan get_all_live_data(): {len(all_data)} symbols")
                 return all_data
             
             # STRATEGY 3: API call to market data endpoint (FINAL FALLBACK)
@@ -1142,20 +1142,20 @@ class TradingOrchestrator:
                 except Exception as api_error:
                     self.logger.warning(f"API fallback failed: {api_error}")
             
-            self.logger.warning("⚠️ All TrueData access methods failed")
+            self.logger.warning("⚠️ All ShareKhan access methods failed")
             return {}
                 
         except ImportError:
-            self.logger.warning("⚠️ TrueData client not available")
+            self.logger.warning("⚠️ ShareKhan client not available")
             return {}
         except Exception as e:
-            self.logger.error(f"❌ Error accessing TrueData cache: {e}")
+            self.logger.error(f"❌ Error accessing ShareKhan cache: {e}")
             return {}
     
     async def _process_market_data(self):
         """Process market data from shared connection and run strategies"""
         try:
-            # Get market data from shared connection instead of creating new TrueData connection
+            # Get market data from shared connection instead of creating new ShareKhan connection
             market_data = await self._get_market_data_from_api()
             
             if not market_data:
@@ -1400,7 +1400,7 @@ class TradingOrchestrator:
                     if symbol not in underlying_symbols:
                         continue  # Skip symbols not in our dynamic underlying list
                     
-                    # Convert TrueData format to strategy format
+                    # Convert ShareKhan format to strategy format
                     if isinstance(data, dict):
                         # Extract price data with multiple fallbacks
                         ltp = data.get('ltp', data.get('price', data.get('last_price', 0)))
@@ -1459,7 +1459,7 @@ class TradingOrchestrator:
                             'low': float(ohlc['low']),
                             'close': float(ohlc['close']),
                             'timestamp': current_time.isoformat(),
-                            'data_source': 'truedata',
+                            'data_source': 'sharekhan',
                             'market_depth': data.get('market_depth', {}),
                             'raw_data': data  # Include raw data for debugging
                         }
@@ -1477,7 +1477,7 @@ class TradingOrchestrator:
                     continue
             
             self.logger.info(f"📊 Strategy symbols: {list(transformed_data.keys())[:5]}...")
-            self.logger.info(f"🎯 Options symbols remain available in TrueData cache for execution pricing")
+            self.logger.info(f"🎯 Options symbols remain available in ShareKhan cache for execution pricing")
             return transformed_data
             
         except Exception as e:
@@ -1491,7 +1491,7 @@ class TradingOrchestrator:
         
         try:
             # DYNAMIC APPROACH: Get current symbols from autonomous symbol manager
-            from config.truedata_symbols import get_autonomous_symbol_status, get_complete_fo_symbols
+            from config.sharekhan_symbols import get_autonomous_symbol_status, get_complete_fo_symbols
             
             # Get current autonomous strategy and symbols with fallback handling
             try:
@@ -1682,7 +1682,7 @@ class TradingOrchestrator:
                 'session_id': f"session_{int(time_module.time())}",
                 'start_time': datetime.now().isoformat(),
                 'strategy_engine': len(self.strategies) > 0,
-                'market_data': bool(self.truedata_cache)
+                'market_data': bool(self.sharekhan_cache)
             })
             
             self.logger.info(f"✅ Active strategies list: {self.active_strategies}")
@@ -1710,11 +1710,11 @@ class TradingOrchestrator:
             else:
                 self.logger.warning("⚠️ Position Monitor not available - auto square-off monitoring disabled")
             
-            # CRITICAL NEW: Start real-time Zerodha data synchronization
+            # CRITICAL NEW: Start real-time ShareKhan data synchronization
             if self.trade_engine and hasattr(self.trade_engine, 'start_real_time_sync'):
                 try:
                     await self.trade_engine.start_real_time_sync()
-                    self.logger.info("🔄 Real-time Zerodha sync started - actual trade/position data")
+                    self.logger.info("🔄 Real-time ShareKhan sync started - actual trade/position data")
                 except Exception as e:
                     self.logger.error(f"❌ Failed to start real-time sync: {e}")
             else:
@@ -1881,7 +1881,7 @@ class TradingOrchestrator:
             
             # Get market data status
             market_data_status = {
-                'connected': self.components.get('truedata_cache', False),
+                'connected': self.components.get('sharekhan_cache', False),
                 'symbols_active': 0,
                 'last_update': None
             }
@@ -2074,7 +2074,7 @@ class TradingOrchestrator:
                     await asyncio.sleep(10)
                     continue
                 
-                # Get market data from TrueData API
+                # Get market data from ShareKhan API
                 market_prices = {}
                 try:
                     # Use the same method as orchestrator uses for market data
@@ -2090,9 +2090,9 @@ class TradingOrchestrator:
                     
                 except Exception as e:
                     self.logger.error(f"❌ Error getting market data for positions: {e}")
-                    # Fallback: try direct TrueData import
+                    # Fallback: try direct ShareKhan import
                     try:
-                        from data.truedata_client import live_market_data
+                        from data.sharekhan_client import live_market_data
                         for symbol, data in live_market_data.items():
                             ltp = data.get('ltp', 0)
                             if ltp and ltp > 0:

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/market", tags=["market-data"])
 
 @router.get("/indices")
 async def get_market_indices():
-    """Get market indices data from TrueData live feed with enhanced volume parsing"""
+    """Get market indices data from ShareKhan live feed with enhanced volume parsing"""
     try:
         # Use IST timezone for timestamp
         now_ist = datetime.now(IST)
@@ -28,11 +28,11 @@ async def get_market_indices():
         # Only try to get live data if market is open
         if is_market_open:
             try:
-                # Import enhanced TrueData functions
-                from data.truedata_client import live_market_data, get_truedata_status
+                # Import enhanced ShareKhan functions
+                from data.sharekhan_client import live_market_data, get_sharekhan_status
                 
                 # Get connection health
-                status = get_truedata_status()
+                status = get_sharekhan_status()
                 connection_health = {
                     'connected': status.get('connected', False),
                     'heartbeat_healthy': status.get('data_flowing', False),
@@ -41,14 +41,14 @@ async def get_market_indices():
                     'heartbeat_age': 0 if status.get('connected') else 999
                 }
                 
-                # Get live data from TrueData singleton client (using correct symbol formats)
+                # Get live data from ShareKhan singleton client (using correct symbol formats)
                 nifty_data = live_market_data.get('NIFTY-I', {})
                 banknifty_data = live_market_data.get('BANKNIFTY-I', {})
             except ImportError:
-                # TrueData client not available, use fallback data
+                # ShareKhan client not available, use fallback data
                 pass
         
-        # If market is closed or TrueData disconnected, show NO DATA instead of fake values
+        # If market is closed or ShareKhan disconnected, show NO DATA instead of fake values
         if not is_market_open or not connection_health.get('connected', False):
             # REMOVED FAKE DATA - Show clearly that no real data is available
             nifty_data = {
@@ -61,7 +61,7 @@ async def get_market_indices():
                 'volume': 0,
                 'prev_close': 0,
                 'timestamp': now_ist.isoformat(),
-                'status': 'NO_LIVE_DATA_AVAILABLE' if not is_market_open else 'TRUEDATA_DISCONNECTED'
+                'status': 'NO_LIVE_DATA_AVAILABLE' if not is_market_open else 'SHAREKHAN_DISCONNECTED'
             }
             banknifty_data = {
                 'ltp': 0,
@@ -73,7 +73,7 @@ async def get_market_indices():
                 'volume': 0,
                 'prev_close': 0,
                 'timestamp': now_ist.isoformat(),
-                'status': 'NO_LIVE_DATA_AVAILABLE' if not is_market_open else 'TRUEDATA_DISCONNECTED'
+                'status': 'NO_LIVE_DATA_AVAILABLE' if not is_market_open else 'SHAREKHAN_DISCONNECTED'
             }
         
         # Helper function to extract price data with enhanced volume handling
@@ -130,9 +130,9 @@ async def get_market_indices():
             elif data_age > 300:  # 5 minutes old
                 status = "STALE_DATA"
             elif ltp > 0:
-                status = "LIVE_TRUEDATA"
+                status = "LIVE_SHAREKHAN"
             else:
-                status = "TRUEDATA_DISCONNECTED"
+                status = "SHAREKHAN_DISCONNECTED"
             
             return {
                 "symbol": symbol_name,
@@ -151,7 +151,7 @@ async def get_market_indices():
                 "heartbeat": data.get('heartbeat', False)
             }
         
-        # Build response with enhanced TrueData parsing
+        # Build response with enhanced ShareKhan parsing
         nifty_index = get_enhanced_price_data(nifty_data, "NIFTY 50", 0)
         bank_nifty_index = get_enhanced_price_data(banknifty_data, "BANK NIFTY", 0)
         
@@ -199,7 +199,7 @@ async def get_market_indices():
             market_status=market_status,
             last_update=now_ist.isoformat(),
             timestamp=now_ist.strftime("%Y-%m-%d %H:%M:%S IST"),
-            truedata_connection={
+            sharekhan_connection={
                 "symbols_available": len(live_market_data) if is_market_open and 'live_market_data' in locals() else 0,
                 "nifty_available": bool(nifty_data),
                 "banknifty_available": bool(banknifty_data),
@@ -218,7 +218,7 @@ async def get_market_indices():
 
 @router.get("/market-status")
 async def get_market_status():
-    """Get current market status and timings with TrueData health"""
+    """Get current market status and timings with ShareKhan health"""
     try:
         # Use IST timezone for accurate market timing
         now_ist = datetime.now(IST)
@@ -253,22 +253,22 @@ async def get_market_status():
             phase = "WEEKEND"
             status = "CLOSED"
         
-        # Get TrueData connection health
+        # Get ShareKhan connection health
         try:
-            from data.truedata_client import get_truedata_status
-            td_status = get_truedata_status()
+            from data.sharekhan_client import get_sharekhan_status
+            td_status = get_sharekhan_status()
             
             # Safely extract values to prevent React Error #31
-            truedata_health = {
+            sharekhan_health = {
                 'connected': td_status.get('connected', False) if isinstance(td_status, dict) else False,
                 'heartbeat_healthy': td_status.get('data_flowing', False) if isinstance(td_status, dict) else False,
                 'heartbeat_age': td_status.get('heartbeat_age', 999) if isinstance(td_status, dict) else 999,
                 'data_flowing': td_status.get('data_flowing', False) if isinstance(td_status, dict) else False
             }
-            truedata_status = "CONNECTED" if truedata_health['connected'] and truedata_health['heartbeat_healthy'] else "DISCONNECTED"
+            sharekhan_status = "CONNECTED" if sharekhan_health['connected'] and sharekhan_health['heartbeat_healthy'] else "DISCONNECTED"
         except:
-            truedata_health = {'connected': False, 'heartbeat_healthy': False, 'heartbeat_age': 999, 'data_flowing': False}
-            truedata_status = "ERROR"
+            sharekhan_health = {'connected': False, 'heartbeat_healthy': False, 'heartbeat_age': 999, 'data_flowing': False}
+            sharekhan_status = "ERROR"
         
         return MarketStatusResponse.create(
             status=status,
@@ -287,12 +287,12 @@ async def get_market_status():
             },
             is_trading_day=now_ist.weekday() not in [5, 6],
             data_provider={
-                "name": "TrueData Enhanced",
-                "status": str(truedata_status),  # Ensure it's a string
-                "user": str(os.getenv('TRUEDATA_USERNAME', 'Not configured')),  # Ensure it's a string
-                "connection_healthy": bool(truedata_health['connected'] and truedata_health['heartbeat_healthy']),  # Ensure it's a boolean
-                "heartbeat_age_seconds": int(truedata_health.get('heartbeat_age', 999)),  # Ensure it's an int, not an object
-                "data_flowing": bool(truedata_health.get('data_flowing', False))  # Ensure it's a boolean
+                "name": "ShareKhan Enhanced",
+                "status": str(sharekhan_status),  # Ensure it's a string
+                "user": str(os.getenv('SHAREKHAN_USERNAME', 'Not configured')),  # Ensure it's a string
+                "connection_healthy": bool(sharekhan_health['connected'] and sharekhan_health['heartbeat_healthy']),  # Ensure it's a boolean
+                "heartbeat_age_seconds": int(sharekhan_health.get('heartbeat_age', 999)),  # Ensure it's an int, not an object
+                "data_flowing": bool(sharekhan_health.get('data_flowing', False))  # Ensure it's a boolean
             }
         ).dict()
         
@@ -304,7 +304,7 @@ async def get_market_status():
 async def get_volume_data():
     """Get detailed volume data for debugging"""
     try:
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         
         volume_data = {}
         for symbol, data in live_market_data.items():

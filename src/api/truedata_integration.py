@@ -1,5 +1,5 @@
 """
-TrueData Integration API Endpoints
+ShareKhan Integration API Endpoints
 """
 
 from fastapi import APIRouter, HTTPException, Depends
@@ -14,51 +14,51 @@ import os
 # Define logger early to avoid undefined errors
 logger = logging.getLogger(__name__)
 
-from data.truedata_client import (
-    truedata_client, 
+from data.sharekhan_client import (
+    sharekhan_client, 
     live_market_data, 
-    initialize_truedata,
+    initialize_sharekhan,
     get_live_data_for_symbol,
-    get_truedata_status
+    get_sharekhan_status
 )
 
-# CRITICAL FIX: Direct bridge to populated TrueData cache at module level
+# CRITICAL FIX: Direct bridge to populated ShareKhan cache at module level
 sys.path.insert(0, os.path.abspath('.'))
 
 try:
-    from data.truedata_client import live_market_data as truedata_cache_direct
-    from data.truedata_client import truedata_client as truedata_client_direct
+    from data.sharekhan_client import live_market_data as sharekhan_cache_direct
+    from data.sharekhan_client import sharekhan_client as sharekhan_client_direct
     DIRECT_BRIDGE_AVAILABLE = True
-    logger.info("✅ TrueData direct bridge established in integration API")
+    logger.info("✅ ShareKhan direct bridge established in integration API")
 except ImportError as e:
-    logger.error(f"❌ TrueData direct bridge failed in integration API: {e}")
-    truedata_cache_direct = {}
+    logger.error(f"❌ ShareKhan direct bridge failed in integration API: {e}")
+    sharekhan_cache_direct = {}
     DIRECT_BRIDGE_AVAILABLE = False
 
 def smart_auto_retry():
-    """Smart autonomous retry for TrueData - FIXED to check cache instead of connecting"""
+    """Smart autonomous retry for ShareKhan - FIXED to check cache instead of connecting"""
     try:
         # FIXED: Check cache availability instead of trying to connect
-        from data.truedata_client import live_market_data, is_connected
+        from data.sharekhan_client import live_market_data, is_connected
         
         if len(live_market_data) > 0:
-            logger.info(f"✅ AUTONOMOUS: TrueData cache available: {len(live_market_data)} symbols")
+            logger.info(f"✅ AUTONOMOUS: ShareKhan cache available: {len(live_market_data)} symbols")
             return True
         else:
-            logger.warning("⚠️ AUTONOMOUS: TrueData cache is empty")
+            logger.warning("⚠️ AUTONOMOUS: ShareKhan cache is empty")
             return False
             
     except Exception as e:
         logger.error(f"Auto-retry cache check error: {e}")
         return False
         
-from src.models.responses import TrueDataResponse, APIResponse
+from src.models.responses import ShareKhanResponse, APIResponse
 
-router = APIRouter(prefix="/truedata", tags=["truedata"])
+router = APIRouter(prefix="/sharekhan", tags=["sharekhan"])
 
 @router.post("/connect")
-async def connect_truedata(credentials: Dict):
-    """Connect to TrueData live feed - FIXED to check cache instead of connecting"""
+async def connect_sharekhan(credentials: Dict):
+    """Connect to ShareKhan live feed - FIXED to check cache instead of connecting"""
     try:
         username = credentials.get("username")
         password = credentials.get("password")
@@ -66,38 +66,38 @@ async def connect_truedata(credentials: Dict):
         if not username or not password:
             raise HTTPException(status_code=400, detail="Username and password required")
         
-        # FIXED: Check existing TrueData cache instead of trying to connect
-        from data.truedata_client import live_market_data, is_connected
+        # FIXED: Check existing ShareKhan cache instead of trying to connect
+        from data.sharekhan_client import live_market_data, is_connected
         
         if len(live_market_data) > 0:
             return {
                 "success": True,
-                "message": f"TrueData cache available: {len(live_market_data)} symbols",
+                "message": f"ShareKhan cache available: {len(live_market_data)} symbols",
                 "cache_size": len(live_market_data),
-                "note": "Using existing TrueData connection - no new connection needed",
+                "note": "Using existing ShareKhan connection - no new connection needed",
                 "timestamp": datetime.now().isoformat()
             }
         else:
-            raise HTTPException(status_code=503, detail="TrueData cache is empty - main connection required")
+            raise HTTPException(status_code=503, detail="ShareKhan cache is empty - main connection required")
             
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error checking TrueData cache: {e}")
+        logger.error(f"Error checking ShareKhan cache: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/subscribe")
 async def subscribe_symbols(symbols: List[str]):
     """Subscribe to symbols for live data"""
     try:
-        if not truedata_client.connected:
-            raise HTTPException(status_code=503, detail="TrueData client not connected")
+        if not sharekhan_client.connected:
+            raise HTTPException(status_code=503, detail="ShareKhan client not connected")
         
-        # TrueData subscription is handled during connection
+        # ShareKhan subscription is handled during connection
         # This endpoint is for compatibility
         return {
             "success": True,
-            "message": f"TrueData handles symbol subscription automatically",
+            "message": f"ShareKhan handles symbol subscription automatically",
             "symbols": symbols,
             "timestamp": datetime.now().isoformat()
         }
@@ -112,10 +112,10 @@ async def subscribe_symbols(symbols: List[str]):
 async def unsubscribe_symbols(symbols: List[str]):
     """Unsubscribe from symbols"""
     try:
-        if not truedata_client.connected:
-            raise HTTPException(status_code=503, detail="TrueData client not connected")
+        if not sharekhan_client.connected:
+            raise HTTPException(status_code=503, detail="ShareKhan client not connected")
         
-        # For now, just remove from live data (TrueData SDK doesn't have unsubscribe)
+        # For now, just remove from live data (ShareKhan SDK doesn't have unsubscribe)
         for symbol in symbols:
             live_market_data.pop(symbol, None)
         
@@ -133,17 +133,17 @@ async def unsubscribe_symbols(symbols: List[str]):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/status")
-async def get_truedata_status_endpoint():
-    """Get TrueData connection status"""
+async def get_sharekhan_status_endpoint():
+    """Get ShareKhan connection status"""
     try:
-        if not truedata_client:
+        if not sharekhan_client:
             return {
                 "connected": False,
-                "message": "TrueData client not initialized",
+                "message": "ShareKhan client not initialized",
                 "timestamp": datetime.now().isoformat()
             }
         
-        status = get_truedata_status()
+        status = get_sharekhan_status()
         return {
             "success": True,
             "data": status,
@@ -151,50 +151,50 @@ async def get_truedata_status_endpoint():
         }
         
     except Exception as e:
-        logger.error(f"Error getting TrueData status: {e}")
+        logger.error(f"Error getting ShareKhan status: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/reconnect")
-async def reconnect_truedata():
-    """Attempt to reconnect to TrueData - FIXED to check cache instead of connecting"""
+async def reconnect_sharekhan():
+    """Attempt to reconnect to ShareKhan - FIXED to check cache instead of connecting"""
     try:
         # FIXED: Check cache availability instead of trying to reconnect
-        from data.truedata_client import live_market_data, get_truedata_status
+        from data.sharekhan_client import live_market_data, get_sharekhan_status
         
-        status = get_truedata_status()
+        status = get_sharekhan_status()
         
         if len(live_market_data) > 0:
             return {
                 "success": True,
-                "message": f"TrueData cache available: {len(live_market_data)} symbols",
+                "message": f"ShareKhan cache available: {len(live_market_data)} symbols",
                 "cache_size": len(live_market_data),
-                "note": "Using existing TrueData connection - no reconnection needed",
+                "note": "Using existing ShareKhan connection - no reconnection needed",
                 "data": status,
                 "timestamp": datetime.now().isoformat()
             }
         else:
             return {
                 "success": False,
-                "message": "TrueData cache is empty - main app connection required",
+                "message": "ShareKhan cache is empty - main app connection required",
                 "data": status,
                 "timestamp": datetime.now().isoformat()
             }
             
     except Exception as e:
-        logger.error(f"Error checking TrueData cache: {e}")
+        logger.error(f"Error checking ShareKhan cache: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/data/{symbol}")
 async def get_symbol_data(symbol: str):
     """Get latest market data for a specific symbol"""
     try:
-        if not truedata_client.connected:
-            raise HTTPException(status_code=503, detail="TrueData client not connected")
+        if not sharekhan_client.connected:
+            raise HTTPException(status_code=503, detail="ShareKhan client not connected")
         
         data = get_live_data_for_symbol(symbol)
         
         if data:
-            return TrueDataResponse.create_symbol_data(symbol, data).dict()
+            return ShareKhanResponse.create_symbol_data(symbol, data).dict()
         else:
             return APIResponse(
                 success=False,
@@ -212,8 +212,8 @@ async def get_symbol_data(symbol: str):
 async def get_all_market_data():
     """Get all market data"""
     try:
-        if not truedata_client.connected:
-            raise HTTPException(status_code=503, detail="TrueData client not connected")
+        if not sharekhan_client.connected:
+            raise HTTPException(status_code=503, detail="ShareKhan client not connected")
         
         return APIResponse(
             success=True,
@@ -231,40 +231,40 @@ async def get_all_market_data():
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/disconnect")
-async def disconnect_truedata():
-    """Disconnect from TrueData"""
+async def disconnect_sharekhan():
+    """Disconnect from ShareKhan"""
     try:
-        if not truedata_client.connected:
-            raise HTTPException(status_code=503, detail="TrueData client not connected")
+        if not sharekhan_client.connected:
+            raise HTTPException(status_code=503, detail="ShareKhan client not connected")
         
-        truedata_client.disconnect()
+        sharekhan_client.disconnect()
         
         return APIResponse(
             success=True,
-            message="TrueData disconnected successfully",
+            message="ShareKhan disconnected successfully",
             data={"disconnected_at": datetime.now().isoformat()}
         ).dict()
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error disconnecting from TrueData: {e}")
+        logger.error(f"Error disconnecting from ShareKhan: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # WebSocket integration for real-time data
 @router.websocket("/ws/{symbol}")
-async def truedata_websocket(websocket, symbol: str):
-    """WebSocket endpoint for real-time TrueData"""
+async def sharekhan_websocket(websocket, symbol: str):
+    """WebSocket endpoint for real-time ShareKhan"""
     try:
-        if not truedata_client.connected:
-            await websocket.close(code=1011, reason="TrueData client not connected")
+        if not sharekhan_client.connected:
+            await websocket.close(code=1011, reason="ShareKhan client not connected")
             return
         
         # Subscribe to symbol if not already subscribed
         if symbol not in live_market_data:
             # CRITICAL FIX: Don't call subscribe_to_symbols() - creates connection conflicts
             # Instead, just log that symbol subscription was requested
-            logger.info(f"📝 SYMBOL SUBSCRIPTION REQUESTED: {symbol} - will be available via main TrueData client")
+            logger.info(f"📝 SYMBOL SUBSCRIPTION REQUESTED: {symbol} - will be available via main ShareKhan client")
         
         # Send initial data
         initial_data = get_live_data_for_symbol(symbol)
@@ -296,15 +296,15 @@ async def truedata_websocket(websocket, symbol: str):
 
 @router.get("/debug/client-internals")
 async def debug_client_internals():
-    """Debug TrueData client internals"""
+    """Debug ShareKhan client internals"""
     try:
         # Try both client paths
         client = None
         client_type = "unknown"
         
         try:
-            from data.truedata_client import truedata_client, live_market_data, truedata_connection_status
-            client = truedata_client
+            from data.sharekhan_client import sharekhan_client, live_market_data, sharekhan_connection_status
+            client = sharekhan_client
             client_type = "singleton"
             
             return {
@@ -313,14 +313,14 @@ async def debug_client_internals():
                 "client_status": client.get_status() if hasattr(client, 'get_status') else "no_status_method",
                 "live_data_count": len(live_market_data),
                 "live_data_keys": list(live_market_data.keys()),
-                "connection_status": truedata_connection_status,
+                "connection_status": sharekhan_connection_status,
                 "sample_data": dict(list(live_market_data.items())[:3]) if live_market_data else {}
             }
             
         except ImportError:
             try:
-                from src.data.truedata_client import get_truedata_client
-                client = get_truedata_client()
+                from src.data.sharekhan_client import get_sharekhan_client
+                client = get_sharekhan_client()
                 client_type = "async"
                 
                 if client:
@@ -342,7 +342,7 @@ async def debug_client_internals():
             except ImportError:
                 return {
                     "success": False,
-                    "error": "No TrueData client found"
+                    "error": "No ShareKhan client found"
                 }
                 
     except Exception as e:
@@ -379,7 +379,7 @@ async def force_create_sample_data():
         
         return {
             "success": False,
-            "error": "SAFETY: Force sample data creation disabled - real TrueData required",
+            "error": "SAFETY: Force sample data creation disabled - real ShareKhan required",
             "message": "Fake sample data generation eliminated for safety"
         }
         
@@ -391,21 +391,21 @@ async def force_create_sample_data():
 
 @router.get("/debug/callback-status")
 async def debug_callback_status():
-    """Debug TrueData callback registration and data flow"""
+    """Debug ShareKhan callback registration and data flow"""
     try:
-        from data.truedata_client import truedata_client, live_market_data
+        from data.sharekhan_client import sharekhan_client, live_market_data
         
         debug_info = {
             "timestamp": datetime.now().isoformat(),
-            "client_connected": truedata_client.connected if truedata_client else False,
-            "td_obj_exists": hasattr(truedata_client, 'td_obj') and truedata_client.td_obj is not None,
+            "client_connected": sharekhan_client.connected if sharekhan_client else False,
+            "td_obj_exists": hasattr(sharekhan_client, 'td_obj') and sharekhan_client.td_obj is not None,
             "live_data_count": len(live_market_data),
             "live_data_keys": list(live_market_data.keys()),
         }
         
         # Check if td_obj has the callback methods
-        if hasattr(truedata_client, 'td_obj') and truedata_client.td_obj:
-            td_obj = truedata_client.td_obj
+        if hasattr(sharekhan_client, 'td_obj') and sharekhan_client.td_obj:
+            td_obj = sharekhan_client.td_obj
             debug_info.update({
                 "has_trade_callback": hasattr(td_obj, 'trade_callback'),
                 "has_bidask_callback": hasattr(td_obj, 'bidask_callback'),
@@ -453,10 +453,10 @@ async def debug_callback_status():
 async def force_callback_test():
     """Force trigger callback test data"""
     try:
-        from data.truedata_client import truedata_client, live_market_data
+        from data.sharekhan_client import sharekhan_client, live_market_data
         
-        if not truedata_client.connected:
-            return {"success": False, "error": "TrueData not connected"}
+        if not sharekhan_client.connected:
+            return {"success": False, "error": "ShareKhan not connected"}
         
         # ELIMINATED: Manual fake data injection that could mislead about real market data
         # ❌ test_data = {
@@ -476,7 +476,7 @@ async def force_callback_test():
         
         return {
             "success": False,
-            "error": "SAFETY: Manual fake data injection disabled - real TrueData callbacks required",
+            "error": "SAFETY: Manual fake data injection disabled - real ShareKhan callbacks required",
             "message": "Fake callback simulation eliminated for safety"
         }
         
@@ -490,12 +490,12 @@ async def force_callback_test():
 async def test_live_data_call():
     """Test the actual start_live_data call to see if it's working"""
     try:
-        from data.truedata_client import truedata_client, live_market_data
+        from data.sharekhan_client import sharekhan_client, live_market_data
         
-        if not truedata_client.connected or not truedata_client.td_obj:
-            return {"success": False, "error": "TrueData not connected"}
+        if not sharekhan_client.connected or not sharekhan_client.td_obj:
+            return {"success": False, "error": "ShareKhan not connected"}
         
-        td_obj = truedata_client.td_obj
+        td_obj = sharekhan_client.td_obj
         
         # Test symbols
         test_symbols = ['NIFTY', 'BANKNIFTY']
@@ -533,12 +533,12 @@ async def test_live_data_call():
 async def callback_registration_test():
     """Test if callbacks can be re-registered manually"""
     try:
-        from data.truedata_client import truedata_client, live_market_data
+        from data.sharekhan_client import sharekhan_client, live_market_data
         
-        if not truedata_client.connected or not truedata_client.td_obj:
-            return {"success": False, "error": "TrueData not connected"}
+        if not sharekhan_client.connected or not sharekhan_client.td_obj:
+            return {"success": False, "error": "ShareKhan not connected"}
         
-        td_obj = truedata_client.td_obj
+        td_obj = sharekhan_client.td_obj
         
         # Counter for callback calls
         callback_counter = {"count": 0}
@@ -580,18 +580,18 @@ async def callback_registration_test():
         }
 
 @router.post("/force-disconnect")
-async def force_disconnect_truedata():
-    """Force disconnect TrueData (deployment cleanup)"""
+async def force_disconnect_sharekhan():
+    """Force disconnect ShareKhan (deployment cleanup)"""
     try:
-        from data.truedata_client import force_disconnect_truedata
+        from data.sharekhan_client import force_disconnect_sharekhan
         
         logger.info("🛑 Force disconnect requested via API")
-        result = force_disconnect_truedata()
+        result = force_disconnect_sharekhan()
         
         if result:
             return {
                 "success": True,
-                "message": "TrueData force disconnected successfully",
+                "message": "ShareKhan force disconnected successfully",
                 "action": "force_disconnect",
                 "timestamp": datetime.now().isoformat()
             }
@@ -614,25 +614,25 @@ async def force_disconnect_truedata():
 async def deployment_safe_connect():
     """Deployment-safe connection with overlap handling"""
     try:
-        from data.truedata_client import truedata_client
+        from data.sharekhan_client import sharekhan_client
         
         logger.info("🔄 Deployment-safe connection requested")
         
         # Force disconnect any existing connections first
-        truedata_client.force_disconnect()
+        sharekhan_client.force_disconnect()
         
         # Wait a moment for cleanup
         import asyncio
         await asyncio.sleep(2)
         
         # Now attempt new connection
-        result = truedata_client.connect()
+        result = sharekhan_client.connect()
         
         if result:
-            status = truedata_client.get_status()
+            status = sharekhan_client.get_status()
             return {
                 "success": True,
-                "message": "TrueData connected with deployment overlap handling",
+                "message": "ShareKhan connected with deployment overlap handling",
                 "status": status,
                 "action": "deployment_safe_connect"
             }
@@ -641,7 +641,7 @@ async def deployment_safe_connect():
                 "success": False,
                 "message": "Deployment-safe connection failed",
                 "action": "deployment_safe_connect",
-                "help": "Try setting SKIP_TRUEDATA_AUTO_INIT=true to break overlap cycle"
+                "help": "Try setting SKIP_SHAREKHAN_AUTO_INIT=true to break overlap cycle"
             }
             
     except Exception as e:
@@ -656,27 +656,27 @@ async def deployment_safe_connect():
 async def get_deployment_status():
     """Get deployment-specific status information"""
     try:
-        from data.truedata_client import get_truedata_status
+        from data.sharekhan_client import get_sharekhan_status
         import os
         
-        status = get_truedata_status()
+        status = get_sharekhan_status()
         
         # Add deployment environment info
         deployment_info = {
             "environment": os.getenv("ENVIRONMENT", "development"),
             "app_url": os.getenv("APP_URL", ""),
-            "skip_auto_init": os.getenv("SKIP_TRUEDATA_AUTO_INIT", "false"),
+            "skip_auto_init": os.getenv("SKIP_SHAREKHAN_AUTO_INIT", "false"),
             "is_production": os.getenv("ENVIRONMENT") == "production",
             "is_digitalocean": "ondigitalocean.app" in os.getenv("APP_URL", "")
         }
         
         return {
             "success": True,
-            "truedata_status": status,
+            "sharekhan_status": status,
             "deployment_info": deployment_info,
             "overlap_prevention": {
                 "active": deployment_info["skip_auto_init"] == "true",
-                "recommendation": "Set SKIP_TRUEDATA_AUTO_INIT=true if experiencing overlap issues"
+                "recommendation": "Set SKIP_SHAREKHAN_AUTO_INIT=true if experiencing overlap issues"
             }
         }
         
@@ -690,23 +690,23 @@ async def get_deployment_status():
 
 @router.get("/connection-status")
 async def get_detailed_connection_status():
-    """Get detailed TrueData connection status with PERMANENT FIX information"""
+    """Get detailed ShareKhan connection status with PERMANENT FIX information"""
     try:
-        from data.truedata_client import truedata_client, truedata_connection_status
+        from data.sharekhan_client import sharekhan_client, sharekhan_connection_status
         
         # Get enhanced status from permanent fix
-        if truedata_client:
-            client_status = truedata_client.get_status()
+        if sharekhan_client:
+            client_status = sharekhan_client.get_status()
         else:
             client_status = {'connected': False}
         
         detailed_status = {
             'client_connected': client_status.get('connected', False),
-            'global_status': truedata_connection_status,
-            'retry_disabled': truedata_connection_status.get('retry_disabled', False),
-            'permanent_block': truedata_connection_status.get('permanent_block', False),
-            'error_type': truedata_connection_status.get('error'),
-            'can_retry': not truedata_connection_status.get('retry_disabled', False),
+            'global_status': sharekhan_connection_status,
+            'retry_disabled': sharekhan_connection_status.get('retry_disabled', False),
+            'permanent_block': sharekhan_connection_status.get('permanent_block', False),
+            'error_type': sharekhan_connection_status.get('error'),
+            'can_retry': not sharekhan_connection_status.get('retry_disabled', False),
             'connection_attempts': client_status.get('connection_attempts', 0),
             'max_attempts': client_status.get('max_attempts', 1),
             'global_connection_active': client_status.get('global_connection_active', False),
@@ -715,7 +715,7 @@ async def get_detailed_connection_status():
         }
         
         # Add recommendations based on status with permanent fix info
-        if truedata_connection_status.get('error') == 'USER_ALREADY_CONNECTED':
+        if sharekhan_connection_status.get('error') == 'USER_ALREADY_CONNECTED':
             detailed_status['recommendations'] = [
                 "PERMANENT FIX: Account connection conflict detected",
                 "Use /force-disconnect endpoint to clear ALL connection state",
@@ -727,14 +727,14 @@ async def get_detailed_connection_status():
             detailed_status['recommendations'] = [
                 "Connection permanently blocked due to repeated failures",
                 "Use /force-disconnect to reset connection state",
-                "Check TrueData account status and credentials",
+                "Check ShareKhan account status and credentials",
                 "Verify no other applications are connected"
             ]
         elif not detailed_status['client_connected']:
             detailed_status['recommendations'] = [
                 "Try manual connection via /connect endpoint",
                 "Check credentials in environment variables",
-                "Verify TrueData account is active",
+                "Verify ShareKhan account is active",
                 "Use /force-disconnect first if previous attempts failed"
             ]
         else:

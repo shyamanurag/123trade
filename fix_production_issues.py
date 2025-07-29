@@ -31,7 +31,7 @@ def analyze_production_issues():
             "solution": "Add broker_user_id column or update user creation query"
         },
         {
-            "issue": "TrueData Connection Error",
+            "issue": "ShareKhan Connection Error",
             "error": "User Already Connected",
             "status": "⚠️ EXPECTED",
             "action": "Multiple deployment instances trying to connect",
@@ -54,12 +54,12 @@ def analyze_production_issues():
     logger.info("🎯 IMMEDIATE ACTIONS NEEDED:")
     logger.info("1. ✅ Orchestrator syntax error - FIXED and deployed")
     logger.info("2. ⚠️ Database schema - needs column addition")
-    logger.info("3. ⏳ TrueData connection - will resolve automatically")
+    logger.info("3. ⏳ ShareKhan connection - will resolve automatically")
     
     logger.info("\n🚀 EXPECTED RESULTS:")
     logger.info("- Orchestrator should initialize successfully")
     logger.info("- Database error may persist until schema fixed")
-    logger.info("- TrueData will connect once old deployment stops")
+    logger.info("- ShareKhan will connect once old deployment stops")
     logger.info("- P&L fix should work once orchestrator starts")
 
 def create_database_fix():
@@ -79,7 +79,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS broker_user_id VARCHAR(50);
 
 -- Recommended: Add the column for compatibility
 ALTER TABLE users ADD COLUMN IF NOT EXISTS broker_user_id VARCHAR(50);
-UPDATE users SET broker_user_id = zerodha_client_id WHERE broker_user_id IS NULL;
+UPDATE users SET broker_user_id = sharekhan_client_id WHERE broker_user_id IS NULL;
 """
     
     logger.info("📝 SQL Fix Generated:")
@@ -102,7 +102,7 @@ def main():
     logger.info("📋 DEPLOYMENT STATUS:")
     logger.info("✅ Orchestrator syntax error - FIXED (commit 98531ff)")
     logger.info("⚠️ Database schema error - NEEDS MANUAL FIX")
-    logger.info("⏳ TrueData connection - WILL RESOLVE AUTOMATICALLY")
+    logger.info("⏳ ShareKhan connection - WILL RESOLVE AUTOMATICALLY")
     logger.info("🎯 P&L fix - READY TO WORK ONCE ORCHESTRATOR STARTS")
     
     logger.info("\n🎉 NEXT STEPS:")

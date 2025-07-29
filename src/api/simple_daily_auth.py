@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 import os
 import logging
 
-# NOTE: All KiteConnect functionality removed - using ShareKhan exclusively
+# NOTE: All ShareKhanConnect functionality removed - using ShareKhan exclusively
 # This module is disabled and kept for reference only
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,6 @@ async def simple_daily_auth_disabled():
     """Simple daily auth disabled - use ShareKhan instead"""
     return JSONResponse({
         "success": False,
-        "message": "Zerodha authentication disabled - using ShareKhan exclusively",
+        "message": "ShareKhan authentication disabled - using ShareKhan exclusively",
         "redirect": "/auth/sharekhan"
     }) 

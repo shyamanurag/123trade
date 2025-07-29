@@ -46,7 +46,7 @@ logging:
 # Trading system configuration
 trading:
   broker:
-    name: ${BROKER_NAME:-zerodha}
+    name: ${BROKER_NAME:-sharekhan}
     api_key: ${BROKER_API_KEY}
     api_secret: ${BROKER_API_SECRET}
     base_url: ${BROKER_BASE_URL}

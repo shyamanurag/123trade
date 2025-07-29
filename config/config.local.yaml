@@ -35,11 +35,11 @@ app:
 
 # Broker Configuration - SAFE MOCK MODE
 brokers:
-  zerodha:
+  sharekhan:
     api_key: "local_test_key"
     api_secret: "local_test_secret"
-    base_url: "https://api.kite.trade"  # Can be mocked locally
-    name: "zerodha_local"
+    base_url: "https://api.sharekhan.com"  # Can be mocked locally
+    name: "sharekhan_local"
     rate_limit_per_minute: 60
     sandbox_mode: true
     mock_mode: true
@@ -112,8 +112,8 @@ safety:
   prevent_real_trading: true
   mock_all_external_apis: true
 
-# TrueData Configuration - Local Mock
-truedata:
+# ShareKhan Configuration - Local Mock
+sharekhan:
   username: "local_test_user"
   password: "local_test_pass"
   port: 8084

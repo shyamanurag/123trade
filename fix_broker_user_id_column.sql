@@ -18,7 +18,7 @@ END $$;
 
 -- Update existing users to have broker_user_id values
 UPDATE users 
-SET broker_user_id = COALESCE(broker_user_id, zerodha_client_id, 'QSW899')
+SET broker_user_id = COALESCE(broker_user_id, sharekhan_client_id, 'QSW899')
 WHERE broker_user_id IS NULL OR broker_user_id = '';
 
 -- Add index for performance

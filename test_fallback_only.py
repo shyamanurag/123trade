@@ -52,9 +52,9 @@ def main():
         exists_result = redis_fallback.exists('test_key')
         logger.info(f"Exists result: {exists_result}")
         
-        # Test Zerodha token simulation
-        logger.info("🔄 Testing Zerodha token in fallback mode...")
-        token_key = 'zerodha:token:PAPER_TRADER_001'
+        # Test ShareKhan token simulation
+        logger.info("🔄 Testing ShareKhan token in fallback mode...")
+        token_key = 'sharekhan:token:PAPER_TRADER_001'
         token_value = 'mock_access_token_12345'
         
         redis_fallback.set(token_key, token_value, ex=3600)

@@ -1,6 +1,6 @@
 """
 Autonomous Symbol Management System
-Automatically manages TrueData symbols for indices and F&O trading with intelligent strategy selection
+Automatically manages ShareKhan symbols for indices and F&O trading with intelligent strategy selection
 - Auto-selects optimal symbol mix based on market conditions
 - Auto-adds new contracts based on volatility and opportunities
 - Auto-removes expired contracts  
@@ -16,8 +16,8 @@ import json
 import os
 from dataclasses import dataclass, field
 
-# Import TrueData client functions
-from data.truedata_client import subscribe_to_symbols, is_connected, live_market_data
+# Import ShareKhan client functions
+from data.sharekhan_client import subscribe_to_symbols, is_connected, live_market_data
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ class AutonomousSymbolManager:
         
         # Get intelligent symbol list based on current market conditions
         try:
-            from config.truedata_symbols import get_complete_fo_symbols, get_autonomous_symbol_status
+            from config.sharekhan_symbols import get_complete_fo_symbols, get_autonomous_symbol_status
             
             # Get autonomous symbol selection
             symbols_list = get_complete_fo_symbols()
@@ -129,21 +129,21 @@ class AutonomousSymbolManager:
             self.current_strategy = "MIXED"
             logger.info("🔄 Using fallback symbols for safety")
         
-        # Wait for TrueData connection
+        # Wait for ShareKhan connection
         max_retries = 10
         retry_count = 0
         
         while retry_count < max_retries:
             if is_connected():
-                logger.info("✅ TrueData connected - proceeding with autonomous subscription")
+                logger.info("✅ ShareKhan connected - proceeding with autonomous subscription")
                 break
             else:
-                logger.info(f"⏳ Waiting for TrueData connection... (attempt {retry_count + 1}/{max_retries})")
+                logger.info(f"⏳ Waiting for ShareKhan connection... (attempt {retry_count + 1}/{max_retries})")
                 await asyncio.sleep(5)
                 retry_count += 1
         
         if retry_count >= max_retries:
-            logger.warning("⚠️ TrueData not connected - will retry autonomously in background")
+            logger.warning("⚠️ ShareKhan not connected - will retry autonomously in background")
         else:
             # Subscribe autonomously
             await self.autonomous_subscribe_symbols(symbols_list)
@@ -161,7 +161,7 @@ class AutonomousSymbolManager:
             logger.info(f"🤖 Autonomously registering {len(new_symbols)} symbols...")
             
             if is_connected():
-                logger.info("✅ TrueData connected - symbols will be available autonomously")
+                logger.info("✅ ShareKhan connected - symbols will be available autonomously")
                 
                 # Update tracking autonomously
                 self.active_symbols.update(new_symbols)
@@ -186,7 +186,7 @@ class AutonomousSymbolManager:
                     logger.info(f"📊 {available_count}/{len(new_symbols)} symbols immediately available")
                 
             else:
-                logger.warning("⚠️ TrueData not connected - will retry autonomously")
+                logger.warning("⚠️ ShareKhan not connected - will retry autonomously")
                 
         except Exception as e:
             logger.error(f"❌ Autonomous subscription error: {e}")
@@ -206,7 +206,7 @@ class AutonomousSymbolManager:
                 logger.info("🧠 Autonomous strategy evaluation...")
                 
                 # Get current autonomous strategy recommendation
-                from config.truedata_symbols import get_autonomous_symbol_status
+                from config.sharekhan_symbols import get_autonomous_symbol_status
                 recommended_strategy = get_autonomous_symbol_status()["current_strategy"]
                 
                 # Check if strategy should change
@@ -237,7 +237,7 @@ class AutonomousSymbolManager:
         
         # Get new symbol list for the strategy
         try:
-            from config.truedata_symbols import get_complete_fo_symbols
+            from config.sharekhan_symbols import get_complete_fo_symbols
             new_symbols = get_complete_fo_symbols()
             
             # Update symbols autonomously

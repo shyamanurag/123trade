@@ -1,6 +1,6 @@
 """
 Market Data Aggregator
-Unifies data from TrueData and Zerodha and broadcasts via WebSocket
+Unifies data from ShareKhan and ShareKhan and broadcasts via WebSocket
 """
 import asyncio
 import json
@@ -9,8 +9,8 @@ from typing import Dict, List, Optional, Callable
 from datetime import datetime
 import redis.asyncio as redis
 
-from ..feeds.truedata_feed import TrueDataFeed
-from .zerodha import ZerodhaIntegration
+from ..feeds.sharekhan_feed import ShareKhanFeed
+from .sharekhan import ShareKhanIntegration
 from .websocket_manager import WebSocketManager, MarketDataUpdate
 
 logger = logging.getLogger(__name__)
@@ -23,33 +23,33 @@ class MarketDataAggregator:
                  websocket_manager: WebSocketManager):
         self.redis_client = redis_client
         self.websocket_manager = websocket_manager
-        self.truedata_feed = TrueDataFeed()
-        self.zerodha_integration = None
+        self.sharekhan_feed = ShareKhanFeed()
+        self.sharekhan_integration = None
         self.is_running = False
         self.subscribed_symbols = set()
         
-    async def initialize(self, zerodha_integration: Optional[ZerodhaIntegration] = None):
+    async def initialize(self, sharekhan_integration: Optional[ShareKhanIntegration] = None):
         """Initialize the aggregator"""
         try:
-            # FIXED: Use existing TrueData cache instead of trying to connect
-            # TrueData is already connected and flowing data in the main app
-            from data.truedata_client import live_market_data, is_connected
+            # FIXED: Use existing ShareKhan cache instead of trying to connect
+            # ShareKhan is already connected and flowing data in the main app
+            from data.sharekhan_client import live_market_data, is_connected
             
             if live_market_data and len(live_market_data) > 0:
-                logger.info(f"✅ TrueData cache available: {len(live_market_data)} symbols")
+                logger.info(f"✅ ShareKhan cache available: {len(live_market_data)} symbols")
                 # Set up cache monitoring instead of direct connection
-                self.truedata_feed.cache_data = live_market_data
-                self.truedata_feed.connected = True
+                self.sharekhan_feed.cache_data = live_market_data
+                self.sharekhan_feed.connected = True
             else:
-                logger.warning("⚠️ TrueData cache is empty - market data not available")
-                self.truedata_feed.connected = False
+                logger.warning("⚠️ ShareKhan cache is empty - market data not available")
+                self.sharekhan_feed.connected = False
             
-            # Initialize Zerodha if provided
-            if zerodha_integration:
-                self.zerodha_integration = zerodha_integration
-                # Set up Zerodha callbacks
-                self.zerodha_integration.market_data_callbacks.append(
-                    self._handle_zerodha_tick
+            # Initialize ShareKhan if provided
+            if sharekhan_integration:
+                self.sharekhan_integration = sharekhan_integration
+                # Set up ShareKhan callbacks
+                self.sharekhan_integration.market_data_callbacks.append(
+                    self._handle_sharekhan_tick
                 )
             
             logger.info("Market data aggregator initialized")
@@ -64,15 +64,15 @@ class MarketDataAggregator:
         
         self.is_running = True
         
-        # Start TrueData listener
-        asyncio.create_task(self._truedata_listener())
+        # Start ShareKhan listener
+        asyncio.create_task(self._sharekhan_listener())
         
         logger.info("Market data aggregator started")
     
     async def stop(self):
         """Stop the aggregator"""
         self.is_running = False
-        await self.truedata_feed.disconnect()
+        await self.sharekhan_feed.disconnect()
         logger.info("Market data aggregator stopped")
     
     async def subscribe_symbol(self, symbol: str):
@@ -82,12 +82,12 @@ class MarketDataAggregator:
         
         self.subscribed_symbols.add(symbol)
         
-        # Subscribe on TrueData
-        await self.truedata_feed.subscribe([symbol])
+        # Subscribe on ShareKhan
+        await self.sharekhan_feed.subscribe([symbol])
         
-        # Subscribe on Zerodha if available
-        if self.zerodha_integration:
-            await self.zerodha_integration.subscribe_market_data([symbol])
+        # Subscribe on ShareKhan if available
+        if self.sharekhan_integration:
+            await self.sharekhan_integration.subscribe_market_data([symbol])
         
         logger.info(f"Subscribed to {symbol} on all providers")
     
@@ -98,35 +98,35 @@ class MarketDataAggregator:
         
         self.subscribed_symbols.remove(symbol)
         
-        # Unsubscribe from TrueData
-        await self.truedata_feed.unsubscribe([symbol])
+        # Unsubscribe from ShareKhan
+        await self.sharekhan_feed.unsubscribe([symbol])
         
-        # Unsubscribe from Zerodha if available
-        if self.zerodha_integration:
-            await self.zerodha_integration.unsubscribe_market_data([symbol])
+        # Unsubscribe from ShareKhan if available
+        if self.sharekhan_integration:
+            await self.sharekhan_integration.unsubscribe_market_data([symbol])
         
         logger.info(f"Unsubscribed from {symbol} on all providers")
     
-    async def _truedata_listener(self):
-        """Listen for TrueData updates"""
+    async def _sharekhan_listener(self):
+        """Listen for ShareKhan updates"""
         while self.is_running:
             try:
-                if self.truedata_feed.connected:
+                if self.sharekhan_feed.connected:
                     # Process any queued messages
-                    # This would be implemented based on TrueData's callback mechanism
+                    # This would be implemented based on ShareKhan's callback mechanism
                     await asyncio.sleep(0.1)
                 else:
                     # Try to reconnect
-                    await self.truedata_feed.connect()
+                    await self.sharekhan_feed.connect()
                     await asyncio.sleep(5)
             except Exception as e:
-                logger.error(f"Error in TrueData listener: {e}")
+                logger.error(f"Error in ShareKhan listener: {e}")
                 await asyncio.sleep(5)
     
-    async def _handle_zerodha_tick(self, tick_data: Dict):
-        """Handle Zerodha tick data"""
+    async def _handle_sharekhan_tick(self, tick_data: Dict):
+        """Handle ShareKhan tick data"""
         try:
-            # Convert Zerodha format to unified format
+            # Convert ShareKhan format to unified format
             market_update = MarketDataUpdate(
                 symbol=tick_data.get('trading_symbol', ''),
                 price=tick_data.get('last_price', 0.0),
@@ -141,14 +141,14 @@ class MarketDataAggregator:
                 open_price=tick_data.get('ohlc', {}).get('open', 0.0)
             )
             
-            await self._broadcast_market_data(market_update, 'zerodha')
+            await self._broadcast_market_data(market_update, 'sharekhan')
         except Exception as e:
-            logger.error(f"Error handling Zerodha tick: {e}")
+            logger.error(f"Error handling ShareKhan tick: {e}")
     
-    async def _handle_truedata_tick(self, tick_data: Dict):
-        """Handle TrueData tick data"""
+    async def _handle_sharekhan_tick(self, tick_data: Dict):
+        """Handle ShareKhan tick data"""
         try:
-            # Convert TrueData format to unified format
+            # Convert ShareKhan format to unified format
             market_update = MarketDataUpdate(
                 symbol=tick_data.get('symbol', ''),
                 price=tick_data.get('ltp', 0.0),
@@ -163,9 +163,9 @@ class MarketDataAggregator:
                 open_price=tick_data.get('o', 0.0)
             )
             
-            await self._broadcast_market_data(market_update, 'truedata')
+            await self._broadcast_market_data(market_update, 'sharekhan')
         except Exception as e:
-            logger.error(f"Error handling TrueData tick: {e}")
+            logger.error(f"Error handling ShareKhan tick: {e}")
     
     async def _broadcast_market_data(self, market_update: MarketDataUpdate, provider: str):
         """Broadcast market data to WebSocket clients and store in database"""

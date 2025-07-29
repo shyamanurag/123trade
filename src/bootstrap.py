@@ -16,8 +16,8 @@ from src.config.services import ServiceConfig
 from src.core.database_schema_manager import DatabaseSchemaManager
 from src.core.redis_fallback_manager import redis_fallback_manager
 
-# REMOVED: multi_user_zerodha_manager import - using ShareKhan only
-# from src.core.multi_user_zerodha_manager import multi_user_zerodha_manager
+# REMOVED: multi_user_sharekhan_manager import - using ShareKhan only
+# from src.core.multi_user_sharekhan_manager import multi_user_sharekhan_manager
 
 # ShareKhan only imports
 from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
@@ -40,9 +40,9 @@ def lifespan(app):
     
     # Initialize multi-user systems
     try:
-        # Initialize multi-user Zerodha manager
-        # await multi_user_zerodha_manager.initialize() # REMOVED
-        logger.info("✅ Multi-user Zerodha manager initialized")
+        # Initialize multi-user ShareKhan manager
+        # await multi_user_sharekhan_manager.initialize() # REMOVED
+        logger.info("✅ Multi-user ShareKhan manager initialized")
         
         # Initialize analytics service
         from src.api.user_analytics_service import analytics_service
@@ -61,7 +61,7 @@ def lifespan(app):
     
     # Cleanup on shutdown
     try:
-        # await multi_user_zerodha_manager.cleanup() # REMOVED
+        # await multi_user_sharekhan_manager.cleanup() # REMOVED
         logger.info("✅ Multi-user systems cleaned up")
     except Exception as e:
         logger.error(f"❌ Error during cleanup: {e}")
@@ -119,7 +119,7 @@ def create_app():
         return {
             "status": "healthy",
             "mode": "development",
-            "features": ["multi-user-management", "user-analytics", "zerodha-integration"],
+            "features": ["multi-user-management", "user-analytics", "sharekhan-integration"],
             "warning": "This is development bootstrap - use main.py for production"
         }
     
@@ -128,11 +128,11 @@ def create_app():
     async def multi_user_status():
         """Get status of multi-user systems"""
         try:
-            # zerodha_status = multi_user_zerodha_manager.get_all_sessions_status() # REMOVED
+            # sharekhan_status = multi_user_sharekhan_manager.get_all_sessions_status() # REMOVED
             
             return {
                 "status": "active",
-                "zerodha_manager": {
+                "sharekhan_manager": {
                     "initialized": True, # REMOVED
                     "active_sessions": 0, # REMOVED
                     "sessions": [] # REMOVED

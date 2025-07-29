@@ -23,8 +23,8 @@ class DailyTokenSubmission(BaseModel):
     expires_at: Optional[str] = None
 
 class TokenStatusResponse(BaseModel):
-    zerodha_status: str
-    zerodha_expires_at: Optional[str]
+    sharekhan_status: str
+    sharekhan_expires_at: Optional[str]
     last_updated: str
 
 # Mock token storage with ShareKhan tokens that match frontend expectations
@@ -157,8 +157,8 @@ async def get_token_status(current_user: Dict[str, Any] = Depends(get_current_us
         
         if not user_token:
             return TokenStatusResponse(
-                zerodha_status="not_set",
-                zerodha_expires_at=None,
+                sharekhan_status="not_set",
+                sharekhan_expires_at=None,
                 last_updated=datetime.now().isoformat()
             )
         
@@ -174,8 +174,8 @@ async def get_token_status(current_user: Dict[str, Any] = Depends(get_current_us
             status = "active"
         
         return TokenStatusResponse(
-            zerodha_status=status,
-            zerodha_expires_at=user_token["expires_at"],
+            sharekhan_status=status,
+            sharekhan_expires_at=user_token["expires_at"],
             last_updated=user_token["last_used"]
         )
         

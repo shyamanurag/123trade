@@ -44,7 +44,7 @@ class MarketIndicesResponse(APIResponse):
             data={
                 "indices": indices_data,
                 "market_status": market_status,
-                "provider": "TrueData",
+                "provider": "ShareKhan",
                 **kwargs
             }
         )
@@ -64,8 +64,8 @@ class MarketStatusResponse(APIResponse):
             }
         )
 
-class TrueDataResponse(APIResponse):
-    """TrueData specific response"""
+class ShareKhanResponse(APIResponse):
+    """ShareKhan specific response"""
     
     @classmethod
     def create_symbol_data(cls, symbol: str, data: Dict[str, Any]):
@@ -82,7 +82,7 @@ class TrueDataResponse(APIResponse):
     def create_status(cls, connected: bool, symbols: List[str], **kwargs):
         return cls(
             success=True,
-            message=f"TrueData {'connected' if connected else 'disconnected'}",
+            message=f"ShareKhan {'connected' if connected else 'disconnected'}",
             data={
                 "connected": connected,
                 "subscribed_symbols": symbols,

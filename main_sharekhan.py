@@ -1,6 +1,6 @@
 """
 ShareKhan Trading System - Main Application Entry Point
-Complete replacement for TrueData + Zerodha with unified ShareKhan API
+Complete replacement for ShareKhan + ShareKhan with unified ShareKhan API
 Multi-user trading system with comprehensive market data and trading capabilities
 """
 
@@ -144,7 +144,7 @@ async def lifespan(app: FastAPI):
 # Create FastAPI application
 app = FastAPI(
     title="ShareKhan Trading System",
-    description="Unified trading system with ShareKhan integration - Complete replacement for TrueData + Zerodha",
+    description="Unified trading system with ShareKhan integration - Complete replacement for ShareKhan + ShareKhan",
     version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
@@ -322,7 +322,7 @@ async def root():
             
             <div class="highlight">
                 <h2>🎯 Complete Architecture Replacement</h2>
-                <p><strong>Old:</strong> TrueData (Market Data) + Zerodha (Trading) = Dual provider complexity</p>
+                <p><strong>Old:</strong> ShareKhan (Market Data) + ShareKhan (Trading) = Dual provider complexity</p>
                 <p><strong>New:</strong> ShareKhan API only = Unified simplicity</p>
                 <ul>
                     <li>✅ Single API for trading and market data</li>
@@ -393,7 +393,7 @@ async def root():
             
             <div class="feature">
                 <h4>Migration from Old System:</h4>
-                <p>This replaces the entire TrueData + Zerodha architecture. All previous endpoints are now unified under ShareKhan API.</p>
+                <p>This replaces the entire ShareKhan + ShareKhan architecture. All previous endpoints are now unified under ShareKhan API.</p>
             </div>
         </div>
     </body>

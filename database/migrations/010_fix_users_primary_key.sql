@@ -70,7 +70,7 @@ BEGIN
             current_balance, 
             risk_tolerance, 
             is_active, 
-            zerodha_client_id,
+            sharekhan_client_id,
             trading_enabled,
             max_daily_trades,
             max_position_size

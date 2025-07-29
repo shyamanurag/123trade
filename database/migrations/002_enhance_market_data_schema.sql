@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS data_providers (
 
 -- Insert default providers
 INSERT INTO data_providers (provider_name, provider_type, config) VALUES
-('truedata', 'market_data', '{"port": 8086, "subscription_type": "tick"}'),
-('zerodha', 'broker', '{"api_version": "3.0"}')
+('sharekhan', 'market_data', '{"port": 8086, "subscription_type": "tick"}'),
+('sharekhan', 'broker', '{"api_version": "3.0"}')
 ON CONFLICT (provider_name) DO NOTHING;
 
 -- Create symbol mapping table for different providers
@@ -70,14 +70,14 @@ CREATE TABLE IF NOT EXISTS symbol_mappings (
 
 -- Insert common symbol mappings
 INSERT INTO symbol_mappings (standard_symbol, provider, provider_symbol, exchange) VALUES
-('RELIANCE', 'truedata', 'RELIANCE-EQ', 'NSE'),
-('RELIANCE', 'zerodha', 'RELIANCE', 'NSE'),
-('TCS', 'truedata', 'TCS-EQ', 'NSE'),
-('TCS', 'zerodha', 'TCS', 'NSE'),
-('NIFTY', 'truedata', 'NIFTY-I', 'NSE'),
-('NIFTY', 'zerodha', 'NIFTY 50', 'NSE'),
-('BANKNIFTY', 'truedata', 'BANKNIFTY-I', 'NSE'),
-('BANKNIFTY', 'zerodha', 'NIFTY BANK', 'NSE')
+('RELIANCE', 'sharekhan', 'RELIANCE-EQ', 'NSE'),
+('RELIANCE', 'sharekhan', 'RELIANCE', 'NSE'),
+('TCS', 'sharekhan', 'TCS-EQ', 'NSE'),
+('TCS', 'sharekhan', 'TCS', 'NSE'),
+('NIFTY', 'sharekhan', 'NIFTY-I', 'NSE'),
+('NIFTY', 'sharekhan', 'NIFTY 50', 'NSE'),
+('BANKNIFTY', 'sharekhan', 'BANKNIFTY-I', 'NSE'),
+('BANKNIFTY', 'sharekhan', 'NIFTY BANK', 'NSE')
 ON CONFLICT (standard_symbol, provider) DO NOTHING;
 
 -- Create market data aggregation view

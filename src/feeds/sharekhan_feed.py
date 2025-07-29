@@ -1,6 +1,6 @@
 """
 ShareKhan Data Feed
-Complete replacement for TrueData with real-time market data streaming
+Complete replacement for ShareKhan with real-time market data streaming
 """
 
 import asyncio
@@ -52,7 +52,7 @@ class ShareKhanHistoricalData:
 class ShareKhanDataFeed:
     """
     Real-time data feed using ShareKhan APIs
-    Complete replacement for TrueData with in-memory streaming
+    Complete replacement for ShareKhan with in-memory streaming
     """
     
     def __init__(self, api_key: str, access_token: str, redis_client: redis.Redis):
@@ -546,24 +546,24 @@ class ShareKhanDataFeed:
         }
 
 
-class ShareKhanTrueDataCompatibility:
+class ShareKhanShareKhanCompatibility:
     """
-    Compatibility layer to make ShareKhan data feed work with existing TrueData code
+    Compatibility layer to make ShareKhan data feed work with existing ShareKhan code
     Ensures seamless transition without breaking existing functionality
     """
     
     def __init__(self, sharekhan_feed: ShareKhanDataFeed):
         self.sharekhan_feed = sharekhan_feed
-        self.live_market_data = {}  # TrueData-compatible format
+        self.live_market_data = {}  # ShareKhan-compatible format
         
-        # Add callback to convert ShareKhan data to TrueData format
-        self.sharekhan_feed.add_tick_callback(self._convert_to_truedata_format)
+        # Add callback to convert ShareKhan data to ShareKhan format
+        self.sharekhan_feed.add_tick_callback(self._convert_to_sharekhan_format)
     
-    def _convert_to_truedata_format(self, tick: ShareKhanTick):
-        """Convert ShareKhan tick to TrueData-compatible format"""
+    def _convert_to_sharekhan_format(self, tick: ShareKhanTick):
+        """Convert ShareKhan tick to ShareKhan-compatible format"""
         try:
-            # Convert to TrueData format for backward compatibility
-            truedata_tick = {
+            # Convert to ShareKhan format for backward compatibility
+            sharekhan_tick = {
                 'symbol': tick.symbol,
                 'ltp': tick.ltp,
                 'open': tick.open,
@@ -579,16 +579,16 @@ class ShareKhanTrueDataCompatibility:
                 'ask_qty': tick.ask_qty
             }
             
-            # Update live market data cache (TrueData compatible)
-            self.live_market_data[tick.symbol] = truedata_tick
+            # Update live market data cache (ShareKhan compatible)
+            self.live_market_data[tick.symbol] = sharekhan_tick
             
         except Exception as e:
-            logger.error(f"❌ TrueData format conversion error: {e}")
+            logger.error(f"❌ ShareKhan format conversion error: {e}")
     
     def get_live_data_for_symbol(self, symbol: str) -> Optional[Dict]:
-        """Get live data in TrueData-compatible format"""
+        """Get live data in ShareKhan-compatible format"""
         return self.live_market_data.get(symbol)
     
     def is_connected(self) -> bool:
-        """Check if data feed is connected (TrueData compatible)"""
+        """Check if data feed is connected (ShareKhan compatible)"""
         return self.sharekhan_feed.ws_connected 

@@ -251,7 +251,7 @@ class ApiTester {
         this.log('\n🔐 === AUTHENTICATION TESTS ===', 'bright');
 
         await this.testEndpoint('Auth Me (No Token)', '/auth/me', { expectedStatus: [200, 401, 403] });
-        await this.testEndpoint('Zerodha Auth Status', '/auth/zerodha/status', { expectedStatus: [200, 404] });
+        await this.testEndpoint('Sharekhan Auth Status', '/auth/sharekhan/status', { expectedStatus: [200, 404] });
     }
 
     async testTradingEndpoints() {

@@ -17,8 +17,8 @@ import asyncio
 import time # Added for retry logic
 sys.path.insert(0, os.path.abspath('.'))
 
-# Import symbol mapping for TrueData
-from config.truedata_symbols import get_truedata_symbol
+# Import symbol mapping for ShareKhan
+from config.sharekhan_symbols import get_sharekhan_symbol
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -55,8 +55,8 @@ def setup_redis():
 # Initialize Redis at module level
 setup_redis()
 
-def get_truedata_from_redis():
-    """Get TrueData from Redis cache - SOLVES PROCESS ISOLATION"""
+def get_sharekhan_from_redis():
+    """Get ShareKhan from Redis cache - SOLVES PROCESS ISOLATION"""
     try:
         if not redis_client:
             logger.warning("⚠️ Redis not available - trying to reconnect...")
@@ -64,10 +64,10 @@ def get_truedata_from_redis():
                 return {}
         
         # Get all market data from Redis
-        cached_data = redis_client.hgetall("truedata:live_cache")
+        cached_data = redis_client.hgetall("sharekhan:live_cache")
         
         if not cached_data:
-            logger.warning("⚠️ No data in Redis cache - TrueData may not be connected")
+            logger.warning("⚠️ No data in Redis cache - ShareKhan may not be connected")
             return {}
         
         # Parse JSON data
@@ -83,14 +83,14 @@ def get_truedata_from_redis():
         return parsed_data
         
     except Exception as e:
-        logger.error(f"❌ Error getting TrueData from Redis: {e}")
+        logger.error(f"❌ Error getting ShareKhan from Redis: {e}")
         return {}
 
-def get_truedata_proxy():
-    """Get TrueData data from Redis cache - CROSS-PROCESS SOLUTION"""
+def get_sharekhan_proxy():
+    """Get ShareKhan data from Redis cache - CROSS-PROCESS SOLUTION"""
     try:
         # STRATEGY 1: Redis cache (PRIMARY - fixes process isolation)
-        redis_data = get_truedata_from_redis()
+        redis_data = get_sharekhan_from_redis()
         if redis_data:
             logger.info(f"📊 Redis cache strategy SUCCESS: {len(redis_data)} symbols")
             return {
@@ -101,7 +101,7 @@ def get_truedata_proxy():
             }
         
         # STRATEGY 2: Direct cache access (FALLBACK)
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         if live_market_data:
             logger.info(f"📊 Direct cache strategy SUCCESS: {len(live_market_data)} symbols")
             return {
@@ -112,7 +112,7 @@ def get_truedata_proxy():
             }
         
         # STRATEGY 3: File cache (FALLBACK)
-        cache_file = "/tmp/truedata_cache.json" if os.name != 'nt' else "C:/temp/truedata_cache.json"
+        cache_file = "/tmp/sharekhan_cache.json" if os.name != 'nt' else "C:/temp/sharekhan_cache.json"
         if os.path.exists(cache_file):
             with open(cache_file, 'r') as f:
                 file_data = json.load(f)
@@ -126,17 +126,17 @@ def get_truedata_proxy():
                 }
         
         # All strategies failed
-        logger.error("🚨 ALL STRATEGIES FAILED - No TrueData cache accessible")
+        logger.error("🚨 ALL STRATEGIES FAILED - No ShareKhan cache accessible")
         return {
             'connected': False,
             'data': {},
             'symbols_count': 0,
             'source': 'None',
-            'error': 'Process isolation - TrueData cache not accessible'
+            'error': 'Process isolation - ShareKhan cache not accessible'
         }
         
     except Exception as e:
-        logger.error(f"❌ Error in get_truedata_proxy: {e}")
+        logger.error(f"❌ Error in get_sharekhan_proxy: {e}")
         return {
             'connected': False,
             'data': {},
@@ -145,34 +145,34 @@ def get_truedata_proxy():
             'error': str(e)
         }
 
-def is_truedata_connected():
-    """Check if TrueData is connected via Redis cache"""
+def is_sharekhan_connected():
+    """Check if ShareKhan is connected via Redis cache"""
     try:
         # Check Redis cache first
-        redis_data = get_truedata_from_redis()
+        redis_data = get_sharekhan_from_redis()
         if redis_data:
-            logger.info(f"🔧 TrueData connected via Redis: {len(redis_data)} symbols")
+            logger.info(f"🔧 ShareKhan connected via Redis: {len(redis_data)} symbols")
             return True
             
         # Fallback to direct cache check
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         connected = len(live_market_data) > 0
-        logger.info(f"🔧 TrueData fallback check: {connected}")
+        logger.info(f"🔧 ShareKhan fallback check: {connected}")
         return connected
         
     except Exception as e:
-        logger.error(f"Error checking TrueData connection: {e}")
+        logger.error(f"Error checking ShareKhan connection: {e}")
         return False
 
 def get_live_data_for_symbol(symbol: str) -> dict:
     """Get live data for a specific symbol via direct cache access"""
     try:
         # Use symbol mapping to convert NIFTY -> NIFTY-I
-        mapped_symbol = get_truedata_symbol(symbol.upper())
+        mapped_symbol = get_sharekhan_symbol(symbol.upper())
         logger.debug(f"🔧 Symbol mapping: {symbol} -> {mapped_symbol}")
         
         # Get data from live cache
-        symbol_data = get_truedata_from_redis().get(mapped_symbol, {})
+        symbol_data = get_sharekhan_from_redis().get(mapped_symbol, {})
         
         if symbol_data:
             logger.debug(f"📊 Retrieved data for {symbol}: LTP={symbol_data.get('ltp', 'N/A')}")
@@ -187,13 +187,13 @@ def get_all_live_market_data():
     """Get all live market data from Redis cache"""
     try:
         # PRIMARY: Get from Redis cache
-        redis_data = get_truedata_from_redis()
+        redis_data = get_sharekhan_from_redis()
         if redis_data:
             logger.debug(f"📊 Retrieved all market data from Redis: {len(redis_data)} symbols")
             return redis_data
             
         # FALLBACK: Direct cache access
-        from data.truedata_client import live_market_data
+        from data.sharekhan_client import live_market_data
         logger.debug(f"📊 Retrieved all market data from direct cache: {len(live_market_data)} symbols")
         return live_market_data
         
@@ -206,7 +206,7 @@ async def get_all_market_data():
     """Get all available market data from Redis cache"""
     try:
         # Get data from Redis cache (fixes process isolation)
-        proxy = get_truedata_proxy()
+        proxy = get_sharekhan_proxy()
         
         if proxy['connected']:
             return {
@@ -222,7 +222,7 @@ async def get_all_market_data():
                 "data": {},
                 "symbols_count": 0,
                 "source": "redis_cache",
-                "error": proxy.get('error', 'TrueData not connected'),
+                "error": proxy.get('error', 'ShareKhan not connected'),
                 "timestamp": datetime.now().isoformat()
             }
             
@@ -254,14 +254,14 @@ async def get_market_data(
                 "timeframe": timeframe,
                 "data": live_data,
                 "timestamp": datetime.now().isoformat(),
-                "source": "truedata_proxy"
+                "source": "sharekhan_proxy"
             }
         else:
             # Check if proxy is connected
-            if not is_truedata_connected():
+            if not is_sharekhan_connected():
                 raise HTTPException(
                     status_code=503, 
-                    detail=f"TrueData proxy not connected. Market data not available for {symbol}."
+                    detail=f"ShareKhan proxy not connected. Market data not available for {symbol}."
                 )
             else:
                 raise HTTPException(
@@ -285,10 +285,10 @@ async def get_live_market_data():
         logger.info("📊 Getting live market data for autonomous trading...")
         
         # Check if proxy is connected
-        if not is_truedata_connected():
+        if not is_sharekhan_connected():
             raise HTTPException(
                 status_code=503,
-                detail="TrueData proxy not connected. No live data available."
+                detail="ShareKhan proxy not connected. No live data available."
             )
         
         # Get all live market data
@@ -305,7 +305,7 @@ async def get_live_market_data():
             "symbols": list(market_data.keys()),
             "data": market_data,
             "timestamp": datetime.now().isoformat(),
-            "source": "truedata_proxy"
+            "source": "sharekhan_proxy"
         }
         
         logger.info(f"📊 Returning live data for {len(market_data)} symbols")
@@ -330,11 +330,11 @@ async def get_live_market_data():
 async def get_market_data_status():
     """Get market data service status"""
     try:
-        proxy = get_truedata_proxy()
+        proxy = get_sharekhan_proxy()
         if not proxy:
             return {
                 "success": False,
-                "error": "TrueData proxy not available",
+                "error": "ShareKhan proxy not available",
                 "status": "disconnected",
                 "timestamp": datetime.now().isoformat()
             }
@@ -372,29 +372,29 @@ async def get_symbol_expansion_status():
             logger.warning(f"Could not get IntelligentSymbolManager status: {e}")
             ism_status = {"error": str(e)}
         
-        # Get TrueData status
-        truedata_symbols = get_all_live_market_data()
-        truedata_count = len(truedata_symbols)
+        # Get ShareKhan status
+        sharekhan_symbols = get_all_live_market_data()
+        sharekhan_count = len(sharekhan_symbols)
         
         return {
             "success": True,
             "expansion_analysis": {
                 "current_symbols": current_count,
                 "target_symbols": 250,
-                "truedata_available": truedata_count,
+                "sharekhan_available": sharekhan_count,
                 "expansion_needed": 250 - current_count,
                 "percentage_complete": round((current_count / 250) * 100, 1),
                 "status": "EXPANDING" if current_count < 250 else "TARGET_REACHED"
             },
             "intelligent_symbol_manager": ism_status,
-            "truedata_connection": {
-                "connected": is_truedata_connected(),
-                "available_symbols": truedata_count,
-                "sample_symbols": list(truedata_symbols.keys())[:10] if truedata_symbols else []
+            "sharekhan_connection": {
+                "connected": is_sharekhan_connected(),
+                "available_symbols": sharekhan_count,
+                "sample_symbols": list(sharekhan_symbols.keys())[:10] if sharekhan_symbols else []
             },
             "recommendations": [
                 "Enable IntelligentSymbolManager startup" if not ism_status.get('is_running') else "✅ ISM Running",
-                "Expand TrueData subscriptions" if truedata_count < 100 else "✅ TrueData Connected",
+                "Expand ShareKhan subscriptions" if sharekhan_count < 100 else "✅ ShareKhan Connected",
                 "Configure F&O auto-discovery" if current_count < 50 else "✅ Symbol Discovery Active"
             ],
             "timestamp": datetime.now().isoformat()
@@ -412,17 +412,17 @@ async def get_symbol_expansion_status():
 async def get_individual_symbol_data(symbol: str):
     """Get individual symbol data"""
     try:
-        # Check TrueData connection
-        has_connection = is_truedata_connected()
+        # Check ShareKhan connection
+        has_connection = is_sharekhan_connected()
         
         if not has_connection:
             return {
                 "success": False,
-                "message": f"TrueData not connected - no live data for {symbol}",
+                "message": f"ShareKhan not connected - no live data for {symbol}",
                 "symbol": symbol,
                 "price": 0,
                 "volume": 0,
-                "status": "TRUEDATA_DISCONNECTED",
+                "status": "SHAREKHAN_DISCONNECTED",
                 "timestamp": datetime.now().isoformat()
             }
         
@@ -444,7 +444,7 @@ async def get_individual_symbol_data(symbol: str):
                 "status": "CONNECTED",
                 "data": live_data,
                 "timestamp": datetime.now().isoformat(),
-                "source": "TrueData_Live"
+                "source": "ShareKhan_Live"
             }
         else:
             return {
@@ -506,14 +506,14 @@ async def get_realtime_data(symbol: str):
 @router.get("/option-chain/{symbol}")
 async def get_option_chain(
     symbol: str,
-    _: bool = Depends(is_truedata_connected)
+    _: bool = Depends(is_sharekhan_connected)
 ):
     """Get option chain for a symbol"""
     try:
         # NO MOCK DATA - Real option chain data required
         raise HTTPException(
             status_code=503,
-            detail=f"Option chain data unavailable for {symbol}. TrueData connection required."
+            detail=f"Option chain data unavailable for {symbol}. ShareKhan connection required."
         )
         
     except Exception as e:
@@ -523,7 +523,7 @@ async def get_option_chain(
 @router.post("/subscribe")
 async def subscribe_symbols(
     symbols: List[str],
-    _: bool = Depends(is_truedata_connected)
+    _: bool = Depends(is_sharekhan_connected)
 ):
     """Subscribe to market data for symbols"""
     try:
@@ -552,12 +552,12 @@ async def subscribe_symbols(
 async def get_dashboard_summary():
     """Get summary data for trading dashboard"""
     try:
-        # Get data from TrueData client - fix import path for production
+        # Get data from ShareKhan client - fix import path for production
         try:
-            from data.truedata_client import get_truedata_client
+            from data.sharekhan_client import get_sharekhan_client
         except ImportError:
             try:
-                from src.data.truedata_client import get_truedata_client
+                from src.data.sharekhan_client import get_sharekhan_client
             except ImportError:
                 # ELIMINATED: Mock data structure that could mislead about real market data
                 # ❌ return {
@@ -569,22 +569,22 @@ async def get_dashboard_summary():
                 # ❌     ],
                 # ❌     "timestamp": datetime.now().isoformat(),
                 # ❌     "total_symbols": 3,
-                # ❌     "note": "TrueData client import not available"
+                # ❌     "note": "ShareKhan client import not available"
                 # ❌ }
                 
                 # SAFETY: Return proper error instead of fake market data
                 logger.error("SAFETY: Mock market data structure ELIMINATED to prevent fake trading data")
                 return {
                     "success": False,
-                    "error": "SAFETY: Mock market data disabled - real TrueData client required",
-                    "message": "TrueData client import not available - implement real market data feed"
+                    "error": "SAFETY: Mock market data disabled - real ShareKhan client required",
+                    "message": "ShareKhan client import not available - implement real market data feed"
                 }
         
-        client = get_truedata_client()
+        client = get_sharekhan_client()
         if not client:
             return {
                 "success": False,
-                "message": "TrueData not connected"
+                "message": "ShareKhan not connected"
             }
         
         # Get data for key symbols

@@ -233,7 +233,7 @@ except ImportError:
                 return None
             
             # Try to get token from Redis
-            token_key = f'zerodha:token:{user_id}'
+            token_key = f'sharekhan:token:{user_id}'
             access_token = self.redis_manager.get(token_key)
             
             if access_token:
@@ -285,7 +285,7 @@ DATABASE_PASSWORD=password
 # Trading Configuration
 PAPER_TRADING=true
 AUTONOMOUS_TRADING_ENABLED=true
-ZERODHA_SANDBOX_MODE=true
+SHAREKHAN_SANDBOX_MODE=true
 
 # API Configuration
 API_HOST=0.0.0.0
@@ -302,16 +302,16 @@ JWT_SECRET=your-production-jwt-secret-key
 ENCRYPTION_KEY=your-32-byte-encryption-key-here
 WEBHOOK_SECRET=your-webhook-secret
 
-# TrueData Configuration
-TRUEDATA_USERNAME=your-truedata-username
-TRUEDATA_PASSWORD=your-truedata-password
-TRUEDATA_URL=https://api.truedata.in
-TRUEDATA_LIVE_PORT=8082
+# ShareKhan Configuration
+SHAREKHAN_USERNAME=your-sharekhan-username
+SHAREKHAN_PASSWORD=your-sharekhan-password
+SHAREKHAN_URL=https://api.sharekhan.in
+SHAREKHAN_LIVE_PORT=8082
 
-# Zerodha Configuration
-ZERODHA_API_KEY=your-zerodha-api-key
-ZERODHA_API_SECRET=your-zerodha-api-secret
-ZERODHA_USER_ID=your-zerodha-user-id
+# ShareKhan Configuration
+SHAREKHAN_API_KEY=your-sharekhan-api-key
+SHAREKHAN_API_SECRET=your-sharekhan-api-secret
+SHAREKHAN_USER_ID=your-sharekhan-user-id
 '''
     
     with open('.env.production', 'w') as f:
@@ -340,7 +340,7 @@ def main():
     logger.info("2. Configure Redis service in Digital Ocean (optional)")
     logger.info("3. Set environment variables in Digital Ocean App Platform")
     logger.info("4. System will use in-memory fallback if Redis is unavailable")
-    logger.info("5. Zerodha tokens will be cached in memory for the session")
+    logger.info("5. ShareKhan tokens will be cached in memory for the session")
 
 if __name__ == "__main__":
     main()

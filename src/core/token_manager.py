@@ -1,5 +1,5 @@
 """
-Zerodha Token Manager
+ShareKhan Token Manager
 Handles token storage, retrieval, and validation with proper Redis connection handling
 """
 
@@ -11,13 +11,13 @@ import redis.asyncio as redis
 
 logger = logging.getLogger(__name__)
 
-class ZerodhaTokenManager:
-    """Manages Zerodha token storage and retrieval with enhanced reliability"""
+class ShareKhanTokenManager:
+    """Manages ShareKhan token storage and retrieval with enhanced reliability"""
     
     def __init__(self):
         self.redis_client: Optional[redis.Redis] = None
         self.redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
-        self.user_id = os.getenv('ZERODHA_USER_ID', 'QSW899')
+        self.user_id = os.getenv('SHAREKHAN_USER_ID', 'QSW899')
         
         # Check if SSL is required (DigitalOcean managed Redis)
         self.ssl_required = (
@@ -70,7 +70,7 @@ class ZerodhaTokenManager:
             return None
     
     async def get_token(self, user_id: Optional[str] = None) -> Optional[str]:
-        """Get Zerodha token with comprehensive key search"""
+        """Get ShareKhan token with comprehensive key search"""
         target_user_id = user_id or self.user_id
         
         try:
@@ -81,14 +81,14 @@ class ZerodhaTokenManager:
             
             # Define all possible token key patterns
             token_keys_to_check = [
-                f"zerodha:token:{target_user_id}",
-                f"zerodha:token:{os.getenv('ZERODHA_USER_ID', 'QSW899')}",
-                f"zerodha:token:PAPER_TRADER_MAIN", 
-                f"zerodha:token:QSW899",
-                f"zerodha:{target_user_id}:access_token",
-                f"zerodha:access_token",
-                f"zerodha_token_{target_user_id}",
-                f"zerodha:token:ZERODHA_DEFAULT"
+                f"sharekhan:token:{target_user_id}",
+                f"sharekhan:token:{os.getenv('SHAREKHAN_USER_ID', 'QSW899')}",
+                f"sharekhan:token:PAPER_TRADER_MAIN", 
+                f"sharekhan:token:QSW899",
+                f"sharekhan:{target_user_id}:access_token",
+                f"sharekhan:access_token",
+                f"sharekhan_token_{target_user_id}",
+                f"sharekhan:token:SHAREKHAN_DEFAULT"
             ]
             
             # Check each key pattern
@@ -102,11 +102,11 @@ class ZerodhaTokenManager:
                     logger.warning(f"⚠️ Failed to check key {key}: {e}")
                     continue
             
-            # If no token found in specific keys, search all zerodha:token:* keys
-            logger.info("🔍 Searching all zerodha:token:* keys...")
+            # If no token found in specific keys, search all sharekhan:token:* keys
+            logger.info("🔍 Searching all sharekhan:token:* keys...")
             try:
-                all_keys = await client.keys("zerodha:token:*")
-                logger.info(f"🔍 Found {len(all_keys)} zerodha:token:* keys")
+                all_keys = await client.keys("sharekhan:token:*")
+                logger.info(f"🔍 Found {len(all_keys)} sharekhan:token:* keys")
                 
                 for key in all_keys:
                     try:
@@ -130,7 +130,7 @@ class ZerodhaTokenManager:
             return None
     
     async def store_token(self, token: str, user_id: Optional[str] = None, expiry_hours: int = 18) -> bool:
-        """Store Zerodha token with proper expiry"""
+        """Store ShareKhan token with proper expiry"""
         target_user_id = user_id or self.user_id
         
         try:
@@ -140,14 +140,14 @@ class ZerodhaTokenManager:
                 return False
             
             # Store token with expiry
-            key = f"zerodha:token:{target_user_id}"
+            key = f"sharekhan:token:{target_user_id}"
             expiry_seconds = expiry_hours * 3600
             
             await client.set(key, token, ex=expiry_seconds)
             
             # Also store expiry time for reference
             expiry_time = datetime.now() + timedelta(hours=expiry_hours)
-            await client.set(f"zerodha:token_expiry:{target_user_id}", expiry_time.isoformat())
+            await client.set(f"sharekhan:token_expiry:{target_user_id}", expiry_time.isoformat())
             
             logger.info(f"✅ Token stored for user {target_user_id} with {expiry_hours}h expiry")
             return True
@@ -173,7 +173,7 @@ class ZerodhaTokenManager:
             # Check expiry if available
             client = await self._get_redis_client()
             if client:
-                expiry_key = f"zerodha:token_expiry:{target_user_id}"
+                expiry_key = f"sharekhan:token_expiry:{target_user_id}"
                 expiry_time = await client.get(expiry_key)
                 
                 if expiry_time:
@@ -211,7 +211,7 @@ class ZerodhaTokenManager:
             if not client:
                 return {'error': 'Redis not available'}
             
-            all_keys = await client.keys("zerodha:token:*")
+            all_keys = await client.keys("sharekhan:token:*")
             tokens = {}
             
             for key in all_keys:
@@ -242,8 +242,8 @@ class ZerodhaTokenManager:
             self.redis_client = None
 
 # Global instance
-token_manager = ZerodhaTokenManager()
+token_manager = ShareKhanTokenManager()
 
-async def get_token_manager() -> ZerodhaTokenManager:
+async def get_token_manager() -> ShareKhanTokenManager:
     """Get the global token manager instance"""
     return token_manager 

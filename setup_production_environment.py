@@ -28,14 +28,14 @@ class ProductionEnvironmentSetup:
             # Redis configuration  
             'REDIS_URL': os.getenv('REDIS_URL', 'redis://localhost:6379'),
             
-            # TrueData configuration
-            'TRUEDATA_LOGIN_ID': os.getenv('TRUEDATA_LOGIN_ID', 'username'),
-            'TRUEDATA_PASSWORD': os.getenv('TRUEDATA_PASSWORD', 'password'),
+            # ShareKhan configuration
+            'SHAREKHAN_LOGIN_ID': os.getenv('SHAREKHAN_LOGIN_ID', 'username'),
+            'SHAREKHAN_PASSWORD': os.getenv('SHAREKHAN_PASSWORD', 'password'),
             
-            # Zerodha configuration
-            'ZERODHA_API_KEY': 'your_api_key_here',
-            'ZERODHA_API_SECRET': 'your_api_secret_here',
-            'ZERODHA_USER_ID': 'your_user_id_here',
+            # ShareKhan configuration
+            'SHAREKHAN_API_KEY': 'your_api_key_here',
+            'SHAREKHAN_API_SECRET': 'your_api_secret_here',
+            'SHAREKHAN_USER_ID': 'your_user_id_here',
             
             # Application configuration
             'ENVIRONMENT': 'production',
@@ -53,7 +53,7 @@ class ProductionEnvironmentSetup:
         print("🔧 Setting up production environment variables...")
         
         for key, value in self.production_env.items():
-            if key not in ['ZERODHA_API_KEY', 'ZERODHA_API_SECRET', 'ZERODHA_USER_ID']:
+            if key not in ['SHAREKHAN_API_KEY', 'SHAREKHAN_API_SECRET', 'SHAREKHAN_USER_ID']:
                 os.environ[key] = value
                 print(f"   ✓ {key} configured")
             else:
@@ -188,17 +188,17 @@ class ProductionEnvironmentSetup:
         try:
             print("🧪 Testing Redis operations...")
             
-            # Test Zerodha token storage
-            token_key = "zerodha:token:MASTER_USER_001"
+            # Test ShareKhan token storage
+            token_key = "sharekhan:token:MASTER_USER_001"
             test_token = f"test_token_{int(datetime.now().timestamp())}"
             
             self.redis_client.set(token_key, test_token, ex=86400)
             retrieved_token = self.redis_client.get(token_key)
             
             if retrieved_token and retrieved_token.decode() == test_token:
-                print("   ✅ Zerodha token storage working")
+                print("   ✅ ShareKhan token storage working")
             else:
-                self.issues_found.append("Zerodha token storage failed")
+                self.issues_found.append("ShareKhan token storage failed")
                 return False
             
             # Test position tracking hash operations
@@ -252,8 +252,8 @@ echo "🚀 Starting production deployment..."
 # Set environment variables (replace with actual values in production)
 export DATABASE_URL="$DATABASE_URL"
 export REDIS_URL="$REDIS_URL"
-export TRUEDATA_LOGIN_ID="$TRUEDATA_LOGIN_ID"
-export TRUEDATA_PASSWORD="$TRUEDATA_PASSWORD"
+export SHAREKHAN_LOGIN_ID="$SHAREKHAN_LOGIN_ID"
+export SHAREKHAN_PASSWORD="$SHAREKHAN_PASSWORD"
 export ENVIRONMENT="production"
 export DEBUG="false"
 export LOG_LEVEL="INFO"

@@ -41,10 +41,10 @@ return {
 'max_positions': 20,
 'capital': 500000,
 'max_daily_loss': 0.02},
-'zerodha': {
+'sharekhan': {
 'api_key': 'test_key',
 'api_secret': 'test_secret'},
-'truedata': {
+'sharekhan': {
 'api_key': 'test_key',
 'user_id': 'test_user'
 

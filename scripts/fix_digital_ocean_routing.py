@@ -89,7 +89,7 @@ def fix_app_yaml():
             },
             'match': {
                 'path': {
-                    'prefix': '/zerodha'
+                    'prefix': '/sharekhan'
                 }
             }
         },
@@ -122,7 +122,7 @@ def fix_app_yaml():
     print("✅ Created digital-ocean-app-ultimate-fix.yaml with comprehensive routing fixes")
     print("\n📋 Key changes made:")
     print("   1. Using preserve_path_prefix instead of rewrite for all API routes")
-    print("   2. Added /zerodha route to ingress")
+    print("   2. Added /sharekhan route to ingress")
     print("   3. Set ROOT_PATH to empty string")
     print("\n🚀 Next steps:")
     print("   1. Review the digital-ocean-app-ultimate-fix.yaml file")

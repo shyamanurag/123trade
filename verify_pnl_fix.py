@@ -32,8 +32,8 @@ async def verify_pnl_fix():
         
         # Test 2: Check if market data is available
         logger.info("\n2. Testing Market Data Availability:")
-        from src.api.market_data import get_truedata_proxy
-        proxy_data = get_truedata_proxy()
+        from src.api.market_data import get_sharekhan_proxy
+        proxy_data = get_sharekhan_proxy()
         
         if proxy_data and proxy_data.get('data'):
             data_count = len(proxy_data['data'])

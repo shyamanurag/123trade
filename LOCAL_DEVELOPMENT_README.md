@@ -319,8 +319,8 @@ No restart needed for most changes!
 | Database | SQLite (file) | PostgreSQL (cloud) |
 | Redis | Local/In-memory | Cloud Redis |
 | Trading | Paper/Simulation | Real (if enabled) |
-| Market Data | Mock/Simulated | Real TrueData |
-| Broker API | Mock/Sandbox | Real Zerodha |
+| Market Data | Mock/Simulated | Real ShareKhan |
+| Broker API | Mock/Sandbox | Real ShareKhan |
 | Ports | 8000 (local) | 8000 (cloud) |
 | SSL | Disabled | Enabled |
 | Authentication | Local secrets | Production secrets |

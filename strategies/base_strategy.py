@@ -283,7 +283,7 @@ class BaseStrategy:
         """Determine the best signal type based on market conditions and F&O availability"""
         try:
             # 🚨 CRITICAL: Check F&O availability first
-            from config.truedata_symbols import is_fo_enabled, should_use_equity_only
+            from config.sharekhan_symbols import is_fo_enabled, should_use_equity_only
             
             # Force equity for known cash-only stocks
             if should_use_equity_only(symbol):
@@ -348,7 +348,7 @@ class BaseStrategy:
             logger.info(f"   Type: {option_type}, Action: {final_action}")
             logger.info(f"   Entry Price: ₹{entry_price} (underlying)")
             
-            # 🎯 CRITICAL FIX: Get actual options premium from TrueData instead of stock price
+            # 🎯 CRITICAL FIX: Get actual options premium from ShareKhan instead of stock price
             options_entry_price = self._get_options_premium(options_symbol, entry_price, option_type)
             
             # 🔍 DEBUG: Log premium fetching
@@ -489,15 +489,15 @@ class BaseStrategy:
         """Convert equity signal to options symbol with BUY-only approach - FIXED SYMBOL FORMAT"""
         
         try:
-            # 🎯 CRITICAL FIX: Convert to Zerodha's official symbol name FIRST
-            from config.truedata_symbols import get_zerodha_symbol
-            zerodha_underlying = get_zerodha_symbol(underlying_symbol)
+            # 🎯 CRITICAL FIX: Convert to ShareKhan's official symbol name FIRST
+            from config.sharekhan_symbols import get_sharekhan_symbol
+            sharekhan_underlying = get_sharekhan_symbol(underlying_symbol)
             
             # 🎯 CRITICAL FIX: Only BUY signals for options (no selling due to margin requirements)
-            # 🔧 IMPORTANT: Only use indices with confirmed options contracts on Zerodha
-            if zerodha_underlying in ['NIFTY', 'BANKNIFTY', 'FINNIFTY']:  # REMOVED MIDCPNIFTY - no options
+            # 🔧 IMPORTANT: Only use indices with confirmed options contracts on ShareKhan
+            if sharekhan_underlying in ['NIFTY', 'BANKNIFTY', 'FINNIFTY']:  # REMOVED MIDCPNIFTY - no options
                 # Index options - use current levels
-                strike = self._get_atm_strike(zerodha_underlying, current_price)
+                strike = self._get_atm_strike(sharekhan_underlying, current_price)
                 # CRITICAL CHANGE: Always BUY options, choose CE/PE based on market direction
                 if action.upper() == 'BUY':
                     option_type = 'CE'  # BUY Call when bullish
@@ -506,19 +506,19 @@ class BaseStrategy:
                     
                 expiry = self._get_next_expiry()
                 
-                # 🔧 CRITICAL FIX: Use Zerodha's exact symbol format
-                # Zerodha format: BANKNIFTY25JUL57100PE (not BANKNIFTY31JUL2557100PE)
-                options_symbol = f"{zerodha_underlying}{expiry}{strike}{option_type}"
+                # 🔧 CRITICAL FIX: Use ShareKhan's exact symbol format
+                # ShareKhan format: BANKNIFTY25JUL57100PE (not BANKNIFTY31JUL2557100PE)
+                options_symbol = f"{sharekhan_underlying}{expiry}{strike}{option_type}"
                 
                 logger.info(f"🎯 INDEX SIGNAL: {underlying_symbol} → OPTIONS (F&O enabled)")
                 logger.info(f"   Generated: {options_symbol}")
                 return options_symbol, option_type
-            elif zerodha_underlying in ['MIDCPNIFTY', 'SENSEX']:
+            elif sharekhan_underlying in ['MIDCPNIFTY', 'SENSEX']:
                 # 🚨 CRITICAL: These indices cannot be traded as equity - SKIP SIGNAL
-                logger.warning(f"⚠️ {zerodha_underlying} cannot be traded as equity - SIGNAL REJECTED")
+                logger.warning(f"⚠️ {sharekhan_underlying} cannot be traded as equity - SIGNAL REJECTED")
                 return None, 'REJECTED'
             else:
-                # Stock options - convert equity to options using ZERODHA NAME
+                # Stock options - convert equity to options using SHAREKHAN NAME
                 strike = self._get_atm_strike_for_stock(current_price)
                 # CRITICAL CHANGE: Always BUY options, choose CE/PE based on market direction
                 if action.upper() == 'BUY':
@@ -528,11 +528,11 @@ class BaseStrategy:
                     
                 expiry = self._get_next_expiry()
                 
-                # 🔧 CRITICAL FIX: Use Zerodha's exact symbol format for stocks too
-                options_symbol = f"{zerodha_underlying}{expiry}{strike}{option_type}"
+                # 🔧 CRITICAL FIX: Use ShareKhan's exact symbol format for stocks too
+                options_symbol = f"{sharekhan_underlying}{expiry}{strike}{option_type}"
                 
-                logger.info(f"🎯 ZERODHA OPTIONS SYMBOL: {underlying_symbol} → {options_symbol}")
-                logger.info(f"   Mapping: {underlying_symbol} → {zerodha_underlying}")
+                logger.info(f"🎯 SHAREKHAN OPTIONS SYMBOL: {underlying_symbol} → {options_symbol}")
+                logger.info(f"   Mapping: {underlying_symbol} → {sharekhan_underlying}")
                 logger.info(f"   Strike: {strike}, Expiry: {expiry}, Type: {option_type}")
                 
                 return options_symbol, option_type
@@ -541,7 +541,7 @@ class BaseStrategy:
             return underlying_symbol, 'CE'
     
     def _get_atm_strike(self, symbol: str, price: float) -> int:
-        """Get ATM strike for index options - FIXED to match Zerodha available strikes"""
+        """Get ATM strike for index options - FIXED to match ShareKhan available strikes"""
         if symbol == 'NIFTY':
             return round(price / 50) * 50  # Round to nearest 50
         elif symbol == 'BANKNIFTY':
@@ -602,11 +602,11 @@ class BaseStrategy:
         # 🔍 DEBUG: Add comprehensive logging for expiry date debugging
         logger.info(f"🔍 DEBUG: Getting next expiry date...")
         
-        # Try to get real expiry dates from Zerodha first
-        available_expiries = self._get_available_expiries_from_zerodha()
+        # Try to get real expiry dates from ShareKhan first
+        available_expiries = self._get_available_expiries_from_sharekhan()
         
         if available_expiries:
-            logger.info(f"✅ Found {len(available_expiries)} expiry dates from Zerodha API")
+            logger.info(f"✅ Found {len(available_expiries)} expiry dates from ShareKhan API")
             for i, exp in enumerate(available_expiries[:3]):  # Log first 3
                 logger.info(f"   {i+1}. {exp['formatted']} ({exp['date']})")
             
@@ -615,19 +615,19 @@ class BaseStrategy:
             logger.info(f"🎯 SELECTED EXPIRY: {optimal_expiry}")
             return optimal_expiry
         else:
-            logger.warning("⚠️ No expiry dates from Zerodha API - using fallback calculation")
+            logger.warning("⚠️ No expiry dates from ShareKhan API - using fallback calculation")
             fallback_expiry = self._calculate_next_thursday_fallback()
             logger.info(f"🎯 FALLBACK EXPIRY: {fallback_expiry}")
             return fallback_expiry
     
     def _get_optimal_expiry_for_strategy(self, preference: str = "nearest_weekly") -> str:
         """
-        Get optimal expiry based on strategy requirements - FIXED ZERODHA FORMAT
+        Get optimal expiry based on strategy requirements - FIXED SHAREKHAN FORMAT
         
         Args:
             preference: "nearest_weekly", "nearest_monthly", "next_weekly", "max_time_decay"
         """
-        available_expiries = self._get_available_expiries_from_zerodha()
+        available_expiries = self._get_available_expiries_from_sharekhan()
         
         if not available_expiries:
             # Fallback to calculated next Thursday if API unavailable
@@ -667,31 +667,31 @@ class BaseStrategy:
                     best_expiry = expiry
             nearest = best_expiry
         
-        # 🔧 CRITICAL FIX: Convert to Zerodha format (25JUL instead of 31JUL25)
+        # 🔧 CRITICAL FIX: Convert to ShareKhan format (25JUL instead of 31JUL25)
         exp_date = nearest['date']
         month_names = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
                       'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
         
-        # Zerodha format: 25JUL (YY + MMM)
-        zerodha_expiry = f"{str(exp_date.year)[-2:]}{month_names[exp_date.month - 1]}"
+        # ShareKhan format: 25JUL (YY + MMM)
+        sharekhan_expiry = f"{str(exp_date.year)[-2:]}{month_names[exp_date.month - 1]}"
         
-        logger.info(f"🎯 OPTIMAL EXPIRY: {zerodha_expiry} (from {nearest['formatted']})")
+        logger.info(f"🎯 OPTIMAL EXPIRY: {sharekhan_expiry} (from {nearest['formatted']})")
         logger.info(f"   Date: {exp_date}, Days ahead: {(exp_date - today).days}")
         
-        return zerodha_expiry
+        return sharekhan_expiry
     
-    def _get_available_expiries_from_zerodha(self) -> List[Dict]:
+    def _get_available_expiries_from_sharekhan(self) -> List[Dict]:
         """
-        Fetch available expiry dates from Zerodha instruments API
+        Fetch available expiry dates from ShareKhan instruments API
         Returns list of {date: datetime.date, formatted: str, is_weekly: bool, is_monthly: bool}
         """
         try:
-            # Get orchestrator instance to access Zerodha client
+            # Get orchestrator instance to access ShareKhan client
             from src.core.orchestrator import get_orchestrator_instance
             orchestrator = get_orchestrator_instance()
             
-            if not orchestrator or not orchestrator.zerodha_client:
-                logger.warning("⚠️ Zerodha client not available for expiry lookup")
+            if not orchestrator or not orchestrator.sharekhan_client:
+                logger.warning("⚠️ ShareKhan client not available for expiry lookup")
                 return self._get_fallback_expiries()
             
             # Use the new async method - we'll need to handle this synchronously
@@ -713,7 +713,7 @@ class BaseStrategy:
                     else:
                         # Run the async method
                         expiries = loop.run_until_complete(
-                            orchestrator.zerodha_client.get_available_expiries_for_symbol(symbol)
+                            orchestrator.sharekhan_client.get_available_expiries_for_symbol(symbol)
                         )
                         
                         if expiries:
@@ -726,7 +726,7 @@ class BaseStrategy:
                     continue
             
             # If no expiries found from API, use fallback
-            logger.warning("⚠️ No expiries found from Zerodha API, using fallback")
+            logger.warning("⚠️ No expiries found from ShareKhan API, using fallback")
             return self._get_fallback_expiries()
             
         except Exception as e:
@@ -748,7 +748,7 @@ class BaseStrategy:
                 
             thursday = current_date + timedelta(days=days_ahead)
             
-            # Format for Zerodha: 31JUL25
+            # Format for ShareKhan: 31JUL25
             month_names = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
                           'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
             formatted = f"{thursday.day:02d}{month_names[thursday.month - 1]}{str(thursday.year)[-2:]}"
@@ -770,7 +770,7 @@ class BaseStrategy:
         return expiries
     
     def _calculate_next_thursday_fallback(self) -> str:
-        """Fallback calculation for next Thursday when API is unavailable - FIXED ZERODHA FORMAT"""
+        """Fallback calculation for next Thursday when API is unavailable - FIXED SHAREKHAN FORMAT"""
         today = datetime.now()
         
         # Find next Thursday
@@ -780,18 +780,18 @@ class BaseStrategy:
             
         next_thursday = today + timedelta(days=days_ahead)
         
-        # 🔧 CRITICAL FIX: Format for Zerodha - their format is 25JUL (not 31JUL25)
+        # 🔧 CRITICAL FIX: Format for ShareKhan - their format is 25JUL (not 31JUL25)
         month_names = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
                       'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
         
-        # Zerodha format: 25JUL (YY + MMM, not DD + MMM + YY)
+        # ShareKhan format: 25JUL (YY + MMM, not DD + MMM + YY)
         expiry_formatted = f"{str(next_thursday.year)[-2:]}{month_names[next_thursday.month - 1]}"
         
-        logger.info(f"📅 ZERODHA EXPIRY FORMAT: {expiry_formatted}")
+        logger.info(f"📅 SHAREKHAN EXPIRY FORMAT: {expiry_formatted}")
         logger.info(f"   Next Thursday: {next_thursday.strftime('%A, %B %d, %Y')}")
         logger.info(f"   Today: {today.strftime('%A, %B %d, %Y')}")
         logger.info(f"   OLD FORMAT would be: {next_thursday.day:02d}{month_names[next_thursday.month - 1]}{str(next_thursday.year)[-2:]}")
-        logger.info(f"   NEW ZERODHA FORMAT: {expiry_formatted}")
+        logger.info(f"   NEW SHAREKHAN FORMAT: {expiry_formatted}")
         
         return expiry_formatted
     
@@ -866,20 +866,20 @@ class BaseStrategy:
         self.is_active = False 
 
     def _get_options_premium(self, options_symbol: str, fallback_price: float, option_type: str) -> float:
-        """Get actual options premium from TrueData cache"""
+        """Get actual options premium from ShareKhan cache"""
         try:
-            # Try to get options premium from TrueData global cache
+            # Try to get options premium from ShareKhan global cache
             try:
-                from data.truedata_client import live_market_data
+                from data.sharekhan_client import live_market_data
                 if live_market_data and options_symbol in live_market_data:
                     options_data = live_market_data[options_symbol]
                     # Extract LTP (Last Traded Price) for options premium
                     premium = options_data.get('ltp', options_data.get('price', options_data.get('last_price')))
                     if premium and premium > 0:
-                        logger.info(f"✅ Got options premium from TrueData: {options_symbol} = ₹{premium}")
+                        logger.info(f"✅ Got options premium from ShareKhan: {options_symbol} = ₹{premium}")
                         return float(premium)
             except Exception as e:
-                logger.debug(f"Could not access TrueData for {options_symbol}: {e}")
+                logger.debug(f"Could not access ShareKhan for {options_symbol}: {e}")
             
             # Fallback: Estimate options premium dynamically based on market conditions
             estimated_premium = self._estimate_options_premium_dynamic(fallback_price, option_type, options_symbol)
@@ -1121,7 +1121,7 @@ class BaseStrategy:
     def _get_dynamic_lot_size(self, options_symbol: str, underlying_symbol: str) -> int:
         """Get dynamic lot size based on options contract specifications"""
         try:
-            # Try to get lot size from TrueData or predefined mappings
+            # Try to get lot size from ShareKhan or predefined mappings
             if underlying_symbol in ['NIFTY', 'BANKNIFTY', 'FINNIFTY']:
                 # Index options have standard lot sizes
                 lot_sizes = {'NIFTY': 50, 'BANKNIFTY': 15, 'FINNIFTY': 40}
@@ -1130,7 +1130,7 @@ class BaseStrategy:
                 # Stock options typically have lot size based on price
                 # Higher priced stocks have smaller lot sizes
                 try:
-                    from data.truedata_client import live_market_data
+                    from data.sharekhan_client import live_market_data
                     if live_market_data and underlying_symbol in live_market_data:
                         stock_price = live_market_data[underlying_symbol].get('ltp', 1000)
                         if stock_price > 5000:

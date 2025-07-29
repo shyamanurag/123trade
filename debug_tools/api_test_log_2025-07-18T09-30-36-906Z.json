@@ -125,63 +125,63 @@
             "name": "test_auth_v1"
           },
           {
-            "path": "/auth/zerodha/auth-url",
+            "path": "/auth/sharekhan/auth-url",
             "methods": [
               "GET"
             ],
             "name": "get_manual_auth_url"
           },
           {
-            "path": "/auth/zerodha/status",
+            "path": "/auth/sharekhan/status",
             "methods": [
               "GET"
             ],
             "name": "get_manual_auth_status"
           },
           {
-            "path": "/auth/zerodha/",
+            "path": "/auth/sharekhan/",
             "methods": [
               "GET"
             ],
-            "name": "zerodha_auth_page"
+            "name": "sharekhan_auth_page"
           },
           {
-            "path": "/auth/zerodha/submit-token",
+            "path": "/auth/sharekhan/submit-token",
             "methods": [
               "POST"
             ],
             "name": "submit_manual_token"
           },
           {
-            "path": "/auth/zerodha/test-connection",
+            "path": "/auth/sharekhan/test-connection",
             "methods": [
               "GET"
             ],
             "name": "test_connection"
           },
           {
-            "path": "/auth/zerodha/logout",
+            "path": "/auth/sharekhan/logout",
             "methods": [
               "DELETE"
             ],
             "name": "logout"
           },
           {
-            "path": "/auth/zerodha/callback",
+            "path": "/auth/sharekhan/callback",
             "methods": [
               "GET"
             ],
-            "name": "zerodha_callback"
+            "name": "sharekhan_callback"
           },
           {
-            "path": "/auth/zerodha/start-trading",
+            "path": "/auth/sharekhan/start-trading",
             "methods": [
               "GET"
             ],
             "name": "start_trading_page"
           },
           {
-            "path": "/auth/zerodha/submit-token",
+            "path": "/auth/sharekhan/submit-token",
             "methods": [
               "POST"
             ],
@@ -288,168 +288,168 @@
             "name": "get_dashboard_summary"
           },
           {
-            "path": "/api/v1/truedata/truedata/connect",
+            "path": "/api/v1/sharekhan/sharekhan/connect",
             "methods": [
               "POST"
             ],
-            "name": "connect_truedata"
+            "name": "connect_sharekhan"
           },
           {
-            "path": "/api/v1/truedata/truedata/subscribe",
+            "path": "/api/v1/sharekhan/sharekhan/subscribe",
             "methods": [
               "POST"
             ],
             "name": "subscribe_symbols"
           },
           {
-            "path": "/api/v1/truedata/truedata/unsubscribe",
+            "path": "/api/v1/sharekhan/sharekhan/unsubscribe",
             "methods": [
               "POST"
             ],
             "name": "unsubscribe_symbols"
           },
           {
-            "path": "/api/v1/truedata/truedata/status",
+            "path": "/api/v1/sharekhan/sharekhan/status",
             "methods": [
               "GET"
             ],
-            "name": "get_truedata_status_endpoint"
+            "name": "get_sharekhan_status_endpoint"
           },
           {
-            "path": "/api/v1/truedata/truedata/reconnect",
+            "path": "/api/v1/sharekhan/sharekhan/reconnect",
             "methods": [
               "POST"
             ],
-            "name": "reconnect_truedata"
+            "name": "reconnect_sharekhan"
           },
           {
-            "path": "/api/v1/truedata/truedata/data/{symbol}",
+            "path": "/api/v1/sharekhan/sharekhan/data/{symbol}",
             "methods": [
               "GET"
             ],
             "name": "get_symbol_data"
           },
           {
-            "path": "/api/v1/truedata/truedata/data",
+            "path": "/api/v1/sharekhan/sharekhan/data",
             "methods": [
               "GET"
             ],
             "name": "get_all_market_data"
           },
           {
-            "path": "/api/v1/truedata/truedata/disconnect",
+            "path": "/api/v1/sharekhan/sharekhan/disconnect",
             "methods": [
               "POST"
             ],
-            "name": "disconnect_truedata"
+            "name": "disconnect_sharekhan"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/client-internals",
+            "path": "/api/v1/sharekhan/sharekhan/debug/client-internals",
             "methods": [
               "GET"
             ],
             "name": "debug_client_internals"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/force-data",
+            "path": "/api/v1/sharekhan/sharekhan/debug/force-data",
             "methods": [
               "POST"
             ],
             "name": "force_create_sample_data"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/callback-status",
+            "path": "/api/v1/sharekhan/sharekhan/debug/callback-status",
             "methods": [
               "GET"
             ],
             "name": "debug_callback_status"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/force-callback-test",
+            "path": "/api/v1/sharekhan/sharekhan/debug/force-callback-test",
             "methods": [
               "POST"
             ],
             "name": "force_callback_test"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/test-live-data-call",
+            "path": "/api/v1/sharekhan/sharekhan/debug/test-live-data-call",
             "methods": [
               "POST"
             ],
             "name": "test_live_data_call"
           },
           {
-            "path": "/api/v1/truedata/truedata/debug/callback-registration-test",
+            "path": "/api/v1/sharekhan/sharekhan/debug/callback-registration-test",
             "methods": [
               "GET"
             ],
             "name": "callback_registration_test"
           },
           {
-            "path": "/api/v1/truedata/truedata/force-disconnect",
+            "path": "/api/v1/sharekhan/sharekhan/force-disconnect",
             "methods": [
               "POST"
             ],
-            "name": "force_disconnect_truedata"
+            "name": "force_disconnect_sharekhan"
           },
           {
-            "path": "/api/v1/truedata/truedata/deployment-safe-connect",
+            "path": "/api/v1/sharekhan/sharekhan/deployment-safe-connect",
             "methods": [
               "POST"
             ],
             "name": "deployment_safe_connect"
           },
           {
-            "path": "/api/v1/truedata/truedata/deployment-status",
+            "path": "/api/v1/sharekhan/sharekhan/deployment-status",
             "methods": [
               "GET"
             ],
             "name": "get_deployment_status"
           },
           {
-            "path": "/api/v1/truedata/truedata/connection-status",
+            "path": "/api/v1/sharekhan/sharekhan/connection-status",
             "methods": [
               "GET"
             ],
             "name": "get_detailed_connection_status"
           },
           {
-            "path": "/api/v1/truedata/options/subscribe",
+            "path": "/api/v1/sharekhan/options/subscribe",
             "methods": [
               "POST"
             ],
             "name": "subscribe_options"
           },
           {
-            "path": "/api/v1/truedata/options/data/{symbol}",
+            "path": "/api/v1/sharekhan/options/data/{symbol}",
             "methods": [
               "GET"
             ],
             "name": "get_options_data"
           },
           {
-            "path": "/api/v1/truedata/options/greeks/{symbol}",
+            "path": "/api/v1/sharekhan/options/greeks/{symbol}",
             "methods": [
               "GET"
             ],
             "name": "get_greeks"
           },
           {
-            "path": "/api/v1/truedata/options/all-options",
+            "path": "/api/v1/sharekhan/options/all-options",
             "methods": [
               "GET"
             ],
             "name": "get_all_options_data"
           },
           {
-            "path": "/api/v1/truedata/options/subscribe-crude-options",
+            "path": "/api/v1/sharekhan/options/subscribe-crude-options",
             "methods": [
               "POST"
             ],
             "name": "subscribe_crude_oil_options"
           },
           {
-            "path": "/api/v1/truedata/options/option-chain/{underlying}",
+            "path": "/api/v1/sharekhan/options/option-chain/{underlying}",
             "methods": [
               "GET"
             ],
@@ -617,32 +617,32 @@
             "name": "get_trading_status"
           },
           {
-            "path": "/api/v1/control/zerodha-manual/auth-url",
+            "path": "/api/v1/control/sharekhan-manual/auth-url",
             "methods": [
               "GET"
             ],
-            "name": "get_zerodha_manual_auth_url"
+            "name": "get_sharekhan_manual_auth_url"
           },
           {
-            "path": "/api/v1/control/zerodha-manual/status",
+            "path": "/api/v1/control/sharekhan-manual/status",
             "methods": [
               "GET"
             ],
-            "name": "get_zerodha_manual_status"
+            "name": "get_sharekhan_manual_status"
           },
           {
-            "path": "/api/v1/control/zerodha-manual/submit-token",
+            "path": "/api/v1/control/sharekhan-manual/submit-token",
             "methods": [
               "POST"
             ],
-            "name": "submit_zerodha_manual_token"
+            "name": "submit_sharekhan_manual_token"
           },
           {
-            "path": "/api/v1/control/zerodha-manual/test",
+            "path": "/api/v1/control/sharekhan-manual/test",
             "methods": [
               "GET"
             ],
-            "name": "test_zerodha_manual_system"
+            "name": "test_sharekhan_manual_system"
           },
           {
             "path": "/api/v1/autonomous/status",
@@ -1415,11 +1415,11 @@
             "name": "get_broker_auth_status"
           },
           {
-            "path": "/api/v1/zerodha/status",
+            "path": "/api/v1/sharekhan/status",
             "methods": [
               "GET"
             ],
-            "name": "get_zerodha_status"
+            "name": "get_sharekhan_status"
           },
           {
             "path": "/api/v1/system/refresh-connections",
@@ -1625,35 +1625,35 @@
             "name": "check_dependencies"
           },
           {
-            "path": "/api/zerodha/login",
+            "path": "/api/sharekhan/login",
             "methods": [
               "POST"
             ],
             "name": "initiate_login"
           },
           {
-            "path": "/api/zerodha/callback",
+            "path": "/api/sharekhan/callback",
             "methods": [
               "GET"
             ],
             "name": "handle_callback"
           },
           {
-            "path": "/api/zerodha/status/{user_id}",
+            "path": "/api/sharekhan/status/{user_id}",
             "methods": [
               "GET"
             ],
             "name": "check_auth_status"
           },
           {
-            "path": "/api/zerodha/logout/{user_id}",
+            "path": "/api/sharekhan/logout/{user_id}",
             "methods": [
               "POST"
             ],
             "name": "logout"
           },
           {
-            "path": "/api/zerodha/profile/{user_id}",
+            "path": "/api/sharekhan/profile/{user_id}",
             "methods": [
               "GET"
             ],
@@ -1695,25 +1695,25 @@
             "name": "receive_market_data"
           },
           {
-            "path": "/api/v1/webhooks/webhooks/zerodha/order-update",
+            "path": "/api/v1/webhooks/webhooks/sharekhan/order-update",
             "methods": [
               "POST"
             ],
-            "name": "receive_zerodha_order_update"
+            "name": "receive_sharekhan_order_update"
           },
           {
-            "path": "/api/v1/webhooks/webhooks/zerodha/position-update",
+            "path": "/api/v1/webhooks/webhooks/sharekhan/position-update",
             "methods": [
               "POST"
             ],
-            "name": "receive_zerodha_position_update"
+            "name": "receive_sharekhan_position_update"
           },
           {
-            "path": "/api/v1/webhooks/webhooks/zerodha",
+            "path": "/api/v1/webhooks/webhooks/sharekhan",
             "methods": [
               "POST"
             ],
-            "name": "receive_zerodha_webhook"
+            "name": "receive_sharekhan_webhook"
           },
           {
             "path": "/api/v1/webhooks/webhooks/news-feed",
@@ -2035,7 +2035,7 @@
         ],
         "login_endpoint": "/auth/login"
       },
-      "rawData": "{\"total_routes\":294,\"auth_routes\":[{\"path\":\"/auth/me\",\"methods\":[\"GET\"],\"name\":\"auth_me_fallback_high_priority\"},{\"path\":\"/auth/login\",\"methods\":[\"POST\"],\"name\":\"login\"},{\"path\":\"/auth/me\",\"methods\":[\"GET\"],\"name\":\"get_current_user_v1\"},{\"path\":\"/auth/test\",\"methods\":[\"GET\"],\"name\":\"test_auth_v1\"},{\"path\":\"/auth/zerodha/auth-url\",\"methods\":[\"GET\"],\"name\":\"get_manual_auth_url\"},{\"path\":\"/auth/zerodha/status\",\"methods\":[\"GET\"],\"name\":\"get_manual_auth_status\"},{\"path\":\"/auth/zerodha/\",\"methods\":[\"GET\"],\"name\":\"zerodha_auth_page\"},{\"path\":\"/auth/zerodha/submit-token\",\"methods\":[\"POST\"],\"name\":\"submit_manual_token\"},{\"path\":\"/auth/zerodha/test-connection\",\"methods\":[\"GET\"],\"name\":\"test_connection\"},{\"path\":\"/auth/zerodha/logout\",\"methods\":[\"DELETE\"],\"name\":\"logout\"},{\"path\":\"/auth/zerodha/callback\",\"methods\":[\"GET\"],\"name\":\"zerodha_callback\"},{\"path\":\"/auth/zerodha/start-trading\",\"methods\":[\"GET\"],\"name\":\"start_trading_page\"},{\"path\":\"/auth/zerodha/submit-token\",\"methods\":[\"POST\"],\"name\":\"redirect_submit_token\"}],\"api_routes\":[{\"path\":\"/api/market/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices\"},{\"path\":\"/api/market/market-status\",\"methods\":[\"GET\"],\"name\":\"get_market_status\"},{\"path\":\"/api/market/volume-data\",\"methods\":[\"GET\"],\"name\":\"get_volume_data\"},{\"path\":\"/api/market/v1/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices_legacy\"},{\"path\":\"/api/v1/\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data\"},{\"path\":\"/api/v1/market-data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_market_data\"},{\"path\":\"/api/v1/live\",\"methods\":[\"GET\"],\"name\":\"get_live_market_data\"},{\"path\":\"/api/v1/status\",\"methods\":[\"GET\"],\"name\":\"get_market_data_status\"},{\"path\":\"/api/v1/symbol-expansion/status\",\"methods\":[\"GET\"],\"name\":\"get_symbol_expansion_status\"},{\"path\":\"/api/v1/individual/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_individual_symbol_data\"},{\"path\":\"/api/v1/realtime/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_realtime_data\"},{\"path\":\"/api/v1/option-chain/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_option_chain\"},{\"path\":\"/api/v1/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_symbols\"},{\"path\":\"/api/v1/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_summary\"},{\"path\":\"/api/v1/truedata/truedata/connect\",\"methods\":[\"POST\"],\"name\":\"connect_truedata\"},{\"path\":\"/api/v1/truedata/truedata/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_symbols\"},{\"path\":\"/api/v1/truedata/truedata/unsubscribe\",\"methods\":[\"POST\"],\"name\":\"unsubscribe_symbols\"},{\"path\":\"/api/v1/truedata/truedata/status\",\"methods\":[\"GET\"],\"name\":\"get_truedata_status_endpoint\"},{\"path\":\"/api/v1/truedata/truedata/reconnect\",\"methods\":[\"POST\"],\"name\":\"reconnect_truedata\"},{\"path\":\"/api/v1/truedata/truedata/data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_symbol_data\"},{\"path\":\"/api/v1/truedata/truedata/data\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data\"},{\"path\":\"/api/v1/truedata/truedata/disconnect\",\"methods\":[\"POST\"],\"name\":\"disconnect_truedata\"},{\"path\":\"/api/v1/truedata/truedata/debug/client-internals\",\"methods\":[\"GET\"],\"name\":\"debug_client_internals\"},{\"path\":\"/api/v1/truedata/truedata/debug/force-data\",\"methods\":[\"POST\"],\"name\":\"force_create_sample_data\"},{\"path\":\"/api/v1/truedata/truedata/debug/callback-status\",\"methods\":[\"GET\"],\"name\":\"debug_callback_status\"},{\"path\":\"/api/v1/truedata/truedata/debug/force-callback-test\",\"methods\":[\"POST\"],\"name\":\"force_callback_test\"},{\"path\":\"/api/v1/truedata/truedata/debug/test-live-data-call\",\"methods\":[\"POST\"],\"name\":\"test_live_data_call\"},{\"path\":\"/api/v1/truedata/truedata/debug/callback-registration-test\",\"methods\":[\"GET\"],\"name\":\"callback_registration_test\"},{\"path\":\"/api/v1/truedata/truedata/force-disconnect\",\"methods\":[\"POST\"],\"name\":\"force_disconnect_truedata\"},{\"path\":\"/api/v1/truedata/truedata/deployment-safe-connect\",\"methods\":[\"POST\"],\"name\":\"deployment_safe_connect\"},{\"path\":\"/api/v1/truedata/truedata/deployment-status\",\"methods\":[\"GET\"],\"name\":\"get_deployment_status\"},{\"path\":\"/api/v1/truedata/truedata/connection-status\",\"methods\":[\"GET\"],\"name\":\"get_detailed_connection_status\"},{\"path\":\"/api/v1/truedata/options/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_options\"},{\"path\":\"/api/v1/truedata/options/data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_options_data\"},{\"path\":\"/api/v1/truedata/options/greeks/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_greeks\"},{\"path\":\"/api/v1/truedata/options/all-options\",\"methods\":[\"GET\"],\"name\":\"get_all_options_data\"},{\"path\":\"/api/v1/truedata/options/subscribe-crude-options\",\"methods\":[\"POST\"],\"name\":\"subscribe_crude_oil_options\"},{\"path\":\"/api/v1/truedata/options/option-chain/{underlying}\",\"methods\":[\"GET\"],\"name\":\"get_option_chain\"},{\"path\":\"/api/v1/users/\",\"methods\":[\"GET\"],\"name\":\"get_users\"},{\"path\":\"/api/v1/users/\",\"methods\":[\"POST\"],\"name\":\"add_user\"},{\"path\":\"/api/v1/users/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"remove_user\"},{\"path\":\"/api/v1/users/current\",\"methods\":[\"GET\"],\"name\":\"get_current_user\"},{\"path\":\"/api/v1/users/dynamic/create\",\"methods\":[\"POST\"],\"name\":\"create_user\"},{\"path\":\"/api/v1/users/dynamic/list\",\"methods\":[\"GET\"],\"name\":\"list_users\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"PUT\"],\"name\":\"update_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/analytics\",\"methods\":[\"GET\"],\"name\":\"get_user_analytics\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/trades\",\"methods\":[\"GET\"],\"name\":\"get_user_trades\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/positions\",\"methods\":[\"GET\"],\"name\":\"get_user_positions\"},{\"path\":\"/api/v1/analytics/user/{user_id}/performance\",\"methods\":[\"GET\"],\"name\":\"get_user_performance\"},{\"path\":\"/api/v1/analytics/user/{user_id}/report\",\"methods\":[\"GET\"],\"name\":\"get_user_trading_report\"},{\"path\":\"/api/v1/analytics/user/{user_id}/dashboard\",\"methods\":[\"GET\"],\"name\":\"get_user_dashboard_data\"},{\"path\":\"/api/v1/analytics/users/leaderboard\",\"methods\":[\"GET\"],\"name\":\"get_users_leaderboard\"},{\"path\":\"/api/v1/control/users/broker\",\"methods\":[\"POST\"],\"name\":\"add_broker_user\"},{\"path\":\"/api/v1/control/users/broker\",\"methods\":[\"GET\"],\"name\":\"get_broker_users\"},{\"path\":\"/api/v1/control/users/broker/{user_id}\",\"methods\":[\"PUT\"],\"name\":\"update_broker_user\"},{\"path\":\"/api/v1/control/users/broker/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_broker_user\"},{\"path\":\"/api/v1/control/users/broker/initialize\",\"methods\":[\"POST\"],\"name\":\"initialize_users\"},{\"path\":\"/api/v1/control/trading/control\",\"methods\":[\"POST\"],\"name\":\"control_trading\"},{\"path\":\"/api/v1/control/trading/status\",\"methods\":[\"GET\"],\"name\":\"get_trading_status\"},{\"path\":\"/api/v1/control/zerodha-manual/auth-url\",\"methods\":[\"GET\"],\"name\":\"get_zerodha_manual_auth_url\"},{\"path\":\"/api/v1/control/zerodha-manual/status\",\"methods\":[\"GET\"],\"name\":\"get_zerodha_manual_status\"},{\"path\":\"/api/v1/control/zerodha-manual/submit-token\",\"methods\":[\"POST\"],\"name\":\"submit_zerodha_manual_token\"},{\"path\":\"/api/v1/control/zerodha-manual/test\",\"methods\":[\"GET\"],\"name\":\"test_zerodha_manual_system\"},{\"path\":\"/api/v1/autonomous/status\",\"methods\":[\"GET\"],\"name\":\"get_status\"},{\"path\":\"/api/v1/autonomous/reset\",\"methods\":[\"POST\"],\"name\":\"reset_orchestrator\"},{\"path\":\"/api/v1/autonomous/start\",\"methods\":[\"POST\"],\"name\":\"start_trading\"},{\"path\":\"/api/v1/autonomous/stop\",\"methods\":[\"POST\"],\"name\":\"stop_trading\"},{\"path\":\"/api/v1/autonomous/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions\"},{\"path\":\"/api/v1/autonomous/performance\",\"methods\":[\"GET\"],\"name\":\"get_performance\"},{\"path\":\"/api/v1/autonomous/strategies\",\"methods\":[\"GET\"],\"name\":\"get_strategies\"},{\"path\":\"/api/v1/autonomous/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/autonomous/orders\",\"methods\":[\"GET\"],\"name\":\"get_orders\"},{\"path\":\"/api/v1/autonomous/trades\",\"methods\":[\"GET\"],\"name\":\"get_trades\"},{\"path\":\"/api/v1/trades/\",\"methods\":[\"GET\"],\"name\":\"get_all_trades\"},{\"path\":\"/api/v1/trades/live\",\"methods\":[\"GET\"],\"name\":\"get_live_trades\"},{\"path\":\"/api/v1/trades/users/metrics\",\"methods\":[\"GET\"],\"name\":\"get_all_user_metrics\"},{\"path\":\"/api/v1/trades/{trade_id}\",\"methods\":[\"GET\"],\"name\":\"get_trade_details\"},{\"path\":\"/api/v1/trades/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_trades\"},{\"path\":\"/api/v1/trades/users/{user_id}/metrics\",\"methods\":[\"GET\"],\"name\":\"get_user_metrics\"},{\"path\":\"/api/v1/orders/\",\"methods\":[\"POST\"],\"name\":\"create_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"GET\"],\"name\":\"get_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"PUT\"],\"name\":\"update_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"DELETE\"],\"name\":\"cancel_order\"},{\"path\":\"/api/v1/orders/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_orders\"},{\"path\":\"/api/v1/orders/live\",\"methods\":[\"GET\"],\"name\":\"get_live_orders\"},{\"path\":\"/api/v1/orders/\",\"methods\":[\"GET\"],\"name\":\"get_all_orders\"},{\"path\":\"/api/v1/positions/\",\"methods\":[\"GET\"],\"name\":\"get_all_positions\"},{\"path\":\"/api/v1/positions/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_positions\"},{\"path\":\"/api/v1/positions/{position_id}\",\"methods\":[\"GET\"],\"name\":\"get_position\"},{\"path\":\"/api/v1/positions/{position_id}\",\"methods\":[\"PUT\"],\"name\":\"update_position\"},{\"path\":\"/api/v1/positions/\",\"methods\":[\"POST\"],\"name\":\"create_position\"},{\"path\":\"/api/v1/strategies/strategies\",\"methods\":[\"POST\"],\"name\":\"create_strategy\"},{\"path\":\"/api/v1/strategies/strategies\",\"methods\":[\"GET\"],\"name\":\"list_strategies\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"GET\"],\"name\":\"get_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"PUT\"],\"name\":\"update_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/enable\",\"methods\":[\"POST\"],\"name\":\"enable_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/disable\",\"methods\":[\"POST\"],\"name\":\"disable_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/signals\",\"methods\":[\"GET\"],\"name\":\"get_strategy_signals\"},{\"path\":\"/api/v1/strategies/strategies/status\",\"methods\":[\"GET\"],\"name\":\"get_strategies_status\"},{\"path\":\"/api/v1/intelligent-symbols\",\"methods\":[\"GET\"],\"name\":\"get_intelligent_symbols_status\"},{\"path\":\"/api/v1/intelligent-symbols/start\",\"methods\":[\"POST\"],\"name\":\"start_intelligent_symbol_management\"},{\"path\":\"/api/v1/intelligent-symbols/stop\",\"methods\":[\"POST\"],\"name\":\"stop_intelligent_symbol_management\"},{\"path\":\"/api/v1/intelligent-symbols/expand-now\",\"methods\":[\"POST\"],\"name\":\"trigger_symbol_expansion\"},{\"path\":\"/api/v1/intelligent-symbols/active\",\"methods\":[\"GET\"],\"name\":\"get_active_symbols_list\"},{\"path\":\"/api/v1/intelligent-symbols/analytics\",\"methods\":[\"GET\"],\"name\":\"get_symbol_analytics\"},{\"path\":\"/api/v1/intelligent-symbols/manual-add\",\"methods\":[\"POST\"],\"name\":\"manually_add_symbols\"},{\"path\":\"/api/v1/intelligent-symbols/manual-remove\",\"methods\":[\"POST\"],\"name\":\"manually_remove_symbols\"},{\"path\":\"/api/v1/intelligent-symbols/recommendations\",\"methods\":[\"GET\"],\"name\":\"get_symbol_recommendations\"},{\"path\":\"/api/v1/risk/risk/limits\",\"methods\":[\"GET\"],\"name\":\"get_risk_limits\"},{\"path\":\"/api/v1/risk/risk/limits\",\"methods\":[\"PUT\"],\"name\":\"update_risk_limits\"},{\"path\":\"/api/v1/risk/risk/metrics\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/risk/users/{user_id}/risk\",\"methods\":[\"GET\"],\"name\":\"get_user_risk_profile\"},{\"path\":\"/api/v1/risk/risk/hard-stop/reset\",\"methods\":[\"POST\"],\"name\":\"reset_hard_stop\"},{\"path\":\"/api/v1/risk/risk/alerts\",\"methods\":[\"GET\"],\"name\":\"get_risk_alerts\"},{\"path\":\"/api/v1/risk/risk/history\",\"methods\":[\"GET\"],\"name\":\"get_risk_history\"},{\"path\":\"/api/v1/recommendations/\",\"methods\":[\"GET\"],\"name\":\"get_recommendations\"},{\"path\":\"/api/v1/recommendations/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_symbol_recommendations\"},{\"path\":\"/api/v1/elite/\",\"methods\":[\"GET\"],\"name\":\"get_elite_recommendations\"},{\"path\":\"/api/v1/elite/force-scan\",\"methods\":[\"POST\"],\"name\":\"force_autonomous_scan\"},{\"path\":\"/api/v1/elite/scanner-status\",\"methods\":[\"GET\"],\"name\":\"get_scanner_status\"},{\"path\":\"/api/v1/performance/performance/daily-pnl\",\"methods\":[\"GET\"],\"name\":\"get_daily_pnl\"},{\"path\":\"/api/v1/performance/performance/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions\"},{\"path\":\"/api/v1/performance/performance/trades\",\"methods\":[\"GET\"],\"name\":\"get_trades\"},{\"path\":\"/api/v1/performance/performance/metrics\",\"methods\":[\"GET\"],\"name\":\"get_performance_metrics\"},{\"path\":\"/api/v1/performance/performance/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/monitoring/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/api/v1/monitoring/liveness\",\"methods\":[\"GET\"],\"name\":\"liveness_check\"},{\"path\":\"/api/v1/monitoring/readiness\",\"methods\":[\"GET\"],\"name\":\"readiness_check\"},{\"path\":\"/api/v1/monitoring/metrics\",\"methods\":[\"GET\"],\"name\":\"get_system_metrics\"},{\"path\":\"/api/v1/monitoring/components\",\"methods\":[\"GET\"],\"name\":\"get_components_status\"},{\"path\":\"/api/v1/monitoring/system-stats\",\"methods\":[\"GET\"],\"name\":\"get_system_stats\"},{\"path\":\"/api/v1/monitoring/trading-status\",\"methods\":[\"GET\"],\"name\":\"get_trading_status\"},{\"path\":\"/api/v1/monitoring/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_status\"},{\"path\":\"/api/v1/monitoring/performance/elite-trades\",\"methods\":[\"GET\"],\"name\":\"get_elite_performance\"},{\"path\":\"/api/v1/monitoring/performance/summary\",\"methods\":[\"GET\"],\"name\":\"get_performance_summary\"},{\"path\":\"/api/v1/monitoring/daily-pnl\",\"methods\":[\"GET\"],\"name\":\"get_daily_pnl\"},{\"path\":\"/api/v1/monitoring/orchestrator-status\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_status\"},{\"path\":\"/api/v1/monitoring/api/v1/monitoring/system-status\",\"methods\":[\"GET\"],\"name\":\"get_system_status_legacy\"},{\"path\":\"/api/v1/monitoring/signals/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_signals\"},{\"path\":\"/api/v1/monitoring/signals/statistics\",\"methods\":[\"GET\"],\"name\":\"get_signal_statistics\"},{\"path\":\"/api/v1/monitoring/signals/failed\",\"methods\":[\"GET\"],\"name\":\"get_failed_signals\"},{\"path\":\"/api/v1/errors/errors/stats\",\"methods\":[\"GET\"],\"name\":\"get_error_statistics\"},{\"path\":\"/api/v1/errors/errors/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_errors\"},{\"path\":\"/api/v1/errors/errors/types\",\"methods\":[\"GET\"],\"name\":\"get_error_types\"},{\"path\":\"/api/v1/errors/errors/clear\",\"methods\":[\"POST\"],\"name\":\"clear_error_history\"},{\"path\":\"/api/v1/errors/errors/health\",\"methods\":[\"GET\"],\"name\":\"get_error_health\"},{\"path\":\"/api/v1/db-health/database/health\",\"methods\":[\"GET\"],\"name\":\"get_database_health\"},{\"path\":\"/api/v1/db-health/database/stats\",\"methods\":[\"GET\"],\"name\":\"get_database_stats\"},{\"path\":\"/api/v1/db-health/database/optimize\",\"methods\":[\"POST\"],\"name\":\"optimize_database\"},{\"path\":\"/api/v1/db-health/database/slow-queries\",\"methods\":[\"GET\"],\"name\":\"get_slow_queries\"},{\"path\":\"/api/v1/db-health/database/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_info\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/dashboard/trading/metrics\",\"methods\":[\"GET\"],\"name\":\"get_trading_metrics\"},{\"path\":\"/api/v1/dashboard/notifications\",\"methods\":[\"GET\"],\"name\":\"get_system_notifications\"},{\"path\":\"/api/v1/dashboard/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_summary\"},{\"path\":\"/api/v1/dashboard/performance/summary\",\"methods\":[\"GET\"],\"name\":\"get_performance_summary\"},{\"path\":\"/api/v1/dashboard/data\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_data\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/reports/daily\",\"methods\":[\"GET\"],\"name\":\"get_daily_report\"},{\"path\":\"/api/reports/strategy\",\"methods\":[\"GET\"],\"name\":\"get_strategy_report\"},{\"path\":\"/api/reports/user\",\"methods\":[\"GET\"],\"name\":\"get_user_report\"},{\"path\":\"/api/reports/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_report\"},{\"path\":\"/api/reports/export/{report_type}\",\"methods\":[\"GET\"],\"name\":\"export_report\"},{\"path\":\"/api/v1/system/status\",\"methods\":[\"GET\"],\"name\":\"get_system_status\"},{\"path\":\"/api/v1/system/logs\",\"methods\":[\"GET\"],\"name\":\"get_system_logs\"},{\"path\":\"/api/v1/system/redis-status\",\"methods\":[\"GET\"],\"name\":\"get_redis_status\"},{\"path\":\"/api/v1/trades/status\",\"methods\":[\"GET\"],\"name\":\"get_trades_status\"},{\"path\":\"/api/v1/broker/status\",\"methods\":[\"GET\"],\"name\":\"get_broker_status\"},{\"path\":\"/api/v1/broker/connect\",\"methods\":[\"GET\"],\"name\":\"get_broker_connection\"},{\"path\":\"/api/v1/broker/connect\",\"methods\":[\"POST\"],\"name\":\"connect_broker\"},{\"path\":\"/api/v1/broker/disconnect\",\"methods\":[\"POST\"],\"name\":\"disconnect_broker\"},{\"path\":\"/api/v1/broker/auth\",\"methods\":[\"GET\"],\"name\":\"get_broker_auth_status\"},{\"path\":\"/api/v1/zerodha/status\",\"methods\":[\"GET\"],\"name\":\"get_zerodha_status\"},{\"path\":\"/api/v1/system/refresh-connections\",\"methods\":[\"POST\"],\"name\":\"refresh_connections\"},{\"path\":\"/api/v1/broker/refresh\",\"methods\":[\"POST\"],\"name\":\"refresh_broker_connection\"},{\"path\":\"/api/v1/strategies/performance\",\"methods\":[\"GET\"],\"name\":\"get_strategies_performance\"},{\"path\":\"/api/v1/system/config\",\"methods\":[\"GET\"],\"name\":\"get_system_config\"},{\"path\":\"/api/v1/system/status\",\"methods\":[\"GET\"],\"name\":\"get_system_status\"},{\"path\":\"/api/v1/system/metrics\",\"methods\":[\"GET\"],\"name\":\"get_system_metrics\"},{\"path\":\"/api/v1/search/symbols\",\"methods\":[\"GET\"],\"name\":\"search_symbols\"},{\"path\":\"/api/v1/search/trades\",\"methods\":[\"GET\"],\"name\":\"search_trades\"},{\"path\":\"/api/v1/search/strategies\",\"methods\":[\"GET\"],\"name\":\"search_strategies\"},{\"path\":\"/api/v1/search/users\",\"methods\":[\"GET\"],\"name\":\"search_users\"},{\"path\":\"/api/v1/search/recommendations\",\"methods\":[\"GET\"],\"name\":\"search_recommendations\"},{\"path\":\"/api/v1/search/global\",\"methods\":[\"GET\"],\"name\":\"global_search\"},{\"path\":\"/api/v1/search/autocomplete\",\"methods\":[\"GET\"],\"name\":\"search_autocomplete\"},{\"path\":\"/api/v1/debug/orchestrator\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_debug\"},{\"path\":\"/api/v1/debug/force-initialize\",\"methods\":[\"POST\"],\"name\":\"force_initialize_system\"},{\"path\":\"/api/v1/debug/force-enable-trading\",\"methods\":[\"POST\"],\"name\":\"force_enable_trading\"},{\"path\":\"/api/v1/debug/test-state-setting\",\"methods\":[\"POST\"],\"name\":\"test_state_setting\"},{\"path\":\"/api/v1/debug/test-enable-trading\",\"methods\":[\"POST\"],\"name\":\"test_enable_trading_direct\"},{\"path\":\"/api/v1/debug/test-minimal-enable\",\"methods\":[\"POST\"],\"name\":\"test_minimal_enable\"},{\"path\":\"/api/v1/debug/test-bulletproof-deployed\",\"methods\":[\"POST\"],\"name\":\"test_bulletproof_deployed\"},{\"path\":\"/api/v1/debug/test-signal-generation\",\"methods\":[\"GET\"],\"name\":\"test_signal_generation\"},{\"path\":\"/api/v1/debug/initialization-status\",\"methods\":[\"GET\"],\"name\":\"check_initialization_status\"},{\"path\":\"/api/v1/debug/force-initialize\",\"methods\":[\"GET\"],\"name\":\"force_initialize\"},{\"path\":\"/api/v1/debug/check-system-ready-state\",\"methods\":[\"GET\"],\"name\":\"check_system_ready_state\"},{\"path\":\"/api/v1/debug/debug-initialization-steps\",\"methods\":[\"GET\"],\"name\":\"debug_initialization_steps\"},{\"path\":\"/api/v1/debug/redis-test\",\"methods\":[\"GET\"],\"name\":\"test_redis_connection\"},{\"path\":\"/api/v1/debug/orchestrator-debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_components\"},{\"path\":\"/api/v1/orchestrator/debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_initialization\"},{\"path\":\"/api/v1/orchestrator/dependencies\",\"methods\":[\"GET\"],\"name\":\"check_dependencies\"},{\"path\":\"/api/zerodha/login\",\"methods\":[\"POST\"],\"name\":\"initiate_login\"},{\"path\":\"/api/zerodha/callback\",\"methods\":[\"GET\"],\"name\":\"handle_callback\"},{\"path\":\"/api/zerodha/status/{user_id}\",\"methods\":[\"GET\"],\"name\":\"check_auth_status\"},{\"path\":\"/api/zerodha/logout/{user_id}\",\"methods\":[\"POST\"],\"name\":\"logout\"},{\"path\":\"/api/zerodha/profile/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_profile\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/status\",\"methods\":[\"GET\"],\"name\":\"get_token_diagnostic_status\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/repair\",\"methods\":[\"POST\"],\"name\":\"repair_token_issue\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/orchestrator-debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_token_access\"},{\"path\":\"/api/v1/webhooks/webhooks/generic\",\"methods\":[\"POST\"],\"name\":\"receive_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/market-data\",\"methods\":[\"POST\"],\"name\":\"receive_market_data\"},{\"path\":\"/api/v1/webhooks/webhooks/zerodha/order-update\",\"methods\":[\"POST\"],\"name\":\"receive_zerodha_order_update\"},{\"path\":\"/api/v1/webhooks/webhooks/zerodha/position-update\",\"methods\":[\"POST\"],\"name\":\"receive_zerodha_position_update\"},{\"path\":\"/api/v1/webhooks/webhooks/zerodha\",\"methods\":[\"POST\"],\"name\":\"receive_zerodha_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/news-feed\",\"methods\":[\"POST\"],\"name\":\"receive_news\"},{\"path\":\"/api/v1/webhooks/webhooks/system-health\",\"methods\":[\"POST\"],\"name\":\"receive_health_update\"},{\"path\":\"/api/v1/webhooks/n8n\",\"methods\":[\"POST\"],\"name\":\"n8n_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/risk-alert\",\"methods\":[\"POST\"],\"name\":\"receive_risk_alert\"},{\"path\":\"/api/v1/webhooks/webhooks/compliance-update\",\"methods\":[\"POST\"],\"name\":\"receive_compliance_update\"},{\"path\":\"/api\",\"methods\":[\"GET\"],\"name\":\"api_root\"},{\"path\":\"/api/routes\",\"methods\":[\"GET\"],\"name\":\"list_routes\"},{\"path\":\"/api/v1/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"redirect_dashboard_summary\"},{\"path\":\"/api/auth/login\",\"methods\":[\"POST\"],\"name\":\"redirect_login\"},{\"path\":\"/api/auth/me\",\"methods\":[\"GET\"],\"name\":\"redirect_me\"},{\"path\":\"/api/v1/market/indices\",\"methods\":[\"GET\"],\"name\":\"legacy_market_indices\"},{\"path\":\"/api/v1/monitoring/system-status\",\"methods\":[\"GET\"],\"name\":\"legacy_system_status\"},{\"path\":\"/api/v1/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions_direct\"},{\"path\":\"/api/v1/orders\",\"methods\":[\"GET\"],\"name\":\"get_orders_direct\"},{\"path\":\"/api/v1/holdings\",\"methods\":[\"GET\"],\"name\":\"get_holdings_direct\"},{\"path\":\"/api/v1/margins\",\"methods\":[\"GET\"],\"name\":\"get_margins_direct\"},{\"path\":\"/api/v1/elite\",\"methods\":[\"GET\"],\"name\":\"get_elite_recommendations_direct\"},{\"path\":\"/api/v1/market-data\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data_direct\"},{\"path\":\"/api/v1/signals/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_signals_direct\"},{\"path\":\"/api/v1/autonomous/force-activate\",\"methods\":[\"POST\"],\"name\":\"force_activate_autonomous_trading\"},{\"path\":\"/api/v1/users/performance\",\"methods\":[\"GET\"],\"name\":\"get_users_performance\"},{\"path\":\"/api/v1/search\",\"methods\":[\"GET\"],\"name\":\"search_endpoint\"},{\"path\":\"/api/v1/trading/status\",\"methods\":[\"GET\"],\"name\":\"trading_status_endpoint\"},{\"path\":\"/api/v1/trades\",\"methods\":[\"GET\"],\"name\":\"redirect_trades\"},{\"path\":\"/api/v1/strategies\",\"methods\":[\"GET\"],\"name\":\"redirect_strategies\"},{\"path\":\"/api/v1/users\",\"methods\":[\"GET\"],\"name\":\"redirect_users\"},{\"path\":\"/api/market/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices\"},{\"path\":\"/api/v1/orchestrator/start\",\"methods\":[\"POST\"],\"name\":\"start_orchestrator\"},{\"path\":\"/api/v1/orchestrator/status\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_status\"},{\"path\":\"/api/v1/orchestrator/force-start\",\"methods\":[\"POST\"],\"name\":\"force_start_orchestrator\"},{\"path\":\"/api/v1/orchestrator/test-signals\",\"methods\":[\"GET\"],\"name\":\"test_signal_generation\"}],\"health_routes\":[{\"path\":\"/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/ready\",\"methods\":[\"GET\"],\"name\":\"ready_check\"},{\"path\":\"/health/ready/json\",\"methods\":[\"GET\"],\"name\":\"health_ready_json\"},{\"path\":\"/ready\",\"methods\":[\"GET\"],\"name\":\"readiness_check\"},{\"path\":\"/api/v1/monitoring/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/api/v1/errors/errors/health\",\"methods\":[\"GET\"],\"name\":\"get_error_health\"},{\"path\":\"/api/v1/db-health/database/health\",\"methods\":[\"GET\"],\"name\":\"get_database_health\"},{\"path\":\"/api/v1/db-health/database/stats\",\"methods\":[\"GET\"],\"name\":\"get_database_stats\"},{\"path\":\"/api/v1/db-health/database/optimize\",\"methods\":[\"POST\"],\"name\":\"optimize_database\"},{\"path\":\"/api/v1/db-health/database/slow-queries\",\"methods\":[\"GET\"],\"name\":\"get_slow_queries\"},{\"path\":\"/api/v1/db-health/database/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_info\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/webhooks/webhooks/system-health\",\"methods\":[\"POST\"],\"name\":\"receive_health_update\"}],\"login_endpoint\":\"/auth/login\"}",
+      "rawData": "{\"total_routes\":294,\"auth_routes\":[{\"path\":\"/auth/me\",\"methods\":[\"GET\"],\"name\":\"auth_me_fallback_high_priority\"},{\"path\":\"/auth/login\",\"methods\":[\"POST\"],\"name\":\"login\"},{\"path\":\"/auth/me\",\"methods\":[\"GET\"],\"name\":\"get_current_user_v1\"},{\"path\":\"/auth/test\",\"methods\":[\"GET\"],\"name\":\"test_auth_v1\"},{\"path\":\"/auth/sharekhan/auth-url\",\"methods\":[\"GET\"],\"name\":\"get_manual_auth_url\"},{\"path\":\"/auth/sharekhan/status\",\"methods\":[\"GET\"],\"name\":\"get_manual_auth_status\"},{\"path\":\"/auth/sharekhan/\",\"methods\":[\"GET\"],\"name\":\"sharekhan_auth_page\"},{\"path\":\"/auth/sharekhan/submit-token\",\"methods\":[\"POST\"],\"name\":\"submit_manual_token\"},{\"path\":\"/auth/sharekhan/test-connection\",\"methods\":[\"GET\"],\"name\":\"test_connection\"},{\"path\":\"/auth/sharekhan/logout\",\"methods\":[\"DELETE\"],\"name\":\"logout\"},{\"path\":\"/auth/sharekhan/callback\",\"methods\":[\"GET\"],\"name\":\"sharekhan_callback\"},{\"path\":\"/auth/sharekhan/start-trading\",\"methods\":[\"GET\"],\"name\":\"start_trading_page\"},{\"path\":\"/auth/sharekhan/submit-token\",\"methods\":[\"POST\"],\"name\":\"redirect_submit_token\"}],\"api_routes\":[{\"path\":\"/api/market/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices\"},{\"path\":\"/api/market/market-status\",\"methods\":[\"GET\"],\"name\":\"get_market_status\"},{\"path\":\"/api/market/volume-data\",\"methods\":[\"GET\"],\"name\":\"get_volume_data\"},{\"path\":\"/api/market/v1/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices_legacy\"},{\"path\":\"/api/v1/\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data\"},{\"path\":\"/api/v1/market-data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_market_data\"},{\"path\":\"/api/v1/live\",\"methods\":[\"GET\"],\"name\":\"get_live_market_data\"},{\"path\":\"/api/v1/status\",\"methods\":[\"GET\"],\"name\":\"get_market_data_status\"},{\"path\":\"/api/v1/symbol-expansion/status\",\"methods\":[\"GET\"],\"name\":\"get_symbol_expansion_status\"},{\"path\":\"/api/v1/individual/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_individual_symbol_data\"},{\"path\":\"/api/v1/realtime/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_realtime_data\"},{\"path\":\"/api/v1/option-chain/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_option_chain\"},{\"path\":\"/api/v1/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_symbols\"},{\"path\":\"/api/v1/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_summary\"},{\"path\":\"/api/v1/sharekhan/sharekhan/connect\",\"methods\":[\"POST\"],\"name\":\"connect_sharekhan\"},{\"path\":\"/api/v1/sharekhan/sharekhan/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_symbols\"},{\"path\":\"/api/v1/sharekhan/sharekhan/unsubscribe\",\"methods\":[\"POST\"],\"name\":\"unsubscribe_symbols\"},{\"path\":\"/api/v1/sharekhan/sharekhan/status\",\"methods\":[\"GET\"],\"name\":\"get_sharekhan_status_endpoint\"},{\"path\":\"/api/v1/sharekhan/sharekhan/reconnect\",\"methods\":[\"POST\"],\"name\":\"reconnect_sharekhan\"},{\"path\":\"/api/v1/sharekhan/sharekhan/data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_symbol_data\"},{\"path\":\"/api/v1/sharekhan/sharekhan/data\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data\"},{\"path\":\"/api/v1/sharekhan/sharekhan/disconnect\",\"methods\":[\"POST\"],\"name\":\"disconnect_sharekhan\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/client-internals\",\"methods\":[\"GET\"],\"name\":\"debug_client_internals\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/force-data\",\"methods\":[\"POST\"],\"name\":\"force_create_sample_data\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/callback-status\",\"methods\":[\"GET\"],\"name\":\"debug_callback_status\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/force-callback-test\",\"methods\":[\"POST\"],\"name\":\"force_callback_test\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/test-live-data-call\",\"methods\":[\"POST\"],\"name\":\"test_live_data_call\"},{\"path\":\"/api/v1/sharekhan/sharekhan/debug/callback-registration-test\",\"methods\":[\"GET\"],\"name\":\"callback_registration_test\"},{\"path\":\"/api/v1/sharekhan/sharekhan/force-disconnect\",\"methods\":[\"POST\"],\"name\":\"force_disconnect_sharekhan\"},{\"path\":\"/api/v1/sharekhan/sharekhan/deployment-safe-connect\",\"methods\":[\"POST\"],\"name\":\"deployment_safe_connect\"},{\"path\":\"/api/v1/sharekhan/sharekhan/deployment-status\",\"methods\":[\"GET\"],\"name\":\"get_deployment_status\"},{\"path\":\"/api/v1/sharekhan/sharekhan/connection-status\",\"methods\":[\"GET\"],\"name\":\"get_detailed_connection_status\"},{\"path\":\"/api/v1/sharekhan/options/subscribe\",\"methods\":[\"POST\"],\"name\":\"subscribe_options\"},{\"path\":\"/api/v1/sharekhan/options/data/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_options_data\"},{\"path\":\"/api/v1/sharekhan/options/greeks/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_greeks\"},{\"path\":\"/api/v1/sharekhan/options/all-options\",\"methods\":[\"GET\"],\"name\":\"get_all_options_data\"},{\"path\":\"/api/v1/sharekhan/options/subscribe-crude-options\",\"methods\":[\"POST\"],\"name\":\"subscribe_crude_oil_options\"},{\"path\":\"/api/v1/sharekhan/options/option-chain/{underlying}\",\"methods\":[\"GET\"],\"name\":\"get_option_chain\"},{\"path\":\"/api/v1/users/\",\"methods\":[\"GET\"],\"name\":\"get_users\"},{\"path\":\"/api/v1/users/\",\"methods\":[\"POST\"],\"name\":\"add_user\"},{\"path\":\"/api/v1/users/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"remove_user\"},{\"path\":\"/api/v1/users/current\",\"methods\":[\"GET\"],\"name\":\"get_current_user\"},{\"path\":\"/api/v1/users/dynamic/create\",\"methods\":[\"POST\"],\"name\":\"create_user\"},{\"path\":\"/api/v1/users/dynamic/list\",\"methods\":[\"GET\"],\"name\":\"list_users\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"PUT\"],\"name\":\"update_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_user\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/analytics\",\"methods\":[\"GET\"],\"name\":\"get_user_analytics\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/trades\",\"methods\":[\"GET\"],\"name\":\"get_user_trades\"},{\"path\":\"/api/v1/users/dynamic/{user_id}/positions\",\"methods\":[\"GET\"],\"name\":\"get_user_positions\"},{\"path\":\"/api/v1/analytics/user/{user_id}/performance\",\"methods\":[\"GET\"],\"name\":\"get_user_performance\"},{\"path\":\"/api/v1/analytics/user/{user_id}/report\",\"methods\":[\"GET\"],\"name\":\"get_user_trading_report\"},{\"path\":\"/api/v1/analytics/user/{user_id}/dashboard\",\"methods\":[\"GET\"],\"name\":\"get_user_dashboard_data\"},{\"path\":\"/api/v1/analytics/users/leaderboard\",\"methods\":[\"GET\"],\"name\":\"get_users_leaderboard\"},{\"path\":\"/api/v1/control/users/broker\",\"methods\":[\"POST\"],\"name\":\"add_broker_user\"},{\"path\":\"/api/v1/control/users/broker\",\"methods\":[\"GET\"],\"name\":\"get_broker_users\"},{\"path\":\"/api/v1/control/users/broker/{user_id}\",\"methods\":[\"PUT\"],\"name\":\"update_broker_user\"},{\"path\":\"/api/v1/control/users/broker/{user_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_broker_user\"},{\"path\":\"/api/v1/control/users/broker/initialize\",\"methods\":[\"POST\"],\"name\":\"initialize_users\"},{\"path\":\"/api/v1/control/trading/control\",\"methods\":[\"POST\"],\"name\":\"control_trading\"},{\"path\":\"/api/v1/control/trading/status\",\"methods\":[\"GET\"],\"name\":\"get_trading_status\"},{\"path\":\"/api/v1/control/sharekhan-manual/auth-url\",\"methods\":[\"GET\"],\"name\":\"get_sharekhan_manual_auth_url\"},{\"path\":\"/api/v1/control/sharekhan-manual/status\",\"methods\":[\"GET\"],\"name\":\"get_sharekhan_manual_status\"},{\"path\":\"/api/v1/control/sharekhan-manual/submit-token\",\"methods\":[\"POST\"],\"name\":\"submit_sharekhan_manual_token\"},{\"path\":\"/api/v1/control/sharekhan-manual/test\",\"methods\":[\"GET\"],\"name\":\"test_sharekhan_manual_system\"},{\"path\":\"/api/v1/autonomous/status\",\"methods\":[\"GET\"],\"name\":\"get_status\"},{\"path\":\"/api/v1/autonomous/reset\",\"methods\":[\"POST\"],\"name\":\"reset_orchestrator\"},{\"path\":\"/api/v1/autonomous/start\",\"methods\":[\"POST\"],\"name\":\"start_trading\"},{\"path\":\"/api/v1/autonomous/stop\",\"methods\":[\"POST\"],\"name\":\"stop_trading\"},{\"path\":\"/api/v1/autonomous/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions\"},{\"path\":\"/api/v1/autonomous/performance\",\"methods\":[\"GET\"],\"name\":\"get_performance\"},{\"path\":\"/api/v1/autonomous/strategies\",\"methods\":[\"GET\"],\"name\":\"get_strategies\"},{\"path\":\"/api/v1/autonomous/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/autonomous/orders\",\"methods\":[\"GET\"],\"name\":\"get_orders\"},{\"path\":\"/api/v1/autonomous/trades\",\"methods\":[\"GET\"],\"name\":\"get_trades\"},{\"path\":\"/api/v1/trades/\",\"methods\":[\"GET\"],\"name\":\"get_all_trades\"},{\"path\":\"/api/v1/trades/live\",\"methods\":[\"GET\"],\"name\":\"get_live_trades\"},{\"path\":\"/api/v1/trades/users/metrics\",\"methods\":[\"GET\"],\"name\":\"get_all_user_metrics\"},{\"path\":\"/api/v1/trades/{trade_id}\",\"methods\":[\"GET\"],\"name\":\"get_trade_details\"},{\"path\":\"/api/v1/trades/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_trades\"},{\"path\":\"/api/v1/trades/users/{user_id}/metrics\",\"methods\":[\"GET\"],\"name\":\"get_user_metrics\"},{\"path\":\"/api/v1/orders/\",\"methods\":[\"POST\"],\"name\":\"create_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"GET\"],\"name\":\"get_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"PUT\"],\"name\":\"update_order\"},{\"path\":\"/api/v1/orders/{order_id}\",\"methods\":[\"DELETE\"],\"name\":\"cancel_order\"},{\"path\":\"/api/v1/orders/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_orders\"},{\"path\":\"/api/v1/orders/live\",\"methods\":[\"GET\"],\"name\":\"get_live_orders\"},{\"path\":\"/api/v1/orders/\",\"methods\":[\"GET\"],\"name\":\"get_all_orders\"},{\"path\":\"/api/v1/positions/\",\"methods\":[\"GET\"],\"name\":\"get_all_positions\"},{\"path\":\"/api/v1/positions/users/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_user_positions\"},{\"path\":\"/api/v1/positions/{position_id}\",\"methods\":[\"GET\"],\"name\":\"get_position\"},{\"path\":\"/api/v1/positions/{position_id}\",\"methods\":[\"PUT\"],\"name\":\"update_position\"},{\"path\":\"/api/v1/positions/\",\"methods\":[\"POST\"],\"name\":\"create_position\"},{\"path\":\"/api/v1/strategies/strategies\",\"methods\":[\"POST\"],\"name\":\"create_strategy\"},{\"path\":\"/api/v1/strategies/strategies\",\"methods\":[\"GET\"],\"name\":\"list_strategies\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"GET\"],\"name\":\"get_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"PUT\"],\"name\":\"update_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}\",\"methods\":[\"DELETE\"],\"name\":\"delete_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/enable\",\"methods\":[\"POST\"],\"name\":\"enable_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/disable\",\"methods\":[\"POST\"],\"name\":\"disable_strategy\"},{\"path\":\"/api/v1/strategies/strategies/{strategy_id}/signals\",\"methods\":[\"GET\"],\"name\":\"get_strategy_signals\"},{\"path\":\"/api/v1/strategies/strategies/status\",\"methods\":[\"GET\"],\"name\":\"get_strategies_status\"},{\"path\":\"/api/v1/intelligent-symbols\",\"methods\":[\"GET\"],\"name\":\"get_intelligent_symbols_status\"},{\"path\":\"/api/v1/intelligent-symbols/start\",\"methods\":[\"POST\"],\"name\":\"start_intelligent_symbol_management\"},{\"path\":\"/api/v1/intelligent-symbols/stop\",\"methods\":[\"POST\"],\"name\":\"stop_intelligent_symbol_management\"},{\"path\":\"/api/v1/intelligent-symbols/expand-now\",\"methods\":[\"POST\"],\"name\":\"trigger_symbol_expansion\"},{\"path\":\"/api/v1/intelligent-symbols/active\",\"methods\":[\"GET\"],\"name\":\"get_active_symbols_list\"},{\"path\":\"/api/v1/intelligent-symbols/analytics\",\"methods\":[\"GET\"],\"name\":\"get_symbol_analytics\"},{\"path\":\"/api/v1/intelligent-symbols/manual-add\",\"methods\":[\"POST\"],\"name\":\"manually_add_symbols\"},{\"path\":\"/api/v1/intelligent-symbols/manual-remove\",\"methods\":[\"POST\"],\"name\":\"manually_remove_symbols\"},{\"path\":\"/api/v1/intelligent-symbols/recommendations\",\"methods\":[\"GET\"],\"name\":\"get_symbol_recommendations\"},{\"path\":\"/api/v1/risk/risk/limits\",\"methods\":[\"GET\"],\"name\":\"get_risk_limits\"},{\"path\":\"/api/v1/risk/risk/limits\",\"methods\":[\"PUT\"],\"name\":\"update_risk_limits\"},{\"path\":\"/api/v1/risk/risk/metrics\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/risk/users/{user_id}/risk\",\"methods\":[\"GET\"],\"name\":\"get_user_risk_profile\"},{\"path\":\"/api/v1/risk/risk/hard-stop/reset\",\"methods\":[\"POST\"],\"name\":\"reset_hard_stop\"},{\"path\":\"/api/v1/risk/risk/alerts\",\"methods\":[\"GET\"],\"name\":\"get_risk_alerts\"},{\"path\":\"/api/v1/risk/risk/history\",\"methods\":[\"GET\"],\"name\":\"get_risk_history\"},{\"path\":\"/api/v1/recommendations/\",\"methods\":[\"GET\"],\"name\":\"get_recommendations\"},{\"path\":\"/api/v1/recommendations/{symbol}\",\"methods\":[\"GET\"],\"name\":\"get_symbol_recommendations\"},{\"path\":\"/api/v1/elite/\",\"methods\":[\"GET\"],\"name\":\"get_elite_recommendations\"},{\"path\":\"/api/v1/elite/force-scan\",\"methods\":[\"POST\"],\"name\":\"force_autonomous_scan\"},{\"path\":\"/api/v1/elite/scanner-status\",\"methods\":[\"GET\"],\"name\":\"get_scanner_status\"},{\"path\":\"/api/v1/performance/performance/daily-pnl\",\"methods\":[\"GET\"],\"name\":\"get_daily_pnl\"},{\"path\":\"/api/v1/performance/performance/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions\"},{\"path\":\"/api/v1/performance/performance/trades\",\"methods\":[\"GET\"],\"name\":\"get_trades\"},{\"path\":\"/api/v1/performance/performance/metrics\",\"methods\":[\"GET\"],\"name\":\"get_performance_metrics\"},{\"path\":\"/api/v1/performance/performance/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_metrics\"},{\"path\":\"/api/v1/monitoring/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/api/v1/monitoring/liveness\",\"methods\":[\"GET\"],\"name\":\"liveness_check\"},{\"path\":\"/api/v1/monitoring/readiness\",\"methods\":[\"GET\"],\"name\":\"readiness_check\"},{\"path\":\"/api/v1/monitoring/metrics\",\"methods\":[\"GET\"],\"name\":\"get_system_metrics\"},{\"path\":\"/api/v1/monitoring/components\",\"methods\":[\"GET\"],\"name\":\"get_components_status\"},{\"path\":\"/api/v1/monitoring/system-stats\",\"methods\":[\"GET\"],\"name\":\"get_system_stats\"},{\"path\":\"/api/v1/monitoring/trading-status\",\"methods\":[\"GET\"],\"name\":\"get_trading_status\"},{\"path\":\"/api/v1/monitoring/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_status\"},{\"path\":\"/api/v1/monitoring/performance/elite-trades\",\"methods\":[\"GET\"],\"name\":\"get_elite_performance\"},{\"path\":\"/api/v1/monitoring/performance/summary\",\"methods\":[\"GET\"],\"name\":\"get_performance_summary\"},{\"path\":\"/api/v1/monitoring/daily-pnl\",\"methods\":[\"GET\"],\"name\":\"get_daily_pnl\"},{\"path\":\"/api/v1/monitoring/orchestrator-status\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_status\"},{\"path\":\"/api/v1/monitoring/api/v1/monitoring/system-status\",\"methods\":[\"GET\"],\"name\":\"get_system_status_legacy\"},{\"path\":\"/api/v1/monitoring/signals/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_signals\"},{\"path\":\"/api/v1/monitoring/signals/statistics\",\"methods\":[\"GET\"],\"name\":\"get_signal_statistics\"},{\"path\":\"/api/v1/monitoring/signals/failed\",\"methods\":[\"GET\"],\"name\":\"get_failed_signals\"},{\"path\":\"/api/v1/errors/errors/stats\",\"methods\":[\"GET\"],\"name\":\"get_error_statistics\"},{\"path\":\"/api/v1/errors/errors/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_errors\"},{\"path\":\"/api/v1/errors/errors/types\",\"methods\":[\"GET\"],\"name\":\"get_error_types\"},{\"path\":\"/api/v1/errors/errors/clear\",\"methods\":[\"POST\"],\"name\":\"clear_error_history\"},{\"path\":\"/api/v1/errors/errors/health\",\"methods\":[\"GET\"],\"name\":\"get_error_health\"},{\"path\":\"/api/v1/db-health/database/health\",\"methods\":[\"GET\"],\"name\":\"get_database_health\"},{\"path\":\"/api/v1/db-health/database/stats\",\"methods\":[\"GET\"],\"name\":\"get_database_stats\"},{\"path\":\"/api/v1/db-health/database/optimize\",\"methods\":[\"POST\"],\"name\":\"optimize_database\"},{\"path\":\"/api/v1/db-health/database/slow-queries\",\"methods\":[\"GET\"],\"name\":\"get_slow_queries\"},{\"path\":\"/api/v1/db-health/database/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_info\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/dashboard/trading/metrics\",\"methods\":[\"GET\"],\"name\":\"get_trading_metrics\"},{\"path\":\"/api/v1/dashboard/notifications\",\"methods\":[\"GET\"],\"name\":\"get_system_notifications\"},{\"path\":\"/api/v1/dashboard/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_summary\"},{\"path\":\"/api/v1/dashboard/performance/summary\",\"methods\":[\"GET\"],\"name\":\"get_performance_summary\"},{\"path\":\"/api/v1/dashboard/data\",\"methods\":[\"GET\"],\"name\":\"get_dashboard_data\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/reports/daily\",\"methods\":[\"GET\"],\"name\":\"get_daily_report\"},{\"path\":\"/api/reports/strategy\",\"methods\":[\"GET\"],\"name\":\"get_strategy_report\"},{\"path\":\"/api/reports/user\",\"methods\":[\"GET\"],\"name\":\"get_user_report\"},{\"path\":\"/api/reports/risk\",\"methods\":[\"GET\"],\"name\":\"get_risk_report\"},{\"path\":\"/api/reports/export/{report_type}\",\"methods\":[\"GET\"],\"name\":\"export_report\"},{\"path\":\"/api/v1/system/status\",\"methods\":[\"GET\"],\"name\":\"get_system_status\"},{\"path\":\"/api/v1/system/logs\",\"methods\":[\"GET\"],\"name\":\"get_system_logs\"},{\"path\":\"/api/v1/system/redis-status\",\"methods\":[\"GET\"],\"name\":\"get_redis_status\"},{\"path\":\"/api/v1/trades/status\",\"methods\":[\"GET\"],\"name\":\"get_trades_status\"},{\"path\":\"/api/v1/broker/status\",\"methods\":[\"GET\"],\"name\":\"get_broker_status\"},{\"path\":\"/api/v1/broker/connect\",\"methods\":[\"GET\"],\"name\":\"get_broker_connection\"},{\"path\":\"/api/v1/broker/connect\",\"methods\":[\"POST\"],\"name\":\"connect_broker\"},{\"path\":\"/api/v1/broker/disconnect\",\"methods\":[\"POST\"],\"name\":\"disconnect_broker\"},{\"path\":\"/api/v1/broker/auth\",\"methods\":[\"GET\"],\"name\":\"get_broker_auth_status\"},{\"path\":\"/api/v1/sharekhan/status\",\"methods\":[\"GET\"],\"name\":\"get_sharekhan_status\"},{\"path\":\"/api/v1/system/refresh-connections\",\"methods\":[\"POST\"],\"name\":\"refresh_connections\"},{\"path\":\"/api/v1/broker/refresh\",\"methods\":[\"POST\"],\"name\":\"refresh_broker_connection\"},{\"path\":\"/api/v1/strategies/performance\",\"methods\":[\"GET\"],\"name\":\"get_strategies_performance\"},{\"path\":\"/api/v1/system/config\",\"methods\":[\"GET\"],\"name\":\"get_system_config\"},{\"path\":\"/api/v1/system/status\",\"methods\":[\"GET\"],\"name\":\"get_system_status\"},{\"path\":\"/api/v1/system/metrics\",\"methods\":[\"GET\"],\"name\":\"get_system_metrics\"},{\"path\":\"/api/v1/search/symbols\",\"methods\":[\"GET\"],\"name\":\"search_symbols\"},{\"path\":\"/api/v1/search/trades\",\"methods\":[\"GET\"],\"name\":\"search_trades\"},{\"path\":\"/api/v1/search/strategies\",\"methods\":[\"GET\"],\"name\":\"search_strategies\"},{\"path\":\"/api/v1/search/users\",\"methods\":[\"GET\"],\"name\":\"search_users\"},{\"path\":\"/api/v1/search/recommendations\",\"methods\":[\"GET\"],\"name\":\"search_recommendations\"},{\"path\":\"/api/v1/search/global\",\"methods\":[\"GET\"],\"name\":\"global_search\"},{\"path\":\"/api/v1/search/autocomplete\",\"methods\":[\"GET\"],\"name\":\"search_autocomplete\"},{\"path\":\"/api/v1/debug/orchestrator\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_debug\"},{\"path\":\"/api/v1/debug/force-initialize\",\"methods\":[\"POST\"],\"name\":\"force_initialize_system\"},{\"path\":\"/api/v1/debug/force-enable-trading\",\"methods\":[\"POST\"],\"name\":\"force_enable_trading\"},{\"path\":\"/api/v1/debug/test-state-setting\",\"methods\":[\"POST\"],\"name\":\"test_state_setting\"},{\"path\":\"/api/v1/debug/test-enable-trading\",\"methods\":[\"POST\"],\"name\":\"test_enable_trading_direct\"},{\"path\":\"/api/v1/debug/test-minimal-enable\",\"methods\":[\"POST\"],\"name\":\"test_minimal_enable\"},{\"path\":\"/api/v1/debug/test-bulletproof-deployed\",\"methods\":[\"POST\"],\"name\":\"test_bulletproof_deployed\"},{\"path\":\"/api/v1/debug/test-signal-generation\",\"methods\":[\"GET\"],\"name\":\"test_signal_generation\"},{\"path\":\"/api/v1/debug/initialization-status\",\"methods\":[\"GET\"],\"name\":\"check_initialization_status\"},{\"path\":\"/api/v1/debug/force-initialize\",\"methods\":[\"GET\"],\"name\":\"force_initialize\"},{\"path\":\"/api/v1/debug/check-system-ready-state\",\"methods\":[\"GET\"],\"name\":\"check_system_ready_state\"},{\"path\":\"/api/v1/debug/debug-initialization-steps\",\"methods\":[\"GET\"],\"name\":\"debug_initialization_steps\"},{\"path\":\"/api/v1/debug/redis-test\",\"methods\":[\"GET\"],\"name\":\"test_redis_connection\"},{\"path\":\"/api/v1/debug/orchestrator-debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_components\"},{\"path\":\"/api/v1/orchestrator/debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_initialization\"},{\"path\":\"/api/v1/orchestrator/dependencies\",\"methods\":[\"GET\"],\"name\":\"check_dependencies\"},{\"path\":\"/api/sharekhan/login\",\"methods\":[\"POST\"],\"name\":\"initiate_login\"},{\"path\":\"/api/sharekhan/callback\",\"methods\":[\"GET\"],\"name\":\"handle_callback\"},{\"path\":\"/api/sharekhan/status/{user_id}\",\"methods\":[\"GET\"],\"name\":\"check_auth_status\"},{\"path\":\"/api/sharekhan/logout/{user_id}\",\"methods\":[\"POST\"],\"name\":\"logout\"},{\"path\":\"/api/sharekhan/profile/{user_id}\",\"methods\":[\"GET\"],\"name\":\"get_profile\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/status\",\"methods\":[\"GET\"],\"name\":\"get_token_diagnostic_status\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/repair\",\"methods\":[\"POST\"],\"name\":\"repair_token_issue\"},{\"path\":\"/api/v1/api/v1/token-diagnostic/orchestrator-debug\",\"methods\":[\"GET\"],\"name\":\"debug_orchestrator_token_access\"},{\"path\":\"/api/v1/webhooks/webhooks/generic\",\"methods\":[\"POST\"],\"name\":\"receive_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/market-data\",\"methods\":[\"POST\"],\"name\":\"receive_market_data\"},{\"path\":\"/api/v1/webhooks/webhooks/sharekhan/order-update\",\"methods\":[\"POST\"],\"name\":\"receive_sharekhan_order_update\"},{\"path\":\"/api/v1/webhooks/webhooks/sharekhan/position-update\",\"methods\":[\"POST\"],\"name\":\"receive_sharekhan_position_update\"},{\"path\":\"/api/v1/webhooks/webhooks/sharekhan\",\"methods\":[\"POST\"],\"name\":\"receive_sharekhan_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/news-feed\",\"methods\":[\"POST\"],\"name\":\"receive_news\"},{\"path\":\"/api/v1/webhooks/webhooks/system-health\",\"methods\":[\"POST\"],\"name\":\"receive_health_update\"},{\"path\":\"/api/v1/webhooks/n8n\",\"methods\":[\"POST\"],\"name\":\"n8n_webhook\"},{\"path\":\"/api/v1/webhooks/webhooks/risk-alert\",\"methods\":[\"POST\"],\"name\":\"receive_risk_alert\"},{\"path\":\"/api/v1/webhooks/webhooks/compliance-update\",\"methods\":[\"POST\"],\"name\":\"receive_compliance_update\"},{\"path\":\"/api\",\"methods\":[\"GET\"],\"name\":\"api_root\"},{\"path\":\"/api/routes\",\"methods\":[\"GET\"],\"name\":\"list_routes\"},{\"path\":\"/api/v1/dashboard/summary\",\"methods\":[\"GET\"],\"name\":\"redirect_dashboard_summary\"},{\"path\":\"/api/auth/login\",\"methods\":[\"POST\"],\"name\":\"redirect_login\"},{\"path\":\"/api/auth/me\",\"methods\":[\"GET\"],\"name\":\"redirect_me\"},{\"path\":\"/api/v1/market/indices\",\"methods\":[\"GET\"],\"name\":\"legacy_market_indices\"},{\"path\":\"/api/v1/monitoring/system-status\",\"methods\":[\"GET\"],\"name\":\"legacy_system_status\"},{\"path\":\"/api/v1/positions\",\"methods\":[\"GET\"],\"name\":\"get_positions_direct\"},{\"path\":\"/api/v1/orders\",\"methods\":[\"GET\"],\"name\":\"get_orders_direct\"},{\"path\":\"/api/v1/holdings\",\"methods\":[\"GET\"],\"name\":\"get_holdings_direct\"},{\"path\":\"/api/v1/margins\",\"methods\":[\"GET\"],\"name\":\"get_margins_direct\"},{\"path\":\"/api/v1/elite\",\"methods\":[\"GET\"],\"name\":\"get_elite_recommendations_direct\"},{\"path\":\"/api/v1/market-data\",\"methods\":[\"GET\"],\"name\":\"get_all_market_data_direct\"},{\"path\":\"/api/v1/signals/recent\",\"methods\":[\"GET\"],\"name\":\"get_recent_signals_direct\"},{\"path\":\"/api/v1/autonomous/force-activate\",\"methods\":[\"POST\"],\"name\":\"force_activate_autonomous_trading\"},{\"path\":\"/api/v1/users/performance\",\"methods\":[\"GET\"],\"name\":\"get_users_performance\"},{\"path\":\"/api/v1/search\",\"methods\":[\"GET\"],\"name\":\"search_endpoint\"},{\"path\":\"/api/v1/trading/status\",\"methods\":[\"GET\"],\"name\":\"trading_status_endpoint\"},{\"path\":\"/api/v1/trades\",\"methods\":[\"GET\"],\"name\":\"redirect_trades\"},{\"path\":\"/api/v1/strategies\",\"methods\":[\"GET\"],\"name\":\"redirect_strategies\"},{\"path\":\"/api/v1/users\",\"methods\":[\"GET\"],\"name\":\"redirect_users\"},{\"path\":\"/api/market/indices\",\"methods\":[\"GET\"],\"name\":\"get_market_indices\"},{\"path\":\"/api/v1/orchestrator/start\",\"methods\":[\"POST\"],\"name\":\"start_orchestrator\"},{\"path\":\"/api/v1/orchestrator/status\",\"methods\":[\"GET\"],\"name\":\"get_orchestrator_status\"},{\"path\":\"/api/v1/orchestrator/force-start\",\"methods\":[\"POST\"],\"name\":\"force_start_orchestrator\"},{\"path\":\"/api/v1/orchestrator/test-signals\",\"methods\":[\"GET\"],\"name\":\"test_signal_generation\"}],\"health_routes\":[{\"path\":\"/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/ready\",\"methods\":[\"GET\"],\"name\":\"ready_check\"},{\"path\":\"/health/ready/json\",\"methods\":[\"GET\"],\"name\":\"health_ready_json\"},{\"path\":\"/ready\",\"methods\":[\"GET\"],\"name\":\"readiness_check\"},{\"path\":\"/api/v1/monitoring/health\",\"methods\":[\"GET\"],\"name\":\"health_check\"},{\"path\":\"/api/v1/errors/errors/health\",\"methods\":[\"GET\"],\"name\":\"get_error_health\"},{\"path\":\"/api/v1/db-health/database/health\",\"methods\":[\"GET\"],\"name\":\"get_database_health\"},{\"path\":\"/api/v1/db-health/database/stats\",\"methods\":[\"GET\"],\"name\":\"get_database_stats\"},{\"path\":\"/api/v1/db-health/database/optimize\",\"methods\":[\"POST\"],\"name\":\"optimize_database\"},{\"path\":\"/api/v1/db-health/database/slow-queries\",\"methods\":[\"GET\"],\"name\":\"get_slow_queries\"},{\"path\":\"/api/v1/db-health/database/connections\",\"methods\":[\"GET\"],\"name\":\"get_connection_info\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/dashboard/health/detailed\",\"methods\":[\"GET\"],\"name\":\"get_detailed_health\"},{\"path\":\"/api/v1/webhooks/webhooks/system-health\",\"methods\":[\"POST\"],\"name\":\"receive_health_update\"}],\"login_endpoint\":\"/auth/login\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:37.397Z"
     },
@@ -2154,7 +2154,7 @@
       "timestamp": "2025-07-18T09:30:37.681Z"
     },
     {
-      "endpoint": "/auth/zerodha/status",
+      "endpoint": "/auth/sharekhan/status",
       "method": "GET",
       "statusCode": 200,
       "success": true,
@@ -2193,7 +2193,7 @@
             "email": "ranchissi@gmail.com",
             "user_name": "Shyam Anurag",
             "user_shortname": "Shyam",
-            "broker": "ZERODHA",
+            "broker": "SHAREKHAN",
             "exchanges": [
               "MF",
               "NSE",
@@ -2224,7 +2224,7 @@
           "logout"
         ]
       },
-      "rawData": "{\"success\":true,\"authenticated\":true,\"user_id\":\"PAPER_TRADER_001\",\"session\":{\"user_id\":\"PAPER_TRADER_001\",\"access_token\":true,\"login_time\":\"2025-07-18T08:24:56.309625\",\"expires_at\":\"2025-07-18T16:24:56.309628\",\"valid\":true,\"profile\":{\"user_id\":\"QSW899\",\"user_type\":\"individual/res_no_nn\",\"email\":\"ranchissi@gmail.com\",\"user_name\":\"Shyam Anurag\",\"user_shortname\":\"Shyam\",\"broker\":\"ZERODHA\",\"exchanges\":[\"MF\",\"NSE\",\"BSE\"],\"products\":[\"CNC\",\"NRML\",\"MIS\",\"BO\",\"CO\"],\"order_types\":[\"MARKET\",\"LIMIT\",\"SL\",\"SL-M\"],\"avatar_url\":null,\"meta\":{\"demat_consent\":\"consent\"}}},\"message\":\"Authentication active and valid\",\"actions\":[\"refresh\",\"logout\"]}",
+      "rawData": "{\"success\":true,\"authenticated\":true,\"user_id\":\"PAPER_TRADER_001\",\"session\":{\"user_id\":\"PAPER_TRADER_001\",\"access_token\":true,\"login_time\":\"2025-07-18T08:24:56.309625\",\"expires_at\":\"2025-07-18T16:24:56.309628\",\"valid\":true,\"profile\":{\"user_id\":\"QSW899\",\"user_type\":\"individual/res_no_nn\",\"email\":\"ranchissi@gmail.com\",\"user_name\":\"Shyam Anurag\",\"user_shortname\":\"Shyam\",\"broker\":\"SHAREKHAN\",\"exchanges\":[\"MF\",\"NSE\",\"BSE\"],\"products\":[\"CNC\",\"NRML\",\"MIS\",\"BO\",\"CO\"],\"order_types\":[\"MARKET\",\"LIMIT\",\"SL\",\"SL-M\"],\"avatar_url\":null,\"meta\":{\"demat_consent\":\"consent\"}}},\"message\":\"Authentication active and valid\",\"actions\":[\"refresh\",\"logout\"]}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:37.785Z"
     },
@@ -2495,7 +2495,7 @@
               "low": 24986.33,
               "open": 25011.36,
               "volume": 4399425,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:35.279759",
               "data_age_seconds": 0,
               "heartbeat": false
@@ -2511,17 +2511,17 @@
               "low": 56367.04,
               "open": 56423.52,
               "volume": 1136905,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:35.865747",
               "data_age_seconds": 0,
               "heartbeat": false
             }
           ],
           "market_status": "OPEN",
-          "provider": "TrueData",
+          "provider": "ShareKhan",
           "last_update": "2025-07-18T15:00:38.689888+05:30",
           "timestamp": "2025-07-18 15:00:38 IST",
-          "truedata_connection": {
+          "sharekhan_connection": {
             "symbols_available": 51,
             "nifty_available": true,
             "banknifty_available": true,
@@ -2588,7 +2588,7 @@
         },
         "timestamp": "2025-07-18T08:16:52.885076"
       },
-      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56480.0,\"price\":56480.0,\"change\":-493.4,\"change_percent\":-0.87,\"high\":56592.96,\"low\":56367.04,\"open\":56423.52,\"volume\":1136905,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:35.865747\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"TrueData\",\"last_update\":\"2025-07-18T15:00:38.689888+05:30\",\"timestamp\":\"2025-07-18 15:00:38 IST\",\"truedata_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
+      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56480.0,\"price\":56480.0,\"change\":-493.4,\"change_percent\":-0.87,\"high\":56592.96,\"low\":56367.04,\"open\":56423.52,\"volume\":1136905,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:35.865747\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"ShareKhan\",\"last_update\":\"2025-07-18T15:00:38.689888+05:30\",\"timestamp\":\"2025-07-18 15:00:38 IST\",\"sharekhan_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:38.584Z"
     },
@@ -2636,7 +2636,7 @@
           },
           "is_trading_day": true,
           "data_provider": {
-            "name": "TrueData Enhanced",
+            "name": "ShareKhan Enhanced",
             "status": "CONNECTED",
             "user": "tdwsp697",
             "connection_healthy": true,
@@ -2646,7 +2646,7 @@
         },
         "timestamp": "2025-07-18T08:16:52.885076"
       },
-      "rawData": "{\"success\":true,\"message\":\"Market is currently OPEN\",\"data\":{\"market_status\":\"OPEN\",\"market_phase\":\"NORMAL\",\"current_time\":\"2025-07-18T15:00:38.794048+05:30\",\"timezone\":\"Asia/Kolkata\",\"ist_time\":\"2025-07-18 15:00:38 IST\",\"market_open\":\"09:15\",\"market_close\":\"15:30\",\"is_trading_hours\":true,\"timings\":{\"pre_open\":\"09:00 - 09:15\",\"normal\":\"09:15 - 15:30\",\"post_close\":\"15:30 - 16:00\",\"closed\":\"16:00 - 09:00\"},\"is_trading_day\":true,\"data_provider\":{\"name\":\"TrueData Enhanced\",\"status\":\"CONNECTED\",\"user\":\"tdwsp697\",\"connection_healthy\":true,\"heartbeat_age_seconds\":999,\"data_flowing\":true}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
+      "rawData": "{\"success\":true,\"message\":\"Market is currently OPEN\",\"data\":{\"market_status\":\"OPEN\",\"market_phase\":\"NORMAL\",\"current_time\":\"2025-07-18T15:00:38.794048+05:30\",\"timezone\":\"Asia/Kolkata\",\"ist_time\":\"2025-07-18 15:00:38 IST\",\"market_open\":\"09:15\",\"market_close\":\"15:30\",\"is_trading_hours\":true,\"timings\":{\"pre_open\":\"09:00 - 09:15\",\"normal\":\"09:15 - 15:30\",\"post_close\":\"15:30 - 16:00\",\"closed\":\"16:00 - 09:00\"},\"is_trading_day\":true,\"data_provider\":{\"name\":\"ShareKhan Enhanced\",\"status\":\"CONNECTED\",\"user\":\"tdwsp697\",\"connection_healthy\":true,\"heartbeat_age_seconds\":999,\"data_flowing\":true}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:38.707Z"
     },
@@ -2692,7 +2692,7 @@
           "bid": 0,
           "ask": 0,
           "timestamp": "2025-07-18T09:30:35.279759",
-          "source": "TrueData_Live",
+          "source": "ShareKhan_Live",
           "deployment_id": "deploy_1752826614_50e0393b",
           "data_quality": {
             "has_ohlc": true,
@@ -2702,9 +2702,9 @@
           }
         },
         "timestamp": "2025-07-18T09:30:38.924250",
-        "source": "truedata_proxy"
+        "source": "sharekhan_proxy"
       },
-      "rawData": "{\"success\":true,\"symbol\":\"NIFTY\",\"timeframe\":\"1min\",\"data\":{\"symbol\":\"NIFTY-I\",\"ltp\":25036.4,\"close\":25036.4,\"high\":25086.472800000003,\"low\":24986.3272,\"open\":25011.3636,\"volume\":4399425.0,\"change\":-138.1999999999971,\"changeper\":-0.5489660213071791,\"change_percent\":-0.5489660213071791,\"bid\":0,\"ask\":0,\"timestamp\":\"2025-07-18T09:30:35.279759\",\"source\":\"TrueData_Live\",\"deployment_id\":\"deploy_1752826614_50e0393b\",\"data_quality\":{\"has_ohlc\":true,\"has_volume\":true,\"has_change_percent\":true,\"calculated_change_percent\":true}},\"timestamp\":\"2025-07-18T09:30:38.924250\",\"source\":\"truedata_proxy\"}",
+      "rawData": "{\"success\":true,\"symbol\":\"NIFTY\",\"timeframe\":\"1min\",\"data\":{\"symbol\":\"NIFTY-I\",\"ltp\":25036.4,\"close\":25036.4,\"high\":25086.472800000003,\"low\":24986.3272,\"open\":25011.3636,\"volume\":4399425.0,\"change\":-138.1999999999971,\"changeper\":-0.5489660213071791,\"change_percent\":-0.5489660213071791,\"bid\":0,\"ask\":0,\"timestamp\":\"2025-07-18T09:30:35.279759\",\"source\":\"ShareKhan_Live\",\"deployment_id\":\"deploy_1752826614_50e0393b\",\"data_quality\":{\"has_ohlc\":true,\"has_volume\":true,\"has_change_percent\":true,\"calculated_change_percent\":true}},\"timestamp\":\"2025-07-18T09:30:38.924250\",\"source\":\"sharekhan_proxy\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:38.818Z"
     },
@@ -2776,13 +2776,13 @@
           "database": "connected",
           "redis": "connected",
           "websocket": "active",
-          "truedata": "connected",
+          "sharekhan": "connected",
           "trading": "autonomous"
         },
         "version": "4.2.0",
         "message": "All systems operational"
       },
-      "rawData": "{\"success\":true,\"status\":\"operational\",\"timestamp\":\"2025-07-18T09:30:39.173445\",\"uptime\":\"active\",\"services\":{\"api\":\"running\",\"database\":\"connected\",\"redis\":\"connected\",\"websocket\":\"active\",\"truedata\":\"connected\",\"trading\":\"autonomous\"},\"version\":\"4.2.0\",\"message\":\"All systems operational\"}",
+      "rawData": "{\"success\":true,\"status\":\"operational\",\"timestamp\":\"2025-07-18T09:30:39.173445\",\"uptime\":\"active\",\"services\":{\"api\":\"running\",\"database\":\"connected\",\"redis\":\"connected\",\"websocket\":\"active\",\"sharekhan\":\"connected\",\"trading\":\"autonomous\"},\"version\":\"4.2.0\",\"message\":\"All systems operational\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:39.066Z"
     },
@@ -3305,7 +3305,7 @@
               "low": 24986.33,
               "open": 25011.36,
               "volume": 4399425,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:35.279759",
               "data_age_seconds": 0,
               "heartbeat": false
@@ -3321,17 +3321,17 @@
               "low": 56365.44,
               "open": 56421.92,
               "volume": 1136940,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:40.873264",
               "data_age_seconds": 0,
               "heartbeat": false
             }
           ],
           "market_status": "OPEN",
-          "provider": "TrueData",
+          "provider": "ShareKhan",
           "last_update": "2025-07-18T15:00:41.364922+05:30",
           "timestamp": "2025-07-18 15:00:41 IST",
-          "truedata_connection": {
+          "sharekhan_connection": {
             "symbols_available": 51,
             "nifty_available": true,
             "banknifty_available": true,
@@ -3398,7 +3398,7 @@
         },
         "timestamp": "2025-07-18T08:16:52.885076"
       },
-      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"TrueData\",\"last_update\":\"2025-07-18T15:00:41.364922+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"truedata_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
+      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"ShareKhan\",\"last_update\":\"2025-07-18T15:00:41.364922+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"sharekhan_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:41.258Z"
     },
@@ -3442,7 +3442,7 @@
               "low": 24986.33,
               "open": 25011.36,
               "volume": 4399425,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:35.279759",
               "data_age_seconds": 0,
               "heartbeat": false
@@ -3458,17 +3458,17 @@
               "low": 56365.44,
               "open": 56421.92,
               "volume": 1136940,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:40.873264",
               "data_age_seconds": 0,
               "heartbeat": false
             }
           ],
           "market_status": "OPEN",
-          "provider": "TrueData",
+          "provider": "ShareKhan",
           "last_update": "2025-07-18T15:00:41.540256+05:30",
           "timestamp": "2025-07-18 15:00:41 IST",
-          "truedata_connection": {
+          "sharekhan_connection": {
             "symbols_available": 51,
             "nifty_available": true,
             "banknifty_available": true,
@@ -3535,7 +3535,7 @@
         },
         "timestamp": "2025-07-18T08:16:52.885076"
       },
-      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"TrueData\",\"last_update\":\"2025-07-18T15:00:41.540256+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"truedata_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
+      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"ShareKhan\",\"last_update\":\"2025-07-18T15:00:41.540256+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"sharekhan_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:41.437Z"
     },
@@ -3579,7 +3579,7 @@
               "low": 24986.33,
               "open": 25011.36,
               "volume": 4399425,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:35.279759",
               "data_age_seconds": 0,
               "heartbeat": false
@@ -3595,17 +3595,17 @@
               "low": 56365.44,
               "open": 56421.92,
               "volume": 1136940,
-              "status": "LIVE_TRUEDATA",
+              "status": "LIVE_SHAREKHAN",
               "last_update": "2025-07-18T09:30:40.873264",
               "data_age_seconds": 0,
               "heartbeat": false
             }
           ],
           "market_status": "OPEN",
-          "provider": "TrueData",
+          "provider": "ShareKhan",
           "last_update": "2025-07-18T15:00:41.718426+05:30",
           "timestamp": "2025-07-18 15:00:41 IST",
-          "truedata_connection": {
+          "sharekhan_connection": {
             "symbols_available": 51,
             "nifty_available": true,
             "banknifty_available": true,
@@ -3672,7 +3672,7 @@
         },
         "timestamp": "2025-07-18T08:16:52.885076"
       },
-      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_TRUEDATA\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"TrueData\",\"last_update\":\"2025-07-18T15:00:41.718426+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"truedata_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
+      "rawData": "{\"success\":true,\"message\":\"Market indices data retrieved successfully\",\"data\":{\"indices\":[{\"symbol\":\"NIFTY\",\"name\":\"NIFTY 50\",\"last_price\":25036.4,\"price\":25036.4,\"change\":-138.2,\"change_percent\":-0.55,\"high\":25086.47,\"low\":24986.33,\"open\":25011.36,\"volume\":4399425,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:35.279759\",\"data_age_seconds\":0.0,\"heartbeat\":false},{\"symbol\":\"BANKNIFTY\",\"name\":\"BANK NIFTY\",\"last_price\":56478.4,\"price\":56478.4,\"change\":-495.0,\"change_percent\":-0.87,\"high\":56591.36,\"low\":56365.44,\"open\":56421.92,\"volume\":1136940,\"status\":\"LIVE_SHAREKHAN\",\"last_update\":\"2025-07-18T09:30:40.873264\",\"data_age_seconds\":0.0,\"heartbeat\":false}],\"market_status\":\"OPEN\",\"provider\":\"ShareKhan\",\"last_update\":\"2025-07-18T15:00:41.718426+05:30\",\"timestamp\":\"2025-07-18 15:00:41 IST\",\"sharekhan_connection\":{\"symbols_available\":51,\"nifty_available\":true,\"banknifty_available\":true,\"live_data_symbols\":[\"JSWSTEEL\",\"ICICIBANK\",\"HINDUNILVR\",\"RELIANCE\",\"SBIN\",\"KOTAKBANK\",\"BHARTIARTL\",\"NIFTY-I\",\"AXISBANK\",\"HDFCBANK\",\"ADANIPOWER\",\"INFY\",\"ASIANPAINT\",\"NTPC\",\"BANKNIFTY-I\",\"WIPRO\",\"TCS\",\"M&M\",\"BAJAJ-AUTO\",\"TATAMOTORS\",\"COALINDIA\",\"BAJFINANCE\",\"HINDALCO\",\"TATASTEEL\",\"HCLTECH\",\"CIPLA\",\"NESTLEIND\",\"APOLLOHOSP\",\"DABUR\",\"INDIGO\",\"HEROMOTOCO\",\"TECHM\",\"POWERGRID\",\"BAJAJFINSV\",\"BRITANNIA\",\"ADANIPORTS\",\"DRREDDY\",\"MARUTI\",\"LT\",\"VEDL\",\"TITAN\",\"SUNPHARMA\",\"ITC\",\"MIDCPNIFTY-I\",\"EICHERMOT\",\"ULTRACEMCO\",\"TVSMOTOR\",\"ADANIGREEN\",\"GODREJCP\",\"FINNIFTY-I\",\"DIVISLAB\"],\"connection_healthy\":true,\"heartbeat_age_seconds\":0,\"data_flowing\":true,\"total_symbols\":51,\"market_open\":true,\"data_source\":\"LIVE\"}},\"timestamp\":\"2025-07-18T08:16:52.885076\"}",
       "parseError": null,
       "timestamp": "2025-07-18T09:30:41.614Z"
     }

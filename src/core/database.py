@@ -131,7 +131,7 @@ class DatabaseManager:
                             current_balance DECIMAL(15,2) DEFAULT 50000,
                             risk_tolerance VARCHAR(20) DEFAULT 'medium',
                             is_active BOOLEAN DEFAULT true,
-                            zerodha_client_id VARCHAR(50),
+                            sharekhan_client_id VARCHAR(50),
                             broker_user_id VARCHAR(100),
                             api_key_encrypted TEXT,
                             trading_enabled BOOLEAN DEFAULT true,
@@ -178,7 +178,7 @@ class DatabaseManager:
                 # FIXED: Use correct schema with id as primary key, not user_id
                 conn.execute(text("""
                     INSERT INTO users (username, email, password_hash, broker_user_id, is_active, trading_enabled, 
-                                     full_name, initial_capital, current_balance, zerodha_client_id)
+                                     full_name, initial_capital, current_balance, sharekhan_client_id)
                     VALUES ('PAPER_TRADER_001', 'paper.trader@algoauto.com', 'dummy_hash', 'QSW899', true, true,
                            'Autonomous Paper Trader', 100000.00, 100000.00, 'QSW899')
                     ON CONFLICT (username) DO UPDATE SET

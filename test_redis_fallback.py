@@ -48,9 +48,9 @@ def test_redis_fallback_manager():
         exists_result = redis_fallback_manager.exists('test_key')
         logger.info(f"Exists result: {exists_result}")
         
-        # Test Zerodha token simulation
-        logger.info("🔄 Testing Zerodha token storage...")
-        token_key = 'zerodha:token:PAPER_TRADER_001'
+        # Test ShareKhan token simulation
+        logger.info("🔄 Testing ShareKhan token storage...")
+        token_key = 'sharekhan:token:PAPER_TRADER_001'
         token_value = 'mock_access_token_12345'
         
         redis_fallback_manager.set(token_key, token_value, ex=3600)
@@ -108,9 +108,9 @@ def test_orchestrator_redis_integration():
         logger.error(f"❌ Orchestrator Redis integration test failed: {e}")
         return False
 
-def test_zerodha_token_simulation():
-    """Test Zerodha token retrieval simulation"""
-    logger.info("\n🚀 Testing Zerodha Token Simulation")
+def test_sharekhan_token_simulation():
+    """Test ShareKhan token retrieval simulation"""
+    logger.info("\n🚀 Testing ShareKhan Token Simulation")
     logger.info("=" * 50)
     
     try:
@@ -120,7 +120,7 @@ def test_zerodha_token_simulation():
         user_ids = ['PAPER_TRADER_001', 'MASTER_USER_001', 'USER_001']
         
         for user_id in user_ids:
-            token_key = f'zerodha:token:{user_id}'
+            token_key = f'sharekhan:token:{user_id}'
             mock_token = f'mock_token_{user_id.lower()}_12345'
             
             # Store token
@@ -131,7 +131,7 @@ def test_zerodha_token_simulation():
         logger.info("\n🔄 Simulating orchestrator token retrieval...")
         
         for user_id in user_ids:
-            token_key = f'zerodha:token:{user_id}'
+            token_key = f'sharekhan:token:{user_id}'
             retrieved_token = redis_fallback_manager.get(token_key)
             
             if retrieved_token:
@@ -139,11 +139,11 @@ def test_zerodha_token_simulation():
             else:
                 logger.warning(f"❌ No token found for {user_id}")
         
-        logger.info("✅ Zerodha token simulation completed!")
+        logger.info("✅ ShareKhan token simulation completed!")
         return True
         
     except Exception as e:
-        logger.error(f"❌ Zerodha token simulation failed: {e}")
+        logger.error(f"❌ ShareKhan token simulation failed: {e}")
         return False
 
 def main():
@@ -157,22 +157,22 @@ def main():
     # Test orchestrator integration
     orchestrator_success = test_orchestrator_redis_integration()
     
-    # Test Zerodha token simulation
-    token_success = test_zerodha_token_simulation()
+    # Test ShareKhan token simulation
+    token_success = test_sharekhan_token_simulation()
     
     # Summary
     logger.info("\n" + "=" * 60)
     logger.info("📊 TEST SUMMARY:")
     logger.info(f"  Redis Fallback Manager: {'✅ PASS' if fallback_success else '❌ FAIL'}")
     logger.info(f"  Orchestrator Integration: {'✅ PASS' if orchestrator_success else '❌ FAIL'}")
-    logger.info(f"  Zerodha Token Simulation: {'✅ PASS' if token_success else '❌ FAIL'}")
+    logger.info(f"  ShareKhan Token Simulation: {'✅ PASS' if token_success else '❌ FAIL'}")
     
     if all([fallback_success, orchestrator_success, token_success]):
         logger.info("\n✅ ALL TESTS PASSED!")
         logger.info("🚀 Redis fallback system is ready for production deployment")
         logger.info("📋 Key Benefits:")
         logger.info("  • System continues working even without Redis")
-        logger.info("  • Zerodha tokens cached in memory for session")
+        logger.info("  • ShareKhan tokens cached in memory for session")
         logger.info("  • Graceful degradation with fallback mode")
         logger.info("  • No system crashes due to Redis failures")
     else:

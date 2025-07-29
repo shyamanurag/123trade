@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test TrueData connectivity with subscription credentials
+Test ShareKhan connectivity with subscription credentials
 """
 
 import asyncio
@@ -8,37 +8,37 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from data.truedata_provider import TrueDataProvider
-from config.truedata_config import TrueDataConfig
+from data.sharekhan_provider import ShareKhanProvider
+from config.sharekhan_config import ShareKhanConfig
 from datetime import datetime, timedelta
 
-class TrueDataTester:
+class ShareKhanTester:
     def __init__(self):
         self.provider = None
         
     async def test_connection(self):
-        """Test TrueData connection with subscription credentials"""
+        """Test ShareKhan connection with subscription credentials"""
         try:
-            print("🔌 Testing TrueData Connection...")
-            config = TrueDataConfig.get_connection_config()
+            print("🔌 Testing ShareKhan Connection...")
+            config = ShareKhanConfig.get_connection_config()
             print(f"Username: {config['username']}")
             print(f"Port: {config['port']}")
             print(f"Symbol Limit: {config['symbol_limit']}")
             
             # Initialize provider with config
-            self.provider = TrueDataProvider(config)
+            self.provider = ShareKhanProvider(config)
             
             # Test connection
             connected = await self.provider.connect()
             if connected:
-                print("✅ TrueData connection successful!")
+                print("✅ ShareKhan connection successful!")
                 return True
             else:
-                print("❌ TrueData connection failed!")
+                print("❌ ShareKhan connection failed!")
                 return False
                 
         except Exception as e:
-            print(f"❌ TrueData connection error: {e}")
+            print(f"❌ ShareKhan connection error: {e}")
             return False
     
     async def test_market_data(self):
@@ -97,7 +97,7 @@ class TrueDataTester:
             # Test symbol limit validation
             too_many_symbols = ['SYMBOL' + str(i) for i in range(55)]  # More than 50
             
-            if not TrueDataConfig.validate_symbol_limit(too_many_symbols):
+            if not ShareKhanConfig.validate_symbol_limit(too_many_symbols):
                 print("✅ Symbol limit properly enforced")
                 return True
             else:
@@ -112,14 +112,14 @@ class TrueDataTester:
         """Cleanup connections"""
         if self.provider:
             await self.provider.disconnect()
-            print("🧹 Cleaned up TrueData connections")
+            print("🧹 Cleaned up ShareKhan connections")
 
 async def main():
     """Main test function"""
-    tester = TrueDataTester()
+    tester = ShareKhanTester()
     
     try:
-        print("🚀 TrueData Integration Test Starting...")
+        print("🚀 ShareKhan Integration Test Starting...")
         print("=" * 50)
         
         # Test connection
@@ -144,7 +144,7 @@ async def main():
             print(f"   Trial Limits: {'✅ PASS' if limits_ok else '❌ FAIL'}")
             
             if all([connection_ok, market_data_ok, subscription_ok, limits_ok]):
-                print("\n🎉 All TrueData tests PASSED! System ready for trading.")
+                print("\n🎉 All ShareKhan tests PASSED! System ready for trading.")
                 return True
             else:
                 print("\n⚠️  Some tests failed. Check configuration.")

@@ -24,21 +24,21 @@ class AutonomousDashboardUpdater:
         # ❌ Fake current price calculation (base_price + fake variation)
         # ❌ Fake volume using hash(symbol + hour)
         # ❌ Fake change and change_percent calculations
-        # ❌ Simulated market behavior instead of real TrueData
+        # ❌ Simulated market behavior instead of real ShareKhan
         # 
         # REAL IMPLEMENTATION NEEDED:
-        # - Connect to actual TrueData API for live market data
+        # - Connect to actual ShareKhan API for live market data
         # - Fetch real current prices, volume, and changes
         # - No simulation or fake data generation
         
-        logger.error("CRITICAL: Market data requires real TrueData API integration")
+        logger.error("CRITICAL: Market data requires real ShareKhan API integration")
         logger.error("Fake market behavior simulation ELIMINATED for safety")
         
         # SAFETY: Return empty dict instead of fake market data
         return {
             'status': 'FAILED',
             'error': 'REAL_MARKET_DATA_INTEGRATION_REQUIRED',
-            'message': 'Market data requires real TrueData integration. Fake simulation eliminated for safety.'
+            'message': 'Market data requires real ShareKhan integration. Fake simulation eliminated for safety.'
         }
     
     async def calculate_autonomous_performance(self) -> Dict[str, Any]:
