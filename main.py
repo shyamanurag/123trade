@@ -342,13 +342,21 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Autonomous Trading API not loaded: {e}")
 
-# Real User Onboarding API (NEW - for production trader registration)
+# Simple User Management API (NEW - for dynamic user creation without storing credentials)
 try:
-    from src.api.real_user_onboarding import router as onboarding_router
-    app.include_router(onboarding_router, tags=["real-user-onboarding"])
-    logger.info("✅ Real User Onboarding API loaded")
+    from src.api.simple_user_management import router as simple_user_router
+    app.include_router(simple_user_router, tags=["simple-user-management"])
+    logger.info("✅ Simple User Management API loaded")
 except Exception as e:
-    logger.warning(f"⚠️ Real User Onboarding API not loaded: {e}")
+    logger.warning(f"⚠️ Simple User Management API not loaded: {e}")
+
+# Complete System Flow API (NEW - orchestrates entire trading system flow)
+try:
+    from src.api.complete_system_flow import router as system_flow_router
+    app.include_router(system_flow_router, tags=["complete-system-flow"])
+    logger.info("✅ Complete System Flow API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Complete System Flow API not loaded: {e}")
 
 # Frontend API (fallback compatibility)
 try:
