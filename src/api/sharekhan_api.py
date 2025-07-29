@@ -4,6 +4,7 @@ Complete API interface for ShareKhan trading system with multi-user support
 """
 
 import logging
+import os
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
