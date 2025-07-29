@@ -340,6 +340,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Market Data Fallback API not loaded: {e}")
 
+# Autonomous Trading API (NEW - for orchestrator start/stop)
+try:
+    from src.api.autonomous_trading import router as autonomous_router
+    app.include_router(autonomous_router, prefix="/api/autonomous", tags=["autonomous"])
+    logger.info("✅ Autonomous Trading API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Autonomous Trading API not loaded: {e}")
+
 # Frontend API (fallback compatibility)
 try:
     from src.api.frontend_api import router as frontend_router
