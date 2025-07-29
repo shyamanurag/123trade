@@ -252,6 +252,30 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Authentication API not loaded: {e}")
 
+# Users API (FIXED for frontend compatibility)
+try:
+    from src.api.users import router as users_router
+    app.include_router(users_router, tags=["users"])
+    logger.info("✅ Users API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Users API not loaded: {e}")
+
+# Token Management API (FIXED for frontend compatibility)
+try:
+    from src.api.token_management_api import router as token_mgmt_router
+    app.include_router(token_mgmt_router, tags=["token-management"])
+    logger.info("✅ Token Management API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Token Management API not loaded: {e}")
+
+# ShareKhan API (FIXED for frontend compatibility)
+try:
+    from src.api.sharekhan_api import router as sharekhan_router
+    app.include_router(sharekhan_router, tags=["sharekhan"])
+    logger.info("✅ ShareKhan API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ ShareKhan API not loaded: {e}")
+
 # Dashboard API v1 (NEW for React frontend)
 try:
     from src.api.dashboard_api_v1 import router as dashboard_v1_router
@@ -259,14 +283,6 @@ try:
     logger.info("✅ Dashboard API v1 loaded")
 except Exception as e:
     logger.warning(f"⚠️ Dashboard API v1 not loaded: {e}")
-
-# Token Management API (NEW for React frontend)
-try:
-    from src.api.token_management_api import router as token_mgmt_router
-    app.include_router(token_mgmt_router, tags=["token-management"])
-    logger.info("✅ Token Management API loaded")
-except Exception as e:
-    logger.warning(f"⚠️ Token Management API not loaded: {e}")
 
 # Multi-User API (NEW for React frontend)
 try:
@@ -292,18 +308,21 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Market Data API not loaded: {e}")
 
-# ShareKhan API routes (existing)
+# System Configuration API
 try:
-    from src.api.sharekhan_api import router as sharekhan_router
-    from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
-    from src.api.sharekhan_webhooks import router as sharekhan_webhook_router
-    
-    app.include_router(sharekhan_router, tags=["sharekhan-api"])
-    app.include_router(sharekhan_auth_router, tags=["sharekhan-auth"])
-    app.include_router(sharekhan_webhook_router, tags=["sharekhan-webhooks"])
-    logger.info("✅ ShareKhan API routes loaded")
+    from src.api.system_config import router as system_config_router
+    app.include_router(system_config_router, prefix="/api", tags=["system"])
+    logger.info("✅ System Configuration API loaded")
 except Exception as e:
-    logger.warning(f"⚠️ ShareKhan API routes not loaded: {e}")
+    logger.warning(f"⚠️ System Configuration API not loaded: {e}")
+
+# WebSocket API
+try:
+    from src.api.websocket import router as websocket_router
+    app.include_router(websocket_router, prefix="/ws", tags=["websocket"])
+    logger.info("✅ WebSocket API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ WebSocket API not loaded: {e}")
 
 # Frontend API (fallback compatibility)
 try:

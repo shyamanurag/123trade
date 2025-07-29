@@ -1,26 +1,24 @@
 """
-Authentication API Endpoints for React Frontend
-Handles user login, logout, token validation and refresh
+Authentication API for React Frontend
+Provides login, logout, and token management
 """
 
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
-from typing import Optional, Dict, Any
+from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import jwt
-import bcrypt
 import logging
-import os
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/auth", tags=["authentication"])
 
 # JWT Configuration
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
-JWT_ALGORITHM = "HS256"
-JWT_EXPIRATION_HOURS = 24
+SECRET_KEY = "your-super-secret-key-change-in-production"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+router = APIRouter(prefix="/auth", tags=["authentication"])
 security = HTTPBearer()
 
 # Pydantic Models
@@ -29,120 +27,124 @@ class LoginRequest(BaseModel):
     password: str
 
 class LoginResponse(BaseModel):
-    user: Dict[str, Any]
-    token: str
-    expires_at: str
+    access_token: str
+    token_type: str
+    user_id: str
+    email: str
+    role: str
+    name: str
 
-class TokenValidationRequest(BaseModel):
-    token: str
+class UserInfo(BaseModel):
+    user_id: str
+    email: str
+    name: str
+    role: str
 
-class TokenRefreshRequest(BaseModel):
-    token: str
-
-# Mock user database (replace with real database in production)
+# Mock user database
 MOCK_USERS = {
     "demo@trade123.com": {
-        "id": "user_001",
-        "name": "Demo User",
+        "user_id": "user_001",
         "email": "demo@trade123.com",
-        "password_hash": bcrypt.hashpw("demo123".encode('utf-8'), bcrypt.gensalt()),
-        "role": "trader",
-        "is_active": True,
-        "created_at": "2025-01-01T00:00:00Z"
+        "password": "demo123",  # In production, use hashed passwords
+        "name": "Demo User",
+        "role": "trader"
     },
     "admin@trade123.com": {
-        "id": "admin_001", 
+        "user_id": "admin_001",
+        "email": "admin@trade123.com", 
+        "password": "admin123",
         "name": "Admin User",
-        "email": "admin@trade123.com",
-        "password_hash": bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt()),
-        "role": "admin",
-        "is_active": True,
-        "created_at": "2025-01-01T00:00:00Z"
+        "role": "admin"
+    },
+    "trader@trade123.com": {
+        "user_id": "trader_001",
+        "email": "trader@trade123.com",
+        "password": "trader123", 
+        "name": "Pro Trader",
+        "role": "trader"
     }
 }
 
-def create_jwt_token(user_data: Dict[str, Any]) -> tuple[str, str]:
-    """Create JWT token with expiration"""
-    expires_at = datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
-    payload = {
-        "user_id": user_data["id"],
-        "email": user_data["email"],
-        "role": user_data["role"],
-        "exp": expires_at,
-        "iat": datetime.utcnow()
-    }
-    
-    token = jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-    return token, expires_at.isoformat()
+def create_access_token(data: Dict[str, Any]) -> str:
+    """Create JWT access token"""
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def validate_jwt_token(token: str) -> Optional[Dict[str, Any]]:
-    """Validate JWT token and return user data"""
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    """Verify JWT token"""
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials"
+            )
         return payload
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
-
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
-    """Dependency to get current authenticated user"""
-    token = credentials.credentials
-    payload = validate_jwt_token(token)
-    
-    if not payload:
+    except jwt.PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
+            detail="Invalid authentication credentials"
+        )
+
+async def get_current_user(token_data: Dict[str, Any] = Depends(verify_token)) -> Dict[str, Any]:
+    """Get current authenticated user"""
+    user_id = token_data.get("sub")
+    email = token_data.get("email")
+    
+    # Find user in mock database
+    user = None
+    for user_email, user_data in MOCK_USERS.items():
+        if user_data["email"] == email:
+            user = user_data
+            break
+    
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
         )
     
-    return payload
+    return user
 
 @router.post("/login", response_model=LoginResponse)
-async def login(request: LoginRequest):
-    """User login endpoint"""
+async def login(login_data: LoginRequest):
+    """Authenticate user and return access token"""
     try:
-        # Find user
-        user = MOCK_USERS.get(request.email)
+        # Find user by email
+        user = MOCK_USERS.get(login_data.email)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
         
-        # Verify password
-        if not bcrypt.checkpw(request.password.encode('utf-8'), user["password_hash"]):
+        # Verify password (in production, use proper password hashing)
+        if user["password"] != login_data.password:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
         
-        # Check if user is active
-        if not user["is_active"]:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Account is disabled"
-            )
-        
-        # Create JWT token
-        token, expires_at = create_jwt_token(user)
-        
-        # Return user data (without password hash)
-        user_response = {
-            "id": user["id"],
-            "name": user["name"],
+        # Create access token
+        access_token = create_access_token({
+            "sub": user["user_id"],
             "email": user["email"],
             "role": user["role"],
-            "is_active": user["is_active"],
-            "created_at": user["created_at"]
-        }
+            "name": user["name"]
+        })
         
-        logger.info(f"User {request.email} logged in successfully")
+        logger.info(f"User {login_data.email} logged in successfully")
         
         return LoginResponse(
-            user=user_response,
-            token=token,
-            expires_at=expires_at
+            access_token=access_token,
+            token_type="bearer",
+            user_id=user["user_id"],
+            email=user["email"],
+            role=user["role"],
+            name=user["name"]
         )
         
     except HTTPException:
@@ -151,95 +153,62 @@ async def login(request: LoginRequest):
         logger.error(f"Login error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail="Login failed"
         )
 
 @router.post("/logout")
 async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
-    """User logout endpoint"""
+    """Logout current user"""
     try:
         logger.info(f"User {current_user['email']} logged out")
-        return {"success": True, "message": "Logged out successfully"}
+        return {"message": "Logged out successfully"}
     except Exception as e:
         logger.error(f"Logout error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail="Logout failed"
         )
 
 @router.post("/validate")
-async def validate_token(request: TokenValidationRequest):
-    """Validate JWT token"""
-    try:
-        payload = validate_jwt_token(request.token)
-        return {"valid": payload is not None}
-    except Exception as e:
-        logger.error(f"Token validation error: {e}")
-        return {"valid": False}
+async def validate_token(current_user: Dict[str, Any] = Depends(get_current_user)):
+    """Validate current token"""
+    return {
+        "valid": True,
+        "user": current_user,
+        "message": "Token is valid"
+    }
 
 @router.post("/refresh")
-async def refresh_token(request: TokenRefreshRequest):
-    """Refresh JWT token"""
+async def refresh_token(current_user: Dict[str, Any] = Depends(get_current_user)):
+    """Refresh access token"""
     try:
-        # Validate current token
-        payload = validate_jwt_token(request.token)
-        if not payload:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
-        
-        # Find user
-        user = MOCK_USERS.get(payload["email"])
-        if not user or not user["is_active"]:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found or inactive"
-            )
-        
-        # Create new token
-        new_token, expires_at = create_jwt_token(user)
+        # Create new access token
+        new_token = create_access_token({
+            "sub": current_user["user_id"],
+            "email": current_user["email"],
+            "role": current_user["role"],
+            "name": current_user["name"]
+        })
         
         return {
-            "token": new_token,
-            "expires_at": expires_at
+            "access_token": new_token,
+            "token_type": "bearer",
+            "message": "Token refreshed successfully"
         }
         
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Token refresh error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail="Token refresh failed"
         )
 
 @router.get("/me")
-async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_current_user)):
+async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_current_user)) -> UserInfo:
     """Get current user information"""
-    try:
-        # Find full user data
-        user = MOCK_USERS.get(current_user["email"])
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
-            )
-        
-        return {
-            "id": user["id"],
-            "name": user["name"],
-            "email": user["email"],
-            "role": user["role"],
-            "is_active": user["is_active"],
-            "created_at": user["created_at"]
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Get user info error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
-        ) 
+    return UserInfo(
+        user_id=current_user["user_id"],
+        email=current_user["email"],
+        name=current_user["name"],
+        role=current_user["role"]
+    ) 

@@ -13,12 +13,12 @@ import random
 from .auth_api import get_current_user
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/auth", tags=["token-management"])
+router = APIRouter(prefix="/api/auth", tags=["token-management"])
 
 # Pydantic Models
 class DailyTokenSubmission(BaseModel):
     token: str
-    broker_type: str = "zerodha"
+    broker_type: str = "sharekhan"
     user_id: Optional[str] = None
     expires_at: Optional[str] = None
 
@@ -27,25 +27,37 @@ class TokenStatusResponse(BaseModel):
     zerodha_expires_at: Optional[str]
     last_updated: str
 
-# Mock token storage (replace with database in production)
+# Mock token storage with ShareKhan tokens that match frontend expectations
 MOCK_TOKENS = {
     "user_001": {
-        "zerodha_token": "mock_token_123",
-        "broker_type": "zerodha", 
-        "status": "active",
+        "user_id": "user_001",
+        "username": "demo_user",
+        "token": "sk_token_demo_123",
+        "token_type": "sharekhan_daily",
         "expires_at": (datetime.now() + timedelta(days=1)).isoformat(),
-        "updated_at": datetime.now().isoformat(),
-        "username": "Demo User",
-        "email": "demo@trade123.com"
+        "status": "active",
+        "last_used": datetime.now().isoformat(),
+        "auth_url": None
     },
     "admin_001": {
-        "zerodha_token": "mock_admin_token_456",
-        "broker_type": "zerodha",
-        "status": "expiring", 
+        "user_id": "admin_001",
+        "username": "admin_user", 
+        "token": "sk_token_admin_456",
+        "token_type": "sharekhan_daily",
         "expires_at": (datetime.now() + timedelta(hours=2)).isoformat(),
-        "updated_at": (datetime.now() - timedelta(hours=1)).isoformat(),
-        "username": "Admin User",
-        "email": "admin@trade123.com"
+        "status": "expiring",
+        "last_used": (datetime.now() - timedelta(hours=1)).isoformat(),
+        "auth_url": None
+    },
+    "trader_001": {
+        "user_id": "trader_001",
+        "username": "pro_trader",
+        "token": "sk_token_trader_789",
+        "token_type": "sharekhan_daily", 
+        "expires_at": (datetime.now() + timedelta(hours=6)).isoformat(),
+        "status": "active",
+        "last_used": datetime.now().isoformat(),
+        "auth_url": None
     }
 }
 
@@ -63,13 +75,14 @@ async def submit_daily_token(
         
         # Store token (in production, use database)
         MOCK_TOKENS[user_id] = {
-            "zerodha_token": token_data.token,
-            "broker_type": token_data.broker_type,
-            "status": "active",
-            "expires_at": expires_at,
-            "updated_at": datetime.now().isoformat(),
+            "user_id": user_id,
             "username": current_user.get("name", "Unknown"),
-            "email": current_user.get("email", "unknown@example.com")
+            "token": token_data.token,
+            "token_type": "sharekhan_daily",
+            "expires_at": expires_at,
+            "status": "active", 
+            "last_used": datetime.now().isoformat(),
+            "auth_url": None
         }
         
         logger.info(f"Daily token submitted for user {user_id} by {current_user['email']}")
@@ -91,31 +104,38 @@ async def submit_daily_token(
 
 @router.get("/tokens")
 async def get_auth_tokens():
-    """Get authentication tokens status for all users"""
+    """Get authentication tokens status for all users - matches frontend expectations"""
     try:
-        tokens_status = []
-        for user_id, user_token in MOCK_TOKENS.items():
-            expires_at = datetime.fromisoformat(user_token["expires_at"].replace("Z", "+00:00"))
+        tokens_list = []
+        for user_id, token_data in MOCK_TOKENS.items():
+            # Update status based on expiry
+            expires_at = datetime.fromisoformat(token_data["expires_at"].replace("Z", "+00:00"))
             time_until_expiry = expires_at - datetime.now(expires_at.tzinfo)
             
             if time_until_expiry.total_seconds() < 0:
                 status = "expired"
             elif time_until_expiry.total_seconds() < 4 * 3600:  # 4 hours
-                status = "expiring"
+                status = "expiring" 
             else:
                 status = "active"
             
-            tokens_status.append({
+            # Update the stored status
+            MOCK_TOKENS[user_id]["status"] = status
+            
+            tokens_list.append({
                 "user_id": user_id,
-                "broker": "zerodha",
+                "username": token_data["username"],
+                "token": token_data["token"][:8] + "...",  # Truncated for security
+                "token_type": token_data["token_type"],
+                "expires_at": token_data["expires_at"],
                 "status": status,
-                "expires_at": user_token["expires_at"],
-                "last_updated": user_token["updated_at"]
+                "last_used": token_data["last_used"],
+                "auth_url": token_data.get("auth_url")
             })
         
         return {
             "success": True,
-            "data": {"tokens": tokens_status},
+            "data": tokens_list,
             "timestamp": datetime.now().isoformat()
         }
         
@@ -124,7 +144,7 @@ async def get_auth_tokens():
         return {
             "success": False,
             "error": str(e),
-            "data": {"tokens": []},
+            "data": [],
             "timestamp": datetime.now().isoformat()
         }
 
@@ -156,7 +176,7 @@ async def get_token_status(current_user: Dict[str, Any] = Depends(get_current_us
         return TokenStatusResponse(
             zerodha_status=status,
             zerodha_expires_at=user_token["expires_at"],
-            last_updated=user_token["updated_at"]
+            last_updated=user_token["last_used"]
         )
         
     except Exception as e:
@@ -194,11 +214,10 @@ async def get_all_user_tokens(current_user: Dict[str, Any] = Depends(get_current
             all_tokens.append({
                 "user_id": user_id,
                 "username": token_data.get("username", "Unknown"),
-                "email": token_data.get("email", "unknown@example.com"),
-                "broker_type": token_data["broker_type"],
+                "token_type": token_data.get("token_type", "sharekhan_daily"),
                 "status": status,
                 "expires_at": token_data["expires_at"],
-                "updated_at": token_data["updated_at"]
+                "last_used": token_data["last_used"]
             })
         
         logger.info(f"All user tokens requested by admin: {current_user['email']}")

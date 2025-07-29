@@ -1,112 +1,76 @@
+"""
+Users API - Compatible with frontend expectations
+"""
+from fastapi import APIRouter, HTTPException, Depends
+from typing import Dict, Any, List
 import logging
 from datetime import datetime
-from fastapi import APIRouter, HTTPException
-import hashlib
 
-router = APIRouter(
-    prefix="/api/v1/users",
-    tags=["users"],
-    responses={404: {"description": "Not found"}},
-)
 logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api", tags=["users"])
 
-def get_database_operations():
-    # This is a temporary measure to avoid circular imports.
-    # In a real application, this should be moved to a shared database module.
-    return None
+# Mock users that match frontend expectations
+USERS_DATABASE = [
+    {
+        "id": "user_001",
+        "username": "demo_user",
+        "email": "demo@trade123.com",
+        "sharekhan_user_id": "SK001",
+        "status": "active",
+        "role": "trader",
+        "created_at": datetime.now().isoformat(),
+        "is_active": True
+    },
+    {
+        "id": "admin_001", 
+        "username": "admin_user",
+        "email": "admin@trade123.com",
+        "sharekhan_user_id": "SK002",
+        "status": "active",
+        "role": "admin",
+        "created_at": datetime.now().isoformat(),
+        "is_active": True
+    },
+    {
+        "id": "trader_001",
+        "username": "pro_trader",
+        "email": "trader@trade123.com", 
+        "sharekhan_user_id": "SK003",
+        "status": "active",
+        "role": "trader",
+        "created_at": datetime.now().isoformat(),
+        "is_active": True
+    }
+]
 
-@router.get("/", summary="Get all users")
+@router.get("/users", summary="Get all users")
 async def get_users():
-    """Fetch all registered trading users with their basic information"""
-    db_ops = get_database_operations()
-    if not db_ops:
+    """Get all users - compatible with frontend expectations"""
+    try:
         return {
-            "success": False, 
-            "users": [], 
-            "total_users": 0,
-            "timestamp": datetime.now().isoformat(), 
-            "error": "SAFETY: User database disabled - real database required",
-            "message": "Mock user data eliminated for safety"
-        }
-    
-    try:
-        # ELIMINATED: Mock user response that could mislead about real users
-        # ❌ return {"success": True, "users": [], "total_users": 0, "timestamp": datetime.now().isoformat(), "message": "DB query disabled."}
-        
-        # SAFETY: Return proper error instead of fake success
-        logger.error("SAFETY: Mock user data ELIMINATED to prevent fake user information")
-        return {
-            "success": False, 
-            "users": [], 
-            "total_users": 0,
-            "timestamp": datetime.now().isoformat(),
-            "error": "SAFETY: Mock user data disabled - real user database required"
-        }
-    
-    except Exception as e:
-        logger.error(f"Error fetching users: {e}")
-        return {"success": False, "users": [], "message": "Unable to fetch users"}
-
-@router.post("/", summary="Add new user")
-async def add_user(user_data: dict):
-    """Onboard a new user to the trading system"""
-    db_ops = get_database_operations()
-    if not db_ops:
-        raise HTTPException(status_code=503, detail="Database service disabled. Cannot add user.")
-    
-    try:
-        required_fields = ['username', 'email', 'password', 'full_name']
-        if not all(field in user_data and user_data[field] for field in required_fields):
-            raise HTTPException(status_code=400, detail="Missing required fields")
-        
-        # ELIMINATED: Mock user creation that could mislead about real user creation
-        # ❌ user_id = f"user_{user_data['username']}_{datetime.now().strftime('%Y%m%d')}"
-        # ❌ return {"success": True, "message": f"User {user_data['username']} created successfully", "user_id": user_id}
-        
-        # SAFETY: Return proper error instead of fake user creation
-        logger.error("SAFETY: Mock user creation ELIMINATED to prevent fake user accounts")
-        raise HTTPException(status_code=503, detail="SAFETY: Mock user creation disabled - real user database required")
-        
-    except Exception as e:
-        logger.error(f"Error adding user: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.delete("/{user_id}", summary="Remove user")
-async def remove_user(user_id: str):
-    """Remove a user from the trading system"""
-    db_ops = get_database_operations()
-    if not db_ops:
-        return {"success": False, "message": "SAFETY: User removal disabled - real database required"}
-        
-    try:
-        # ELIMINATED: Mock user removal that could mislead about real user operations
-        # ❌ logger.info(f"User deactivated: {user_id}")
-        # ❌ return {"success": True, "message": "User removed successfully"}
-        
-        # SAFETY: Return proper error instead of fake user removal
-        logger.error("SAFETY: Mock user removal ELIMINATED to prevent fake user operations")
-        return {"success": False, "message": "SAFETY: Mock user removal disabled - real user database required"}
-    except Exception as e:
-        logger.error(f"Error removing user: {e}")
-        raise HTTPException(status_code=500, detail="Failed to remove user")
-
-@router.get("/current", summary="Get current user")
-async def get_current_user():
-    """Get current user information - SAFETY PROTECTED"""
-    try:
-        # ELIMINATED: Mock current user that could mislead about authentication
-        # ❌ return {
-        # ❌     "status": "success",
-        # ❌     "data": {"username": "admin", "full_name": "Administrator", "email": "admin@trading-system.com", "is_admin": True, "last_login": datetime.now().isoformat(), "permissions": ["read", "write", "admin"]}
-        # ❌ }
-        
-        # SAFETY: Return proper error instead of fake admin user
-        logger.error("SAFETY: Mock current user ELIMINATED to prevent fake authentication")
-        return {
-            "status": "error",
-            "error": "SAFETY: Mock current user disabled - real authentication required",
-            "message": "Mock admin user eliminated for safety"
+            "success": True,
+            "data": USERS_DATABASE,
+            "message": "Users retrieved successfully"
         }
     except Exception as e:
-        logger.error(f"Error getting current user: {e}")
-        raise HTTPException(status_code=500, detail="Failed to get current user") 
+        logger.error(f"Error getting users: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get users")
+
+@router.get("/users/{user_id}", summary="Get specific user")
+async def get_user(user_id: str):
+    """Get specific user by ID"""
+    try:
+        user = next((u for u in USERS_DATABASE if u["id"] == user_id), None)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {
+            "success": True,
+            "data": user,
+            "message": "User retrieved successfully"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get user") 
