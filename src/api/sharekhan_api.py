@@ -118,33 +118,33 @@ async def validate_user_session(request: Request, orchestrator: ShareKhanTrading
 
 # NEW: Auth endpoints for frontend compatibility
 @router.post("/auth/generate-url")
-async def generate_auth_url(
-    request: Dict[str, str],
-    user_session: Dict = Depends(validate_user_session)
-):
-    """Generate ShareKhan authentication URL"""
+async def generate_auth_url(request: Dict[str, str]):
+    """Generate ShareKhan authentication URL - Public endpoint for frontend"""
     try:
-        user_id = request.get("user_id")
-        if not user_id:
-            raise HTTPException(status_code=400, detail="user_id is required")
+        user_id = request.get("user_id", "default_user")
         
-        # Generate a realistic ShareKhan auth URL
+        # Use production ShareKhan API key from environment
+        api_key = os.getenv('SHAREKHAN_API_KEY', 'vc9ft4zpknynpm3u')
+        redirect_uri = "https://trade123-edtd2.ondigitalocean.app/auth/sharekhan/callback"
+        
+        # Generate real ShareKhan auth URL
         state = str(uuid.uuid4())
-        auth_url = f"https://auth.sharekhan.com/oauth2/auth?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=https://your-app.com/auth/callback&state={state}&scope=trading"
+        auth_url = f"https://kite.sharekhan.com/connect/login?api_key={api_key}&redirect_uri={redirect_uri}&state={state}"
         
-        logger.info(f"Generated auth URL for user {user_id}")
+        logger.info(f"Generated ShareKhan auth URL for user {user_id}")
         
         return {
             "success": True,
             "auth_url": auth_url,
             "state": state,
             "user_id": user_id,
+            "api_key": api_key[:8] + "...",  # Show first 8 chars for debugging
             "message": "ShareKhan auth URL generated successfully"
         }
         
     except Exception as e:
         logger.error(f"Error generating auth URL: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate auth URL")
+        raise HTTPException(status_code=500, detail=f"Failed to generate auth URL: {str(e)}")
 
 @router.post("/auth/refresh")
 async def refresh_auth_token(
