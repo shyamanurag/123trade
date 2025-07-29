@@ -78,3 +78,5 @@ email-validator==2.1.0
 # CRITICAL: NO packages that depend on ta-lib
 # ALL market data comes from ShareKhan API integration
 # Technical analysis uses pandas-ta (pure Python) 
+# System monitoring
+psutil==5.9.6

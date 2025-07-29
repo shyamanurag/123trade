@@ -366,6 +366,49 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Frontend compatibility API not loaded: {e}")
 
+# Missing Endpoints (DEPLOYMENT FIX)
+try:
+    from src.api.missing_endpoints.database_health import router as db_health_router
+    app.include_router(db_health_router, tags=["system-health"])
+    logger.info("✅ Database Health API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Database Health API not loaded: {e}")
+
+try:
+    from src.api.missing_endpoints.system_logs import router as logs_router
+    app.include_router(logs_router, tags=["system-logs"])
+    logger.info("✅ System Logs API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ System Logs API not loaded: {e}")
+
+try:
+    from src.api.missing_endpoints.risk_settings import router as risk_router
+    app.include_router(risk_router, tags=["risk-management"])
+    logger.info("✅ Risk Settings API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Risk Settings API not loaded: {e}")
+
+try:
+    from src.api.missing_endpoints.strategies import router as strategies_router
+    app.include_router(strategies_router, tags=["strategies"])
+    logger.info("✅ Strategies API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Strategies API not loaded: {e}")
+
+try:
+    from src.api.missing_endpoints.system_control import router as control_router
+    app.include_router(control_router, tags=["system-control"])
+    logger.info("✅ System Control API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ System Control API not loaded: {e}")
+
+try:
+    from src.api.missing_endpoints.api_health import router as api_health_router
+    app.include_router(api_health_router, tags=["api-health"])
+    logger.info("✅ API Health API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ API Health API not loaded: {e}")
+
 # =============================================================================
 # HEALTH CHECK ENDPOINTS
 # =============================================================================
