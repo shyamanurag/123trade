@@ -9,7 +9,7 @@ import logging
 import os
 import json
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 import redis.asyncio as redis
 
@@ -71,9 +71,15 @@ class ShareKhanTradingOrchestrator:
         self.risk_manager: Optional[Any] = None
         self.performance_analyzer: Optional[Any] = None
         
+                # NEW: Enhanced service components
+        self.order_deduplication_manager = None
+        self.enhanced_position_manager = None
+        self.strategy_position_tracker = None
+        self.sharekhan_data_mapper = None
+        
         # Service aliases - HONEST: These are None until real implementations are added
         self.metrics_service = None
-        self.position_manager = None  
+        self.position_manager = None
         self.trade_manager = None
         
         # Monitoring
@@ -111,7 +117,10 @@ class ShareKhanTradingOrchestrator:
             # 4. Start background tasks
             await self._start_background_tasks()
             
-            # 5. Initialize service components for API compatibility
+            # 5. Initialize enhanced service components
+            await self._initialize_enhanced_services()
+            
+            # 6. Initialize legacy service components for API compatibility
             await self._initialize_services()
             
             self.is_initialized = True
@@ -159,6 +168,64 @@ class ShareKhanTradingOrchestrator:
         except Exception as e:
             logger.error(f"❌ ShareKhan integration initialization failed: {e}")
             raise
+    
+    async def _initialize_enhanced_services(self):
+        """Initialize enhanced trading services"""
+        try:
+            logger.info("🚀 Initializing enhanced trading services...")
+            
+            # 1. Initialize Order Deduplication Manager
+            try:
+                from src.core.order_deduplication_manager import OrderDeduplicationManager
+                self.order_deduplication_manager = OrderDeduplicationManager(self.redis_client)
+                await self.order_deduplication_manager.initialize()
+                logger.info("✅ Order Deduplication Manager initialized")
+            except Exception as e:
+                logger.error(f"❌ Order Deduplication Manager failed: {e}")
+            
+            # 2. Initialize Enhanced Position Manager
+            try:
+                from src.core.enhanced_position_manager import EnhancedPositionManager
+                self.enhanced_position_manager = EnhancedPositionManager(self.sharekhan_integration)
+                await self.enhanced_position_manager.initialize()
+                
+                # Set as primary position manager
+                self.position_manager = self.enhanced_position_manager
+                logger.info("✅ Enhanced Position Manager initialized")
+            except Exception as e:
+                logger.error(f"❌ Enhanced Position Manager failed: {e}")
+            
+            # 3. Initialize ShareKhan Data Mapper
+            try:
+                if self.sharekhan_integration:
+                    from src.core.sharekhan_data_mapper import ShareKhanDataMapper
+                    self.sharekhan_data_mapper = ShareKhanDataMapper(self.sharekhan_integration)
+                    await self.sharekhan_data_mapper.initialize()
+                    logger.info("✅ ShareKhan Data Mapper initialized")
+                else:
+                    logger.warning("⚠️ ShareKhan integration not available for Data Mapper")
+            except Exception as e:
+                logger.error(f"❌ ShareKhan Data Mapper failed: {e}")
+            
+            # 4. Initialize Strategy Position Tracker
+            try:
+                if self.enhanced_position_manager and self.sharekhan_integration:
+                    from src.core.strategy_position_tracker import StrategyPositionTracker
+                    self.strategy_position_tracker = StrategyPositionTracker(
+                        self.enhanced_position_manager,
+                        self.sharekhan_integration
+                    )
+                    await self.strategy_position_tracker.initialize()
+                    logger.info("✅ Strategy Position Tracker initialized")
+                else:
+                    logger.warning("⚠️ Prerequisites not available for Strategy Position Tracker")
+            except Exception as e:
+                logger.error(f"❌ Strategy Position Tracker failed: {e}")
+            
+            logger.info("✅ All enhanced trading services initialized")
+            
+        except Exception as e:
+            logger.error(f"❌ Enhanced services initialization failed: {e}")
     
     async def _initialize_multi_user_manager(self):
         """Initialize multi-user management"""
@@ -490,6 +557,19 @@ class ShareKhanTradingOrchestrator:
         try:
             self.is_running = False
             
+            # Shutdown enhanced services
+            if self.order_deduplication_manager:
+                await self.order_deduplication_manager.shutdown()
+            
+            if self.enhanced_position_manager:
+                await self.enhanced_position_manager.shutdown()
+            
+            if self.strategy_position_tracker:
+                await self.strategy_position_tracker.shutdown()
+            
+            if self.sharekhan_data_mapper:
+                await self.sharekhan_data_mapper.shutdown()
+            
             # Disconnect all components
             if self.sharekhan_integration:
                 await self.sharekhan_integration.disconnect()
@@ -505,6 +585,168 @@ class ShareKhanTradingOrchestrator:
             
         except Exception as e:
             logger.error(f"❌ Error stopping orchestrator: {e}")
+    
+    # ENHANCED SERVICE ACCESS METHODS
+    
+    async def validate_and_submit_order(
+        self,
+        user_id: int,
+        symbol: str,
+        quantity: int,
+        price: float,
+        side: str,
+        order_type: str = "MARKET"
+    ) -> Dict[str, Any]:
+        """Validate order through deduplication and submit if approved"""
+        try:
+            if not self.order_deduplication_manager:
+                return {"success": False, "error": "Order deduplication not available"}
+            
+            # Validate order
+            validation_result = await self.order_deduplication_manager.validate_order_submission(
+                user_id=user_id,
+                symbol=symbol,
+                quantity=quantity,
+                price=price,
+                side=side,
+                order_type=order_type
+            )
+            
+            if not validation_result.get("allowed"):
+                return {
+                    "success": False,
+                    "reason": "ORDER_REJECTED",
+                    "message": validation_result.get("message"),
+                    "validation_details": validation_result
+                }
+            
+            # Submit order (placeholder - would integrate with actual order execution)
+            order_id = f"ORD_{user_id}_{symbol}_{int(datetime.now().timestamp())}"
+            
+            # Register successful submission
+            await self.order_deduplication_manager.register_order_submission(
+                order_id=order_id,
+                fingerprint_hash=validation_result.get("fingerprint_hash"),
+                user_id=user_id,
+                symbol=symbol,
+                quantity=quantity,
+                price=price,
+                side=side,
+                order_type=order_type
+            )
+            
+            return {
+                "success": True,
+                "order_id": order_id,
+                "message": "Order validated and submitted successfully",
+                "validation_details": validation_result
+            }
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to validate and submit order: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def get_user_position_analytics(self, user_id: int) -> Dict[str, Any]:
+        """Get comprehensive position analytics for user"""
+        try:
+            if not self.enhanced_position_manager:
+                return {"success": False, "error": "Enhanced position manager not available"}
+            
+            analytics = await self.enhanced_position_manager.get_position_analytics(user_id)
+            return {"success": True, "analytics": analytics}
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to get position analytics: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def get_strategy_recommendations(self, user_id: int) -> Dict[str, Any]:
+        """Get strategy recommendations for all user positions"""
+        try:
+            if not self.strategy_position_tracker:
+                return {"success": False, "error": "Strategy position tracker not available"}
+            
+            recommendations = await self.strategy_position_tracker.get_all_position_recommendations(user_id)
+            return {"success": True, "recommendations": recommendations}
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to get strategy recommendations: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def execute_strategy_recommendation(
+        self,
+        recommendation_id: str,
+        user_approval: bool = True
+    ) -> Dict[str, Any]:
+        """Execute a strategy recommendation"""
+        try:
+            if not self.strategy_position_tracker:
+                return {"success": False, "error": "Strategy position tracker not available"}
+            
+            result = await self.strategy_position_tracker.execute_recommendation(
+                recommendation_id, user_approval
+            )
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to execute strategy recommendation: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def generate_comprehensive_report(
+        self,
+        user_id: int,
+        report_date: Optional[date] = None
+    ) -> Dict[str, Any]:
+        """Generate comprehensive trading report"""
+        try:
+            if not self.sharekhan_data_mapper:
+                return {"success": False, "error": "ShareKhan data mapper not available"}
+            
+            report = await self.sharekhan_data_mapper.generate_comprehensive_report(user_id, report_date)
+            if report:
+                report_dict = await self.sharekhan_data_mapper.export_report_to_dict(report)
+                return {"success": True, "report": report_dict}
+            else:
+                return {"success": False, "error": "Failed to generate report"}
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to generate comprehensive report: {e}")
+            return {"success": False, "error": str(e)}
+    
+    async def sync_user_positions_from_sharekhan(
+        self,
+        user_id: int,
+        sharekhan_client_id: str,
+        sharekhan_api_key: str,
+        sharekhan_api_secret: str
+    ) -> Dict[str, Any]:
+        """Sync user positions from ShareKhan"""
+        try:
+            if not self.enhanced_position_manager:
+                return {"success": False, "error": "Enhanced position manager not available"}
+            
+            result = await self.enhanced_position_manager.sync_positions_from_sharekhan(
+                user_id, sharekhan_client_id, sharekhan_api_key, sharekhan_api_secret
+            )
+            return result
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to sync positions from ShareKhan: {e}")
+            return {"success": False, "error": str(e)}
+    
+    def get_enhanced_services_status(self) -> Dict[str, Any]:
+        """Get status of all enhanced services"""
+        return {
+            "order_deduplication_manager": self.order_deduplication_manager is not None,
+            "enhanced_position_manager": self.enhanced_position_manager is not None,
+            "strategy_position_tracker": self.strategy_position_tracker is not None,
+            "sharekhan_data_mapper": self.sharekhan_data_mapper is not None,
+            "all_services_available": all([
+                self.order_deduplication_manager,
+                self.enhanced_position_manager,
+                self.strategy_position_tracker,
+                self.sharekhan_data_mapper
+            ])
+        }
     
     # COMPATIBILITY METHODS FOR EXISTING CODE
     

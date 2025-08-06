@@ -358,6 +358,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Complete System Flow API not loaded: {e}")
 
+# Enhanced Trading API (NEW - comprehensive enhanced features)
+try:
+    from src.api.enhanced_trading_api import router as enhanced_trading_router
+    app.include_router(enhanced_trading_router, prefix="/api/enhanced", tags=["enhanced-trading"])
+    logger.info("✅ Enhanced Trading API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ Enhanced Trading API not loaded: {e}")
+
 # Frontend API (fallback compatibility)
 try:
     from src.api.frontend_api import router as frontend_router
