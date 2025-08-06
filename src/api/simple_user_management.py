@@ -48,9 +48,9 @@ async def create_simple_user(user_data: SimpleUserCreate):
         logger.info(f"🚀 Creating simple user: {user_data.username}")
         
         # Create user in database
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         if not session:
             raise HTTPException(status_code=503, detail="Database connection not available")
         
@@ -115,9 +115,9 @@ async def create_simple_user(user_data: SimpleUserCreate):
 async def list_all_users():
     """Get list of all users"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         if not session:
             raise HTTPException(status_code=503, detail="Database connection not available")
         
@@ -160,9 +160,9 @@ async def list_all_users():
 async def get_user_details(user_id: int):
     """Get specific user details"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         user_query = """
             SELECT id, username, email, full_name, initial_capital, 
                    current_balance, risk_tolerance, is_active, trading_enabled,
@@ -217,8 +217,8 @@ async def get_user_trading_data(
         logger.info(f"📊 Fetching real trading data for user: {user_id}")
         
         # Verify user exists
-        from src.core.database import get_database_session
-        session = get_database_session()
+        from src.core.database import db_manager
+        session = db_manager.get_shared_session()
         
         user_check = session.execute("SELECT username, full_name FROM users WHERE id = %s", (user_id,))
         user = user_check.fetchone()
@@ -434,9 +434,9 @@ async def update_position_prices(
 async def delete_user(user_id: int):
     """Delete a user (for testing/cleanup)"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         
         # Check if user exists
         user_check = session.execute("SELECT username FROM users WHERE id = %s", (user_id,))

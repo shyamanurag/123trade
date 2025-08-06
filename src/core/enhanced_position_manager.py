@@ -13,7 +13,7 @@ import pandas as pd
 from decimal import Decimal, ROUND_HALF_UP
 
 from brokers.sharekhan import ShareKhanIntegration, ShareKhanMarketData
-from src.core.database import get_database_session
+from src.core.database import db_manager
 
 logger = logging.getLogger(__name__)
 

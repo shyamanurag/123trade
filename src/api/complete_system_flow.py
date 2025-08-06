@@ -186,9 +186,9 @@ async def sync_all_user_data(
 async def verify_user_exists(user_id: int) -> Dict[str, Any]:
     """Verify user exists in database"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         user_query = "SELECT id, username, full_name, is_active FROM users WHERE id = %s"
         result = session.execute(user_query, (user_id,))
         user = result.fetchone()
@@ -350,7 +350,7 @@ async def sync_account_balance(user_id: int, client_id: str, api_key: str, api_s
     """Sync account balance and update user record"""
     try:
         from brokers.sharekhan import ShareKhanIntegration
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
         sharekhan = ShareKhanIntegration()
         auth_result = await sharekhan.authenticate(client_id=client_id, api_key=api_key, api_secret=api_secret)
@@ -366,7 +366,7 @@ async def sync_account_balance(user_id: int, client_id: str, api_key: str, api_s
             available_balance = float(balance_data.get('available_balance', 0))
             
             # Update user's current balance in database
-            session = get_database_session()
+            session = db_manager.get_shared_session()
             update_query = """
                 UPDATE users 
                 SET current_balance = %s, updated_at = %s 
@@ -449,9 +449,9 @@ async def setup_realtime_updates(user_id: int, client_id: str, api_key: str, api
 async def get_user_info(user_id: int) -> Dict[str, Any]:
     """Get user information"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         user_query = "SELECT username, full_name, is_active, current_balance FROM users WHERE id = %s"
         result = session.execute(user_query, (user_id,))
         user = result.fetchone()
@@ -505,9 +505,9 @@ async def get_orchestrator_status(user_id: int) -> Dict[str, Any]:
 async def get_database_health() -> Dict[str, Any]:
     """Get database health status"""
     try:
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         
         return {
             "connected": bool(session),

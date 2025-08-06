@@ -113,9 +113,9 @@ async def get_users():
     """Get real user data from database - NO SAMPLE DATA"""
     try:
         # Import real database connection
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         if not session:
             raise HTTPException(
                 status_code=503,
@@ -145,9 +145,9 @@ async def get_user(user_id: int):
     """Get specific user details"""
     try:
         # Import real database connection
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         if not session:
             raise HTTPException(
                 status_code=503,
@@ -182,9 +182,9 @@ async def create_user(user_data: Dict[str, Any]):
     """Create a new user"""
     try:
         # Import real database connection
-        from src.core.database import get_database_session
+        from src.core.database import db_manager
         
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         if not session:
             raise HTTPException(
                 status_code=503,

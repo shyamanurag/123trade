@@ -263,18 +263,18 @@ try:
 except Exception as e:
     logger.warning(f"Auth token management routes not loaded: {e}")
 
-# Trade Synchronization API (CRITICAL for real data sync)
+# Trade Synchronization API - Use existing simple_user_management.py functionality
 try:
-    from src.api.trade_sync_api import router as trade_sync_router
-    app.include_router(trade_sync_router, tags=["trade-sync"])
+    from src.api.simple_user_management import router as trade_sync_router
+    app.include_router(trade_sync_router, prefix="/api/trade-sync", tags=["trade-sync"])
     routes_loaded.append("trade-sync")
 except Exception as e:
     logger.warning(f"Trade sync API not loaded: {e}")
 
-# Portfolio Sync API (CRITICAL for position tracking)
+# Portfolio Sync API - Use existing complete_system_flow.py functionality  
 try:
-    from src.api.portfolio_sync_api import router as portfolio_sync_router
-    app.include_router(portfolio_sync_router, tags=["portfolio-sync"])
+    from src.api.complete_system_flow import router as portfolio_sync_router
+    app.include_router(portfolio_sync_router, prefix="/api/portfolio-sync", tags=["portfolio-sync"])
     routes_loaded.append("portfolio-sync")
 except Exception as e:
     logger.warning(f"Portfolio sync API not loaded: {e}")

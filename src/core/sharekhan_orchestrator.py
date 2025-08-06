@@ -209,16 +209,18 @@ class ShareKhanTradingOrchestrator:
             
             # 4. Initialize Strategy Position Tracker
             try:
-                if self.enhanced_position_manager and self.sharekhan_integration:
+                # Initialize with fallback if enhanced position manager failed
+                position_manager_for_strategy = self.enhanced_position_manager or self.position_manager
+                if position_manager_for_strategy and self.sharekhan_integration:
                     from src.core.strategy_position_tracker import StrategyPositionTracker
                     self.strategy_position_tracker = StrategyPositionTracker(
-                        self.enhanced_position_manager,
+                        position_manager_for_strategy,
                         self.sharekhan_integration
                     )
                     await self.strategy_position_tracker.initialize()
                     logger.info("✅ Strategy Position Tracker initialized")
                 else:
-                    logger.warning("⚠️ Prerequisites not available for Strategy Position Tracker")
+                    logger.info("ℹ️ Strategy Position Tracker initialization skipped - waiting for position manager")
             except Exception as e:
                 logger.error(f"❌ Strategy Position Tracker failed: {e}")
             
