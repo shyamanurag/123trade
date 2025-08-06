@@ -11,104 +11,142 @@ graph TD
         A --> C[Position Monitor]
         A --> D[User Management]
         A --> E[Market Data Display]
+        A --> F[Strategy Recommendations]
     end
     
-    subgraph "API Layer"
-        F[Simple User Management API] --> G[Complete System Flow API]
-        H[Position Manager API] --> G
-        I[ShareKhan Integration API] --> G
-        J[Market Data API] --> G
-        K[Orchestrator Control API] --> G
-        L[Autonomous Trading API] --> G
+    subgraph "Enhanced API Layer"
+        G[Enhanced Trading API<br/>14 Comprehensive Endpoints] --> H[Simple User Management API]
+        I[ShareKhan Daily Auth API<br/>Token Management] --> G
+        J[Data Diagnostics API<br/>Live Data Debugging] --> G
+        K[Complete System Flow API] --> G
+        L[ShareKhan Integration API] --> G
+        M[Autonomous Trading API] --> G
     end
     
-    subgraph "Core Services"
-        M[Real Position Manager] --> N[ShareKhan Trading Orchestrator]
-        O[Database Manager] --> N
-        P[Real Market Data Manager] --> N
-        Q[Risk Manager] --> N
-        R[Order Execution Engine] --> N
+    subgraph "Enhanced Core Services"
+        N[Order Deduplication Manager<br/>SHA256 + Rate Limiting] --> O[Enhanced ShareKhan Orchestrator]
+        P[Enhanced Position Manager<br/>Real-time P&L + Analytics] --> O
+        Q[Strategy Position Tracker<br/>4 Built-in Strategies] --> O
+        R[ShareKhan Data Mapper<br/>Comprehensive Data Integration] --> O
+        S[Enhanced Base Classes<br/>Debugging + Monitoring] --> O
     end
     
-    subgraph "External Integrations"
-        S[ShareKhan API] --> T[Authentication]
-        S --> U[Account Balance]
-        S --> V[Real Positions]
-        S --> W[Trade Execution]
-        S --> X[Market Data Feed]
-        S --> Y[P&L Reports]
+    subgraph "ShareKhan External Integration"
+        T[ShareKhan API] --> U[Daily Authentication<br/>Request Token Flow]
+        T --> V[Account Balance<br/>Funds + Margin]
+        T --> W[Real Positions<br/>Live Holdings + P&L]
+        T --> X[Trade Execution<br/>Orders + Confirmations]
+        T --> Y[Market Data Feed<br/>Real-time Quotes]
+        T --> Z[Comprehensive Reports<br/>Trades + P&L + Funds]
     end
     
     subgraph "Database Layer"
-        Z[Users Table] --> AA[Positions Table]
-        AA --> BB[Orders Table]
-        BB --> CC[Trades Table]
-        CC --> DD[Market Data Table]
-        DD --> EE[Audit Logs Table]
+        AA[Users Table] --> BB[Positions Table]
+        BB --> CC[Orders Table]
+        CC --> DD[Trades Table]
+        DD --> EE[Market Data Table]
+        EE --> FF[Audit Logs Table]
+        FF --> GG[Strategy Recommendations Table]
     end
     
-    subgraph "Background Services"
-        FF[Real-time Price Updates] --> GG[Position P&L Calculator]
-        GG --> HH[Risk Monitor]
-        HH --> II[Auto Square-off Manager]
-        II --> JJ[Performance Analytics]
+    subgraph "Enhanced Background Services"
+        HH[Real-time Price Updates<br/>5-second intervals] --> II[Strategy Analysis<br/>30-second intervals]
+        II --> JJ[Position P&L Calculator<br/>Continuous]
+        JJ --> KK[Risk Monitor<br/>Multi-strategy]
+        KK --> LL[Auto Recommendation Execution<br/>With Approval]
+        LL --> MM[Performance Analytics<br/>Enhanced Metrics]
+    end
+    
+    subgraph "Authentication & Diagnostics"
+        NN[Daily Auth Sessions<br/>24-hour tokens] --> OO[Session Management<br/>Multi-user]
+        PP[Connection Diagnostics<br/>Real-time monitoring] --> QQ[Data Flow Tracing<br/>Pipeline analysis]
+        RR[Live Data Testing<br/>Symbol-by-symbol] --> SS[Auto-fixing<br/>Self-healing]
     end
     
     %% Frontend to API connections
-    A --> F
+    A --> G
     B --> I
-    C --> H
-    D --> F
-    E --> J
+    C --> P
+    D --> H
+    E --> R
+    F --> Q
     
-    %% API to Core Services connections
-    F --> O
-    G --> M
+    %% Enhanced API connections
     G --> N
-    H --> M
-    I --> N
-    J --> P
-    K --> N
-    L --> N
+    G --> P
+    G --> Q
+    G --> R
+    I --> NN
+    I --> OO
+    J --> PP
+    J --> QQ
+    J --> RR
+    J --> SS
     
-    %% Core Services to External APIs
-    M --> S
-    N --> S
-    P --> S
+    %% Core Services to Enhanced Orchestrator
+    N --> O
+    P --> O
+    Q --> O
+    R --> O
+    S --> O
     
-    %% Core Services to Database
-    M --> Z
-    N --> AA
-    O --> Z
+    %% Enhanced Services to ShareKhan
+    O --> T
+    N --> T
+    P --> T
+    Q --> T
+    R --> T
     
-    %% Background Services connections
-    FF --> S
-    GG --> AA
-    HH --> Q
-    II --> W
-    JJ --> CC
+    %% Authentication Flow
+    I --> U
+    NN --> U
+    OO --> U
     
-    %% Data Flow Arrows
-    S -.->|Real Data| M
-    M -.->|Sync Positions| AA
-    N -.->|Execute Orders| W
-    W -.->|Order Updates| BB
-    BB -.->|Trade Records| CC
+    %% Enhanced Database Integration
+    P --> BB
+    N --> CC
+    Q --> GG
+    R --> DD
+    O --> AA
+    
+    %% Enhanced Background Services
+    HH --> Y
+    II --> Q
+    JJ --> BB
+    KK --> P
+    LL --> X
+    MM --> EE
+    
+    %% Data Flow Arrows (Enhanced)
+    T -.->|Real Data + Auth| R
+    R -.->|Parsed Data| P
+    P -.->|Live Positions| BB
+    Q -.->|Strategy Signals| GG
+    N -.->|Validated Orders| CC
+    O -.->|Coordinated Execution| X
+    
+    %% Diagnostic Flow
+    PP -.->|Health Monitoring| O
+    QQ -.->|Pipeline Analysis| R
+    RR -.->|Data Validation| T
+    SS -.->|Auto Recovery| O
     
     %% Styling
     classDef frontend fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     classDef api fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef core fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef enhanced fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
     classDef external fill:#fff3e0,stroke:#f57c00,stroke-width:2px
     classDef database fill:#fce4ec,stroke:#c2185b,stroke-width:2px
     classDef background fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+    classDef auth fill:#fff8e1,stroke:#ff8f00,stroke-width:2px
     
-    class A,B,C,D,E frontend
-    class F,G,H,I,J,K,L api
-    class M,N,O,P,Q,R core
-    class S,T,U,V,W,X,Y external
-    class Z,AA,BB,CC,DD,EE database
-    class FF,GG,HH,II,JJ background
+    class A,B,C,D,E,F frontend
+    class G,H,I,J,K,L,M api
+    class N,O,P,Q,R,S enhanced
+    class T,U,V,W,X,Y,Z external
+    class AA,BB,CC,DD,EE,FF,GG database
+    class HH,II,JJ,KK,LL,MM background
+    class NN,OO,PP,QQ,RR,SS auth
 ```
 
 ## 🏗️ Technical Architecture & Infrastructure
@@ -136,6 +174,9 @@ graph LR
             ROUTES --> R3["/api/autonomous<br/>Trading Control"]
             ROUTES --> R4["/api/market<br/>Market Data"]
             ROUTES --> R5["/api/sharekhan<br/>Broker Integration"]
+            ROUTES --> R6["/api/enhanced<br/>Enhanced Trading API"]
+            ROUTES --> R7["/api/sharekhan-auth<br/>Daily Authentication"]
+            ROUTES --> R8["/api/data-diagnostics<br/>Live Data Debugging"]
         end
     end
     
@@ -145,10 +186,16 @@ graph LR
         R3 --> TC[Trading Controller<br/>Order Management]
         R4 --> MD[Market Data Manager<br/>Real-time Feeds]
         R5 --> SK[ShareKhan Integration<br/>Broker API Client]
+        R6 --> ET[Enhanced Trading Manager<br/>14 Comprehensive Features]
+        R7 --> DA[Daily Auth Manager<br/>24-hour Session Management]
+        R8 --> DD[Data Diagnostics Manager<br/>Real-time Debugging]
         
-        SF --> PM[Position Manager<br/>Real Position Sync]
-        SF --> TO[Trading Orchestrator<br/>ShareKhan Operations]
-        SF --> RM[Risk Manager<br/>Real-time Monitoring]
+        SF --> PM[Enhanced Position Manager<br/>Real-time P&L + Analytics]
+        SF --> TO[Enhanced ShareKhan Orchestrator<br/>Coordinated Operations]
+        SF --> RM[Multi-Strategy Risk Manager<br/>Real-time Monitoring]
+        SF --> ODM[Order Deduplication Manager<br/>SHA256 + Rate Limiting]
+        SF --> SPT[Strategy Position Tracker<br/>4 Built-in Strategies]
+        SF --> SDM[ShareKhan Data Mapper<br/>Comprehensive Integration]
     end
     
     subgraph "External APIs"

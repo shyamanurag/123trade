@@ -634,7 +634,7 @@ async def get_sharekhan_manual_auth_url():
     """Get ShareKhan authorization URL for manual token extraction"""
     try:
         api_key = os.getenv('SHAREKHAN_API_KEY')  # Use actual production key
-        auth_url = f"https://kite.sharekhan.com/connect/login?api_key={api_key}"
+        auth_url = f"https://newtrade.sharekhan.com/api/login?api_key={api_key}"
         
         return {
             "success": True,

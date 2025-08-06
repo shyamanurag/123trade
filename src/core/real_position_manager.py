@@ -22,8 +22,8 @@ class RealPositionManager:
     async def initialize(self):
         """Initialize position manager"""
         try:
-            from src.core.database import get_database_session
-            self.db_session = get_database_session()
+            from src.core.database import db_manager
+            self.db_session = db_manager.get_shared_session()
             
             if not self.db_session:
                 raise RuntimeError("Database connection not available")

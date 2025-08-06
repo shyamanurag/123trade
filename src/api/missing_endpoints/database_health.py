@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import text
-from src.core.database import get_database_session
+from src.core.database import db_manager
 import asyncio
 
 router = APIRouter()
@@ -10,7 +10,7 @@ async def get_database_health():
     """Check database health and connection"""
     try:
         # Get database session from the correct module
-        session = get_database_session()
+        session = db_manager.get_shared_session()
         
         # Test basic query
         result = session.execute(text("SELECT 1"))

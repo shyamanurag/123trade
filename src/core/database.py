@@ -175,12 +175,12 @@ class DatabaseManager:
                     logger.info("✅ Database schema created successfully")
                 
                 # Always ensure PAPER_TRADER_001 user exists for autonomous operation
-                # FIXED: Use correct schema with id as primary key, not user_id
+                # FIXED: Remove sharekhan_client_id from INSERT to avoid column missing error
                 conn.execute(text("""
                     INSERT INTO users (username, email, password_hash, broker_user_id, is_active, trading_enabled, 
-                                     full_name, initial_capital, current_balance, sharekhan_client_id)
+                                     full_name, initial_capital, current_balance)
                     VALUES ('PAPER_TRADER_001', 'paper.trader@algoauto.com', 'dummy_hash', 'QSW899', true, true,
-                           'Autonomous Paper Trader', 100000.00, 100000.00, 'QSW899')
+                           'Autonomous Paper Trader', 100000.00, 100000.00)
                     ON CONFLICT (username) DO UPDATE SET
                         broker_user_id = EXCLUDED.broker_user_id,
                         is_active = true,

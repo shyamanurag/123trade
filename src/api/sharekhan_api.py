@@ -128,9 +128,9 @@ async def generate_auth_url(request: Dict[str, str]):
         api_key = os.getenv('SHAREKHAN_API_KEY')
         redirect_uri = "https://trade123-edtd2.ondigitalocean.app/auth/sharekhan/callback"
         
-        # Generate real ShareKhan auth URL
+        # Generate real ShareKhan auth URL (CORRECTED: using newtrade.sharekhan.com)
         state = str(uuid.uuid4())
-        auth_url = f"https://kite.sharekhan.com/connect/login?api_key={api_key}&redirect_uri={redirect_uri}&state={state}"
+        auth_url = f"https://newtrade.sharekhan.com/api/login?api_key={api_key}&redirect_uri={redirect_uri}&state={state}"
         
         logger.info(f"Generated ShareKhan auth URL for user {user_id}")
         

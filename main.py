@@ -366,6 +366,22 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Enhanced Trading API not loaded: {e}")
 
+# ShareKhan Daily Authentication API (NEW - daily token management)
+try:
+    from src.api.sharekhan_daily_auth import router as sharekhan_auth_router
+    app.include_router(sharekhan_auth_router, prefix="/api/sharekhan-auth", tags=["sharekhan-auth"])
+    logger.info("✅ ShareKhan Daily Auth API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ ShareKhan Daily Auth API not loaded: {e}")
+
+# ShareKhan Data Diagnostics API (NEW - live data debugging)
+try:
+    from src.api.sharekhan_data_diagnostics import router as data_diagnostics_router
+    app.include_router(data_diagnostics_router, prefix="/api/data-diagnostics", tags=["data-diagnostics"])
+    logger.info("✅ ShareKhan Data Diagnostics API loaded")
+except Exception as e:
+    logger.warning(f"⚠️ ShareKhan Data Diagnostics API not loaded: {e}")
+
 # Frontend API (fallback compatibility)
 try:
     from src.api.frontend_api import router as frontend_router
