@@ -1,93 +1,172 @@
 """
 ShareKhan Authentication Callback Endpoint
-Handles the redirect from ShareKhan API authentication flow
+Real production flow: handle redirect, exchange token, update orchestrator
 """
 
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse
 import logging
 import os
+import urllib.parse
+
+from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+from src.api.sharekhan_daily_auth import DailyAuthSession, get_session_key, daily_auth_sessions
+from brokers.sharekhan import ShareKhanIntegration
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+async def get_orchestrator() -> ShareKhanTradingOrchestrator:
+    return await ShareKhanTradingOrchestrator.get_instance()
+
+
 @router.get("/auth/sharekhan/callback")
-async def sharekhan_auth_callback(request: Request, code: str = None, error: str = None):
+async def sharekhan_auth_callback(
+    request: Request,
+    code: str | None = None,
+    request_token: str | None = None,
+    error: str | None = None,
+    state: str | None = None,
+    orchestrator: ShareKhanTradingOrchestrator = Depends(get_orchestrator),
+):
     """
     Handle ShareKhan authentication callback
-    This endpoint receives the authorization code from ShareKhan
+    - Accepts either request_token (preferred) or code
+    - Exchanges for access/session tokens
+    - Updates orchestrator and in-memory session for immediate production use
     """
     try:
+        # Error from provider
         if error:
             logger.error(f"ShareKhan authentication error: {error}")
-            return HTMLResponse(f"""
+            return HTMLResponse(
+                f"""
+                <html>
+                    <body>
+                        <h2>❌ ShareKhan Authentication Failed</h2>
+                        <p>Error: {error}</p>
+                        <p>Please try authenticating again.</p>
+                    </body>
+                </html>
+                """,
+                status_code=400,
+            )
+
+        # Prefer request_token; if only code provided, use it as request_token
+        token_from_provider = request_token or code
+        if not token_from_provider:
+            # Try to parse from full query string just in case
+            qs = urllib.parse.urlparse(str(request.url)).query
+            params = urllib.parse.parse_qs(qs)
+            token_from_provider = (
+                (params.get("request_token") or params.get("code") or [None])[0]
+            )
+
+        if not token_from_provider:
+            logger.error("No request_token/code received from ShareKhan")
+            raise HTTPException(status_code=400, detail="request_token not received")
+
+        logger.info("✅ Received ShareKhan callback token (masked)")
+
+        # Prepare client credentials
+        api_key = os.getenv("SHAREKHAN_API_KEY")
+        api_secret = os.getenv("SHAREKHAN_SECRET_KEY")
+        client_id = os.getenv("SHAREKHAN_CUSTOMER_ID")
+        if not api_key or not api_secret or not client_id:
+            raise HTTPException(status_code=500, detail="ShareKhan credentials not configured")
+
+        # Exchange token with ShareKhan
+        sk = ShareKhanIntegration(api_key=api_key, secret_key=api_secret, customer_id=client_id)
+        auth_ok = await sk.authenticate(request_token=token_from_provider)
+        if not auth_ok or not sk.access_token or not sk.session_token:
+            raise HTTPException(status_code=401, detail="ShareKhan authentication failed during token exchange")
+
+        # Update orchestrator (global production session)
+        try:
+            if orchestrator and orchestrator.sharekhan_integration:
+                orchestrator.sharekhan_integration.access_token = sk.access_token
+                orchestrator.sharekhan_integration.session_token = sk.session_token
+                orchestrator.sharekhan_integration.is_authenticated = True
+                logger.info("✅ Orchestrator updated with ShareKhan tokens")
+        except Exception as e:
+            logger.warning(f"Could not update orchestrator tokens: {e}")
+
+        # Persist in in-memory daily session for default user context (if state carries user info we could use it)
+        try:
+            default_user_id = int(os.getenv("DEFAULT_USER_ID", "1"))
+            session_key = get_session_key(default_user_id, client_id)
+            daily_auth_sessions[session_key] = DailyAuthSession(
+                user_id=default_user_id,
+                sharekhan_client_id=client_id,
+                request_token=token_from_provider,
+                access_token=sk.access_token,
+                session_token=sk.session_token,
+                authenticated_at=None,
+                expires_at=None,
+                is_valid=True,
+                last_error=None,
+            )
+        except Exception as e:
+            logger.warning(f"Could not store daily session: {e}")
+
+        # Render minimal success page and auto-close
+        return HTMLResponse(
+            """
             <html>
-                <body>
-                    <h2>❌ ShareKhan Authentication Failed</h2>
-                    <p>Error: {error}</p>
-                    <p>Please try authenticating again.</p>
-                    <a href="/auth/sharekhan">Retry Authentication</a>
-                </body>
-            </html>
-            """)
-        
-        if not code:
-            logger.error("No authorization code received from ShareKhan")
-            raise HTTPException(status_code=400, detail="Authorization code not received")
-        
-        logger.info(f"✅ Received ShareKhan authorization code: {code[:10]}...")
-        
-        # Store the authorization code for session generation
-        # You'll use this code to generate access token
-        
-        return HTMLResponse(f"""
-        <html>
-            <body>
-                <h2>✅ ShareKhan Authentication Successful!</h2>
-                <p>Authorization code received successfully.</p>
-                <p>Code: <code>{code}</code></p>
-                <p>You can now close this window and return to your application.</p>
+              <body>
+                <h2>✅ ShareKhan Authentication Successful</h2>
+                <p>You can close this window and return to the app.</p>
                 <script>
-                    // Auto-close window after 3 seconds
-                    setTimeout(() => window.close(), 3000);
+                  try { window.opener && window.opener.postMessage({ type: 'SHAREKHAN_AUTH_SUCCESS' }, '*'); } catch (e) {}
+                  setTimeout(() => window.close(), 1500);
                 </script>
-            </body>
-        </html>
-        """)
-        
+              </body>
+            </html>
+            """
+        )
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in ShareKhan callback: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/auth/sharekhan")
 async def sharekhan_auth_redirect():
-    """
-    Redirect user to ShareKhan authentication
-    """
+    """Serve a page with a link to ShareKhan auth using production callback URL."""
     try:
-        # ShareKhan authentication URL
-        api_key = os.getenv('SHAREKHAN_API_KEY')
+        api_key = os.getenv("SHAREKHAN_API_KEY")
         if not api_key:
             raise HTTPException(status_code=500, detail="ShareKhan API key not configured")
-        
-        # Build ShareKhan auth URL
-        redirect_uri = "http://127.0.0.1:8000/auth/sharekhan/callback"
-        sharekhan_auth_url = f"https://newtrade.sharekhan.com/authorize?api_key={api_key}&redirect_uri={redirect_uri}"
-        
-        return HTMLResponse(f"""
-        <html>
-            <body>
+
+        # Determine public base URL for callback
+        public_base = os.getenv(
+            "PUBLIC_BASE_URL", "https://trade123-edtd2.ondigitalocean.app"
+        ).rstrip("/")
+        redirect_uri = f"{public_base}/auth/sharekhan/callback"
+
+        # Use newtrade sharekhan login endpoint; include state
+        import uuid
+        state = str(uuid.uuid4())
+        sharekhan_auth_url = (
+            f"https://newtrade.sharekhan.com/api/login?api_key={api_key}&redirect_uri={urllib.parse.quote(redirect_uri)}&state={state}&response_type=code"
+        )
+
+        return HTMLResponse(
+            f"""
+            <html>
+              <body>
                 <h2>🔐 ShareKhan Authentication</h2>
-                <p>Click the button below to authenticate with ShareKhan:</p>
-                <a href="{sharekhan_auth_url}" target="_blank" 
-                   style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-                   Authenticate with ShareKhan
-                </a>
-                <p><small>You will be redirected to ShareKhan's secure login page.</small></p>
-            </body>
-        </html>
-        """)
-        
+                <p>Click below to authenticate with ShareKhan:</p>
+                <a href="{sharekhan_auth_url}" target="_blank" style="display:inline-block;padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:6px;">Authenticate with ShareKhan</a>
+                <p><small>You'll be redirected to ShareKhan's secure login portal.</small></p>
+              </body>
+            </html>
+            """
+        )
+
     except Exception as e:
         logger.error(f"Error initiating ShareKhan auth: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))
