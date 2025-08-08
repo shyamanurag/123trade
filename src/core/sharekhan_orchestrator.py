@@ -16,6 +16,8 @@ import redis.asyncio as redis
 # ShareKhan components
 from brokers.sharekhan import ShareKhanIntegration, ShareKhanOrder, ShareKhanMarketData
 from src.feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanShareKhanCompatibility
+from src.core.market_directional_bias import MarketDirectionalBias
+from src.core.signal_deduplicator import signal_deduplicator
 from .multi_user_sharekhan_manager import MultiUserShareKhanManager, UserRole, TradingPermission
 
 # ShareKhan service components
@@ -63,6 +65,8 @@ class ShareKhanTradingOrchestrator:
         self.sharekhan_feed: Optional[ShareKhanDataFeed] = None
         self.multi_user_manager: Optional[MultiUserShareKhanManager] = None
         self.sharekhan_compatibility: Optional[ShareKhanShareKhanCompatibility] = None
+        # Market bias engine
+        self.market_bias: Optional[MarketDirectionalBias] = MarketDirectionalBias()
         
         # CRITICAL FIX: Add missing service components for API compatibility
         self.trade_engine: Optional[Any] = None
@@ -290,6 +294,12 @@ class ShareKhanTradingOrchestrator:
             
             # Performance monitoring task
             asyncio.create_task(self._performance_monitoring_task())
+
+            # Ensure deduplicator startup cleanup
+            try:
+                asyncio.create_task(signal_deduplicator.ensure_startup_cleanup())
+            except Exception as _:
+                pass
             
             logger.info("✅ Background tasks started")
             
@@ -520,6 +530,56 @@ class ShareKhanTradingOrchestrator:
         except Exception as e:
             logger.error(f"Error subscribing to symbols: {e}")
             return {"success": False, "message": str(e)}
+
+    async def process_strategy_signals(self, signals: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Process incoming strategy signals with market bias and deduplication.
+        Expects signals having at least: symbol, action(BUY/SELL), entry_price, stop_loss, target, confidence(0-10).
+        """
+        try:
+            # Update bias from current live data if available
+            try:
+                if self.sharekhan_integration and self.sharekhan_integration.live_market_data:
+                    await self.market_bias.update_market_bias(self._convert_live_data_for_bias())
+            except Exception as _:
+                pass
+
+            # Normalize confidence to 0-1 expected by bias gate
+            normalized = []
+            for s in signals:
+                c = s.get("confidence", 0)
+                try:
+                    c = float(c)
+                except Exception:
+                    c = 0.0
+                s["confidence"] = c
+                normalized.append(s)
+
+            # Apply pre-execution deduplication and quality filter
+            filtered = await signal_deduplicator.process_signals(normalized)
+            return {"success": True, "signals": filtered, "bias": self.market_bias.get_current_bias_summary()}
+        except Exception as e:
+            logger.error(f"Error processing strategy signals: {e}")
+            return {"success": False, "error": str(e)}
+
+    def _convert_live_data_for_bias(self) -> Dict[str, Any]:
+        """Convert ShareKhan live data into bias engine friendly dict."""
+        converted: Dict[str, Any] = {}
+        try:
+            for symbol, md in self.sharekhan_integration.live_market_data.items():
+                converted[symbol] = {
+                    "ltp": getattr(md, "ltp", 0.0),
+                    "open": getattr(md, "open", 0.0),
+                    "close": getattr(md, "close", 0.0),
+                    "high": getattr(md, "high", 0.0),
+                    "low": getattr(md, "low", 0.0),
+                    "volume": getattr(md, "volume", 0),
+                    "change_percent": getattr(md, "ltp", 0.0) and (getattr(md, "ltp", 0.0) - getattr(md, "open", 0.0)) / (getattr(md, "open", 1.0) or 1.0) * 100.0,
+                    "price_change": getattr(md, "ltp", 0.0) - getattr(md, "close", 0.0),
+                    "prev_close": getattr(md, "close", 0.0),
+                }
+        except Exception:
+            pass
+        return converted
 
     async def get_live_data(self, symbols: List[str] = None) -> Dict[str, Any]:
         """Get live market data"""
