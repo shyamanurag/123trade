@@ -535,12 +535,14 @@ class EnhancedPositionManager:
     async def _load_positions_from_db(self):
         """Load existing positions from database"""
         try:
-            query = """
+            from sqlalchemy import text
+            query = text(
+                """
                 SELECT * FROM positions 
                 WHERE status IN ('OPEN', 'PARTIAL')
                 ORDER BY created_at DESC
-            """
-            
+                """
+            )
             result = self.db_session.execute(query)
             rows = result.fetchall()
             
@@ -590,11 +592,14 @@ class EnhancedPositionManager:
     async def _upsert_position_to_db(self, position: Position) -> bool:
         """Insert or update position in database"""
         try:
-            upsert_query = """
+            from sqlalchemy import text
+            upsert_query = text(
+                """
                 INSERT INTO positions (
                     user_id, symbol, exchange, quantity, entry_price, current_price,
                     side, status, entry_time, unrealized_pnl, strategy, created_at, updated_at
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (:user_id, :symbol, :exchange, :quantity, :entry_price, :current_price,
+                    :side, :status, :entry_time, :unrealized_pnl, :strategy, :created_at, :updated_at)
                 ON CONFLICT (user_id, symbol) DO UPDATE SET
                     quantity = EXCLUDED.quantity,
                     current_price = EXCLUDED.current_price,
@@ -602,23 +607,24 @@ class EnhancedPositionManager:
                     status = EXCLUDED.status,
                     updated_at = EXCLUDED.updated_at
                 RETURNING position_id
-            """
-            
-            data = (
-                position.user_id,
-                position.symbol,
-                position.exchange,
-                position.quantity,
-                float(position.entry_price),
-                float(position.current_price),
-                position.side,
-                position.status,
-                position.entry_time,
-                float(position.unrealized_pnl),
-                position.strategy,
-                position.created_at,
-                position.updated_at
+                """
             )
+            
+            data = {
+                'user_id': position.user_id,
+                'symbol': position.symbol,
+                'exchange': position.exchange,
+                'quantity': position.quantity,
+                'entry_price': float(position.entry_price),
+                'current_price': float(position.current_price),
+                'side': position.side,
+                'status': position.status,
+                'entry_time': position.entry_time,
+                'unrealized_pnl': float(position.unrealized_pnl),
+                'strategy': position.strategy,
+                'created_at': position.created_at,
+                'updated_at': position.updated_at,
+            }
             
             result = self.db_session.execute(upsert_query, data)
             position_id = result.fetchone()
@@ -639,25 +645,27 @@ class EnhancedPositionManager:
             if not position.position_id:
                 return await self._upsert_position_to_db(position)
             
-            update_query = """
+            from sqlalchemy import text
+            update_query = text(
+                """
                 UPDATE positions SET
-                    quantity = %s,
-                    current_price = %s,
-                    unrealized_pnl = %s,
-                    status = %s,
-                    updated_at = %s
-                WHERE position_id = %s
-            """
-            
-            data = (
-                position.quantity,
-                float(position.current_price),
-                float(position.unrealized_pnl),
-                position.status,
-                datetime.now(),
-                position.position_id
+                    quantity = :quantity,
+                    current_price = :current_price,
+                    unrealized_pnl = :unrealized_pnl,
+                    status = :status,
+                    updated_at = :updated_at
+                WHERE position_id = :position_id
+                """
             )
             
+            data = {
+                'quantity': position.quantity,
+                'current_price': float(position.current_price),
+                'unrealized_pnl': float(position.unrealized_pnl),
+                'status': position.status,
+                'updated_at': datetime.now(),
+                'position_id': position.position_id,
+            }
             self.db_session.execute(update_query, data)
             self.db_session.commit()
             return True

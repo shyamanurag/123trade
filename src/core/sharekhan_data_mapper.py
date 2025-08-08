@@ -153,13 +153,14 @@ class ShareKhanDataMapper:
     async def initialize(self) -> bool:
         """Initialize data mapper"""
         try:
-                    if not self.sharekhan_client or not hasattr(self.sharekhan_client, 'is_authenticated') or not self.sharekhan_client.is_authenticated:
-            logger.warning("ShareKhan client not authenticated - initializing without authentication check")
-            # Continue initialization for offline/testing mode
-            
+            if (not self.sharekhan_client or
+                not hasattr(self.sharekhan_client, 'is_authenticated') or
+                not self.sharekhan_client.is_authenticated):
+                logger.warning("ShareKhan client not authenticated - initializing without authentication check")
+
             # Start background data refresh
             self.data_refresh_task = asyncio.create_task(self._background_data_refresh())
-            
+
             logger.info("✅ ShareKhan Data Mapper fully initialized")
             return True
             
