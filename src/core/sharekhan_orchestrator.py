@@ -126,6 +126,13 @@ class ShareKhanTradingOrchestrator:
             
             # 6. Initialize legacy service components for API compatibility
             await self._initialize_services()
+
+            # 7. Expose this instance for legacy access points
+            try:
+                from src.core.orchestrator import set_orchestrator_instance
+                set_orchestrator_instance(self)
+            except Exception:
+                pass
             
             self.is_initialized = True
             self.health_status = "ready"
@@ -556,6 +563,13 @@ class ShareKhanTradingOrchestrator:
 
             # Apply pre-execution deduplication and quality filter
             filtered = await signal_deduplicator.process_signals(normalized)
+
+            # Mark approved signals as executed to prevent duplicates when routed externally
+            try:
+                for s in filtered:
+                    await signal_deduplicator.mark_signal_executed(s)
+            except Exception:
+                pass
             return {"success": True, "signals": filtered, "bias": self.market_bias.get_current_bias_summary()}
         except Exception as e:
             logger.error(f"Error processing strategy signals: {e}")

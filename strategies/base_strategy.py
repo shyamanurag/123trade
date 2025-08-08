@@ -835,17 +835,30 @@ class BaseStrategy:
     async def send_to_trade_engine(self, signal: Dict):
         """Send signal to trade engine for execution"""
         try:
-            # Get orchestrator instance and send signal to trade engine
-            from src.core.orchestrator import get_orchestrator
-            orchestrator = await get_orchestrator()
-            
-            if orchestrator and hasattr(orchestrator, 'trade_engine') and orchestrator.trade_engine:
+            # Route to primary ShareKhan orchestrator; fallback to legacy
+            try:
+                from src.core.orchestrator import get_orchestrator
+                orchestrator = await get_orchestrator()
+            except Exception:
+                orchestrator = None
+
+            if orchestrator and getattr(orchestrator, 'trade_engine', None):
                 await orchestrator.trade_engine.process_signals([signal])
                 logger.info(f"✅ Signal sent to trade engine: {signal['symbol']} {signal['action']}")
                 return True
-            else:
-                logger.error(f"❌ Trade engine not available for signal: {signal['symbol']}")
+
+            # Fallback to ShareKhan API path if no trade engine, preserving production behavior
+            if orchestrator and hasattr(orchestrator, 'process_strategy_signals'):
+                result = await orchestrator.process_strategy_signals([signal])
+                ok = bool(result and result.get('success'))
+                if ok:
+                    logger.info(f"✅ Signal processed via ShareKhan orchestrator path: {signal['symbol']} {signal['action']}")
+                    return True
+                logger.error(f"❌ Signal rejected by orchestrator: {signal.get('symbol')}")
                 return False
+
+            logger.error(f"❌ Trade engine/orchestrator not available for signal: {signal.get('symbol','?')}")
+            return False
                 
         except Exception as e:
             logger.error(f"Error sending signal to trade engine: {e}")

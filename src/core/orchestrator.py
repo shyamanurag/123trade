@@ -2137,21 +2137,30 @@ class TradingOrchestrator:
 
 
 # Global function to get orchestrator instance
-async def get_orchestrator() -> TradingOrchestrator:
-    """Get the singleton TradingOrchestrator instance"""
-    return await TradingOrchestrator.get_instance()
+async def get_orchestrator():
+    """Return the primary orchestrator (ShareKhanTradingOrchestrator).
+
+    This keeps legacy imports working in strategies while routing
+    to the production ShareKhan orchestrator singleton.
+    """
+    try:
+        from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
+        return await ShareKhanTradingOrchestrator.get_instance()
+    except Exception:
+        # Fallback to legacy if ShareKhan orchestrator is unavailable
+        return await TradingOrchestrator.get_instance()
 
 
 # Global variable to store orchestrator instance
 _orchestrator_instance = None
 
 
-def set_orchestrator_instance(instance: Optional[TradingOrchestrator]):
-    """Set the global orchestrator instance"""
+def set_orchestrator_instance(instance):
+    """Set the global orchestrator instance (accepts any orchestrator type)"""
     global _orchestrator_instance
     _orchestrator_instance = instance
 
 
-def get_orchestrator_instance() -> Optional[TradingOrchestrator]:
-    """Get the global orchestrator instance"""
+def get_orchestrator_instance():
+    """Get the global orchestrator instance (ShareKhan or legacy)"""
     return _orchestrator_instance

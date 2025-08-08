@@ -18,7 +18,12 @@ import time # Added for retry logic
 sys.path.insert(0, os.path.abspath('.'))
 
 # Import symbol mapping for ShareKhan
-from config.sharekhan_symbols import get_sharekhan_symbol
+try:
+    from config.sharekhan_symbols import get_sharekhan_symbol
+except Exception:
+    # Minimal fallback mapping to avoid runtime failure when config is missing
+    def get_sharekhan_symbol(symbol: str) -> str:
+        return symbol
 
 # Configure logging
 logger = logging.getLogger(__name__)

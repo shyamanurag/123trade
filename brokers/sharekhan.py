@@ -205,8 +205,15 @@ class ShareKhanIntegration:
                 "X-Session-Token": self.session_token
             }
             
-            # Convert order to ShareKhan format
-            payload = asdict(order)
+            # Convert order to ShareKhan format (accept both dataclass and dict)
+            try:
+                payload = asdict(order)
+            except Exception:
+                # If already a dict, use as-is
+                if isinstance(order, dict):
+                    payload = order
+                else:
+                    raise
             
             async with self.request_semaphore:
                 response = requests.post(url, headers=headers, json=payload)

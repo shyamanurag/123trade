@@ -185,7 +185,13 @@ class MarketDataManager:
         try:
             # Import ShareKhan client and symbol mapping
             from data.sharekhan_client import live_market_data, subscribe_to_symbols
-            from config.sharekhan_symbols import get_sharekhan_symbol, is_premium_data, validate_options_premium, _is_options_symbol
+            try:
+                from config.sharekhan_symbols import get_sharekhan_symbol, is_premium_data, validate_options_premium, _is_options_symbol
+            except Exception:
+                def get_sharekhan_symbol(symbol: str) -> str: return symbol
+                def is_premium_data(symbol: str) -> bool: return False
+                def validate_options_premium(symbol: str, premium: float) -> bool: return True
+                def _is_options_symbol(symbol: str) -> bool: return 'CE' in symbol or 'PE' in symbol
             
             # STEP 1: Convert to proper ShareKhan symbol format
             sharekhan_symbol = get_sharekhan_symbol(symbol)
@@ -421,7 +427,10 @@ class MarketDataManager:
         """Auto-subscribe to symbols that aren't already subscribed - FIXED TO PREVENT CONNECTION CONFLICTS"""
         try:
             from data.sharekhan_client import live_market_data
-            from config.sharekhan_symbols import get_sharekhan_symbol
+            try:
+                from config.sharekhan_symbols import get_sharekhan_symbol
+            except Exception:
+                def get_sharekhan_symbol(symbol: str) -> str: return symbol
             
             # Find missing symbols
             subscribed_symbols = set(live_market_data.keys())
