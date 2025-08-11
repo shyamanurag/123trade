@@ -142,7 +142,7 @@ async def generate_daily_auth_url(user_id: int, redirect_uri: Optional[str] = No
         
         # ShareKhan authorization URL (CORRECTED: using newtrade.sharekhan.com)
         auth_url = (
-            "https://newtrade.sharekhan.com/api/login"
+            "https://api.sharekhan.com/skapi/login"
             f"?api_key={api_key}"
             f"&redirect_uri={urllib.parse.quote(redirect_uri, safe='')}"
             f"&redirect_url={urllib.parse.quote(redirect_uri, safe='')}"
