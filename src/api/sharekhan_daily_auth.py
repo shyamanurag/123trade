@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from src.core.dependencies import get_orchestrator
 from src.config.database import get_redis
+import urllib.parse
 from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
 from brokers.sharekhan import ShareKhanIntegration
 
@@ -131,15 +132,22 @@ async def generate_daily_auth_url(request: AuthUrlRequest):
         if not api_key:
             raise HTTPException(status_code=500, detail="ShareKhan API key not configured")
         
-        # Use provided redirect URI or default
-        redirect_uri = request.redirect_uri or "https://trade123-edtd2.ondigitalocean.app/auth/sharekhan/callback"
+        # Use provided redirect URI or default from PUBLIC_BASE_URL
+        public_base = os.getenv('PUBLIC_BASE_URL', 'https://trade123-edtd2.ondigitalocean.app').rstrip('/')
+        redirect_uri = request.redirect_uri or f"{public_base}/auth/sharekhan/callback"
         
         # Generate state parameter for security
         import uuid
         state = str(uuid.uuid4())
         
         # ShareKhan authorization URL (CORRECTED: using newtrade.sharekhan.com)
-        auth_url = f"https://newtrade.sharekhan.com/api/login?api_key={api_key}&redirect_uri={redirect_uri}&state={state}&response_type=code"
+        auth_url = (
+            "https://newtrade.sharekhan.com/api/login"
+            f"?api_key={api_key}"
+            f"&redirect_uri={urllib.parse.quote(redirect_uri, safe='')}"
+            f"&state={state}"
+            f"&response_type=code"
+        )
         
         logger.info(f"🔗 Generated daily auth URL for user {request.user_id}")
         

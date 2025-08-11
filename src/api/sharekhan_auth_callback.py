@@ -171,8 +171,9 @@ async def sharekhan_auth_redirect():
         # Use newtrade sharekhan login endpoint; include state
         import uuid
         state = str(uuid.uuid4())
+        from urllib.parse import quote as _quote
         sharekhan_auth_url = (
-            f"https://newtrade.sharekhan.com/api/login?api_key={api_key}&redirect_uri={urllib.parse.quote(redirect_uri)}&state={state}&response_type=code"
+            f"https://newtrade.sharekhan.com/api/login?api_key={api_key}&redirect_uri={_quote(redirect_uri, safe='')}&state={state}&response_type=code"
         )
 
         return HTMLResponse(
