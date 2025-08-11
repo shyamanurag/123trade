@@ -276,6 +276,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ ShareKhan API not loaded: {e}")
 
+# ShareKhan OAuth/Callback routes (CRITICAL for saving tokens)
+try:
+    from src.api.sharekhan_auth_callback import router as sharekhan_auth_router
+    app.include_router(sharekhan_auth_router, tags=["sharekhan-auth"])
+    logger.info("✅ ShareKhan Auth Callback routes loaded")
+except Exception as e:
+    logger.warning(f"⚠️ ShareKhan Auth Callback routes not loaded: {e}")
+
 # Dashboard API v1 (NEW for React frontend)
 try:
     from src.api.dashboard_api_v1 import router as dashboard_v1_router
