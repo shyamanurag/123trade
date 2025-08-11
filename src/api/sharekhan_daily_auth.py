@@ -186,7 +186,7 @@ async def submit_daily_token(
         
         # Get ShareKhan credentials
         api_key = request.api_key or os.getenv('SHAREKHAN_API_KEY')
-        api_secret = request.api_secret or os.getenv('SHAREKHAN_SECRET_KEY')
+        api_secret = request.api_secret or os.getenv('SHAREKHAN_API_SECRET') or os.getenv('SHAREKHAN_SECRET_KEY')
         
         if not api_key or not api_secret:
             raise HTTPException(
@@ -476,7 +476,7 @@ async def get_authenticated_sharekhan_client(user_id: int, client_id: str) -> Op
         # Create authenticated client
         sharekhan_client = ShareKhanIntegration(
             api_key=os.getenv('SHAREKHAN_API_KEY'),
-            secret_key=os.getenv('SHAREKHAN_SECRET_KEY'),
+            secret_key=os.getenv('SHAREKHAN_API_SECRET') or os.getenv('SHAREKHAN_SECRET_KEY'),
             customer_id=client_id
         )
         

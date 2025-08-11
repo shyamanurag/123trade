@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse
 import logging
 import os
 import urllib.parse
+from datetime import datetime, timedelta
 
 from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
 from src.api.sharekhan_daily_auth import DailyAuthSession, get_session_key
@@ -72,7 +73,7 @@ async def sharekhan_auth_callback(
 
         # Prepare client credentials
         api_key = os.getenv("SHAREKHAN_API_KEY")
-        api_secret = os.getenv("SHAREKHAN_SECRET_KEY")
+        api_secret = os.getenv("SHAREKHAN_API_SECRET") or os.getenv("SHAREKHAN_SECRET_KEY")
         client_id = os.getenv("SHAREKHAN_CUSTOMER_ID")
         if not api_key or not api_secret or not client_id:
             raise HTTPException(status_code=500, detail="ShareKhan credentials not configured")
