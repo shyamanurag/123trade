@@ -15,6 +15,7 @@ import asyncio
 from dataclasses import dataclass
 
 from src.core.dependencies import get_orchestrator
+from src.config.database import get_redis
 from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
 from brokers.sharekhan import ShareKhanIntegration
 
@@ -51,12 +52,72 @@ class DailyAuthSession:
     is_valid: bool = False
     last_error: Optional[str] = None
 
-# In-memory session storage (in production, use Redis)
+# In-memory session storage (production uses Redis with TTL; this is fallback)
 daily_auth_sessions: Dict[str, DailyAuthSession] = {}
 
 def get_session_key(user_id: int, client_id: str) -> str:
     """Generate session key for user+client combination"""
     return f"{user_id}_{client_id}"
+
+# Redis-backed persistence helpers
+async def _save_session(session: DailyAuthSession):
+    """Persist session to Redis with TTL; fallback to in-memory map."""
+    try:
+        redis = await get_redis()
+        session_key = get_session_key(session.user_id, session.sharekhan_client_id)
+        # Always update in-memory fallback
+        daily_auth_sessions[session_key] = session
+        if not redis:
+            return
+        payload = {
+            "user_id": session.user_id,
+            "sharekhan_client_id": session.sharekhan_client_id,
+            "request_token": session.request_token,
+            "access_token": session.access_token,
+            "session_token": session.session_token,
+            "authenticated_at": session.authenticated_at.isoformat() if session.authenticated_at else None,
+            "expires_at": session.expires_at.isoformat() if session.expires_at else None,
+            "is_valid": session.is_valid,
+            "last_error": session.last_error,
+        }
+        ttl_seconds = 0
+        if session.expires_at:
+            ttl_seconds = max(1, int((session.expires_at - datetime.now()).total_seconds()))
+        key = f"sharekhan:session:{session_key}"
+        await redis.set(key, json.dumps(payload))
+        if ttl_seconds > 0:
+            await redis.expire(key, ttl_seconds)
+    except Exception as e:
+        logger.warning(f"Session save fallback to memory only: {e}")
+
+async def _load_session(user_id: int, client_id: str) -> Optional[DailyAuthSession]:
+    """Load session from Redis; fallback to in-memory map."""
+    try:
+        session_key = get_session_key(user_id, client_id)
+        redis = await get_redis()
+        if redis:
+            key = f"sharekhan:session:{session_key}"
+            raw = await redis.get(key)
+            if raw:
+                data = json.loads(raw)
+                authed = datetime.fromisoformat(data["authenticated_at"]) if data.get("authenticated_at") else None
+                exp = datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
+                return DailyAuthSession(
+                    user_id=data["user_id"],
+                    sharekhan_client_id=data["sharekhan_client_id"],
+                    request_token=data.get("request_token", ""),
+                    access_token=data.get("access_token"),
+                    session_token=data.get("session_token"),
+                    authenticated_at=authed,
+                    expires_at=exp,
+                    is_valid=bool(data.get("is_valid", False)),
+                    last_error=data.get("last_error")
+                )
+        return daily_auth_sessions.get(session_key)
+    except Exception as e:
+        logger.warning(f"Session load failed, using memory: {e}")
+        session_key = get_session_key(user_id, client_id)
+        return daily_auth_sessions.get(session_key)
 
 @router.get("/auth/daily-url")
 async def generate_daily_auth_url(request: AuthUrlRequest):
@@ -148,9 +209,8 @@ async def submit_daily_token(
                 is_valid=True
             )
             
-            # Store session
-            session_key = get_session_key(request.user_id, request.sharekhan_client_id)
-            daily_auth_sessions[session_key] = session
+            # Store session (Redis + in-memory)
+            await _save_session(session)
             
             # Update orchestrator with authenticated client
             if orchestrator.sharekhan_integration:
@@ -222,8 +282,7 @@ async def get_session_status(
     Shows whether user needs to resubmit token
     """
     try:
-        session_key = get_session_key(user_id, sharekhan_client_id)
-        session = daily_auth_sessions.get(session_key)
+        session = await _load_session(user_id, sharekhan_client_id)
         
         if not session:
             return {
@@ -361,7 +420,14 @@ async def clear_session(
     """
     try:
         session_key = get_session_key(user_id, sharekhan_client_id)
-        
+        # Remove from Redis
+        try:
+            redis = await get_redis()
+            if redis:
+                await redis.delete(f"sharekhan:session:{session_key}")
+        except Exception:
+            pass
+        # Remove from fallback memory
         if session_key in daily_auth_sessions:
             del daily_auth_sessions[session_key]
             logger.info(f"✅ Session cleared for user {user_id}")
@@ -389,8 +455,7 @@ async def get_authenticated_sharekhan_client(user_id: int, client_id: str) -> Op
     Used by other services to access live data
     """
     try:
-        session_key = get_session_key(user_id, client_id)
-        session = daily_auth_sessions.get(session_key)
+        session = await _load_session(user_id, client_id)
         
         if not session or not session.is_valid:
             return None

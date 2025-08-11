@@ -18,6 +18,7 @@ from brokers.sharekhan import ShareKhanIntegration, ShareKhanOrder, ShareKhanMar
 from src.feeds.sharekhan_feed import ShareKhanDataFeed, ShareKhanShareKhanCompatibility
 from src.core.market_directional_bias import MarketDirectionalBias
 from src.core.signal_deduplicator import signal_deduplicator
+from src.config.database import get_redis
 from .multi_user_sharekhan_manager import MultiUserShareKhanManager, UserRole, TradingPermission
 
 # ShareKhan service components
@@ -175,6 +176,26 @@ class ShareKhanTradingOrchestrator:
             )
             
             logger.info("✅ ShareKhan integration initialized")
+
+            # Attempt to restore tokens from Redis session if present
+            try:
+                redis = await get_redis()
+                if redis and self.sharekhan_customer_id:
+                    default_user_id = os.getenv('DEFAULT_USER_ID', '1')
+                    session_key = f"sharekhan:session:{default_user_id}_{self.sharekhan_customer_id}"
+                    raw = await redis.get(session_key)
+                    if raw:
+                        import json as _json
+                        data = _json.loads(raw)
+                        access = data.get('access_token')
+                        sess = data.get('session_token')
+                        if access and sess:
+                            self.sharekhan_integration.access_token = access
+                            self.sharekhan_integration.session_token = sess
+                            self.sharekhan_integration.is_authenticated = True
+                            logger.info("🔁 Restored ShareKhan tokens from Redis session")
+            except Exception as e:
+                logger.warning(f"Redis restore skipped: {e}")
             
         except Exception as e:
             logger.error(f"❌ ShareKhan integration initialization failed: {e}")

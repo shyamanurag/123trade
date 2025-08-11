@@ -10,7 +10,8 @@ import os
 import urllib.parse
 
 from src.core.sharekhan_orchestrator import ShareKhanTradingOrchestrator
-from src.api.sharekhan_daily_auth import DailyAuthSession, get_session_key, daily_auth_sessions
+from src.api.sharekhan_daily_auth import DailyAuthSession, get_session_key
+from src.config.database import get_redis
 from brokers.sharekhan import ShareKhanIntegration
 
 router = APIRouter()
@@ -92,21 +93,41 @@ async def sharekhan_auth_callback(
         except Exception as e:
             logger.warning(f"Could not update orchestrator tokens: {e}")
 
-        # Persist in in-memory daily session for default user context (if state carries user info we could use it)
+        # Persist to Redis (with in-memory fallback) for default user context
         try:
             default_user_id = int(os.getenv("DEFAULT_USER_ID", "1"))
             session_key = get_session_key(default_user_id, client_id)
-            daily_auth_sessions[session_key] = DailyAuthSession(
+            session = DailyAuthSession(
                 user_id=default_user_id,
                 sharekhan_client_id=client_id,
                 request_token=token_from_provider,
                 access_token=sk.access_token,
                 session_token=sk.session_token,
-                authenticated_at=None,
-                expires_at=None,
+                authenticated_at=datetime.now(),
+                expires_at=datetime.now() + timedelta(hours=24),
                 is_valid=True,
                 last_error=None,
             )
+            # Save to Redis
+            try:
+                redis = await get_redis()
+                if redis:
+                    payload = {
+                        "user_id": session.user_id,
+                        "sharekhan_client_id": session.sharekhan_client_id,
+                        "request_token": session.request_token,
+                        "access_token": session.access_token,
+                        "session_token": session.session_token,
+                        "authenticated_at": session.authenticated_at.isoformat() if session.authenticated_at else None,
+                        "expires_at": session.expires_at.isoformat() if session.expires_at else None,
+                        "is_valid": session.is_valid,
+                        "last_error": session.last_error,
+                    }
+                    key = f"sharekhan:session:{session_key}"
+                    await redis.set(key, json.dumps(payload))
+                    await redis.expire(key, 24*3600)
+            except Exception:
+                pass
         except Exception as e:
             logger.warning(f"Could not store daily session: {e}")
 
