@@ -121,7 +121,7 @@ async def _load_session(user_id: int, client_id: str) -> Optional[DailyAuthSessi
         return daily_auth_sessions.get(session_key)
 
 @router.get("/auth/daily-url")
-async def generate_daily_auth_url(request: AuthUrlRequest):
+async def generate_daily_auth_url(user_id: int, redirect_uri: Optional[str] = None):
     """
     Generate ShareKhan authentication URL for daily login
     User must visit this URL daily to get request token
@@ -134,7 +134,7 @@ async def generate_daily_auth_url(request: AuthUrlRequest):
         
         # Use provided redirect URI or default from PUBLIC_BASE_URL
         public_base = os.getenv('PUBLIC_BASE_URL', 'https://trade123-edtd2.ondigitalocean.app').rstrip('/')
-        redirect_uri = request.redirect_uri or f"{public_base}/auth/sharekhan/callback"
+        redirect_uri = redirect_uri or f"{public_base}/auth/sharekhan/callback"
         
         # Generate state parameter for security
         import uuid
@@ -149,7 +149,7 @@ async def generate_daily_auth_url(request: AuthUrlRequest):
             f"&response_type=code"
         )
         
-        logger.info(f"🔗 Generated daily auth URL for user {request.user_id}")
+        logger.info(f"🔗 Generated daily auth URL for user {user_id}")
         
         return {
             "success": True,
@@ -243,8 +243,8 @@ async def submit_daily_token(
                 "session_details": {
                     "user_id": request.user_id,
                     "sharekhan_client_id": request.sharekhan_client_id,
-                    "authenticated_at": session.authenticated_at.isoformat(),
-                    "expires_at": session.expires_at.isoformat(),
+                    "authenticated_at": session.authenticated_at.isoformat() if session.authenticated_at else None,
+                    "expires_at": session.expires_at.isoformat() if session.expires_at else None,
                     "access_token_preview": f"{session.access_token[:8]}..." if session.access_token else None,
                     "data_test_success": test_success
                 },
@@ -473,10 +473,14 @@ async def get_authenticated_sharekhan_client(user_id: int, client_id: str) -> Op
             session.is_valid = False
             return None
         
-        # Create authenticated client
+        # Create authenticated client with validated credentials
+        env_api_key = os.getenv('SHAREKHAN_API_KEY') or ""
+        env_secret = os.getenv('SHAREKHAN_API_SECRET') or os.getenv('SHAREKHAN_SECRET_KEY') or ""
+        if not env_api_key or not env_secret:
+            return None
         sharekhan_client = ShareKhanIntegration(
-            api_key=os.getenv('SHAREKHAN_API_KEY'),
-            secret_key=os.getenv('SHAREKHAN_API_SECRET') or os.getenv('SHAREKHAN_SECRET_KEY'),
+            api_key=env_api_key,
+            secret_key=env_secret,
             customer_id=client_id
         )
         
