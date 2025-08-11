@@ -132,12 +132,13 @@ async def generate_auth_url(request: Dict[str, str]):
         # Generate real ShareKhan auth URL (CORRECTED: using newtrade.sharekhan.com)
         state = str(uuid.uuid4())
         from urllib.parse import quote as _quote
+        # Use both redirect_uri and redirect_url for maximum compatibility; omit response_type
         auth_url = (
             "https://newtrade.sharekhan.com/api/login"
             f"?api_key={api_key}"
             f"&redirect_uri={_quote(redirect_uri, safe='')}"
+            f"&redirect_url={_quote(redirect_uri, safe='')}"
             f"&state={state}"
-            f"&response_type=code"
         )
         
         logger.info(f"Generated ShareKhan auth URL for user {user_id}")

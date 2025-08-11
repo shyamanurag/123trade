@@ -145,8 +145,8 @@ async def generate_daily_auth_url(user_id: int, redirect_uri: Optional[str] = No
             "https://newtrade.sharekhan.com/api/login"
             f"?api_key={api_key}"
             f"&redirect_uri={urllib.parse.quote(redirect_uri, safe='')}"
+            f"&redirect_url={urllib.parse.quote(redirect_uri, safe='')}"
             f"&state={state}"
-            f"&response_type=code"
         )
         
         logger.info(f"🔗 Generated daily auth URL for user {user_id}")
