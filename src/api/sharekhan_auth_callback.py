@@ -155,6 +155,118 @@ async def sharekhan_auth_callback(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/auth/sharekhan/callback")
+async def sharekhan_auth_callback_post(
+    request: Request,
+    orchestrator: ShareKhanTradingOrchestrator = Depends(get_orchestrator),
+):
+    """
+    Handle ShareKhan authentication callback via POST (form or JSON)
+    Some providers POST the token to the redirect URI instead of query params.
+    """
+    try:
+        token_from_provider = None
+        content_type = request.headers.get("content-type", "")
+        if "application/x-www-form-urlencoded" in content_type:
+            form = await request.form()
+            token_from_provider = form.get("request_token") or form.get("code")
+        else:
+            try:
+                body = await request.json()
+                token_from_provider = body.get("request_token") or body.get("code")
+            except Exception:
+                pass
+
+        if not token_from_provider:
+            # Also try query params as fallback
+            qs = urllib.parse.urlparse(str(request.url)).query
+            params = urllib.parse.parse_qs(qs)
+            token_from_provider = (
+                (params.get("request_token") or params.get("code") or [None])[0]
+            )
+
+        if not token_from_provider:
+            raise HTTPException(status_code=400, detail="request_token not received")
+
+        api_key = os.getenv("SHAREKHAN_API_KEY")
+        api_secret = os.getenv("SHAREKHAN_API_SECRET") or os.getenv("SHAREKHAN_SECRET_KEY")
+        client_id = os.getenv("SHAREKHAN_CUSTOMER_ID")
+        if not api_key or not api_secret or not client_id:
+            raise HTTPException(status_code=500, detail="ShareKhan credentials not configured")
+
+        sk = ShareKhanIntegration(api_key=api_key, secret_key=api_secret, customer_id=client_id)
+        auth_ok = await sk.authenticate(request_token=token_from_provider)
+        if not auth_ok or not sk.access_token or not sk.session_token:
+            raise HTTPException(status_code=401, detail="ShareKhan authentication failed during token exchange")
+
+        # Update orchestrator
+        try:
+            if orchestrator and orchestrator.sharekhan_integration:
+                orchestrator.sharekhan_integration.access_token = sk.access_token
+                orchestrator.sharekhan_integration.session_token = sk.session_token
+                orchestrator.sharekhan_integration.is_authenticated = True
+        except Exception:
+            pass
+
+        # Persist session
+        try:
+            from datetime import datetime, timedelta
+            default_user_id = int(os.getenv("DEFAULT_USER_ID", "1"))
+            session_key = get_session_key(default_user_id, client_id)
+            session = DailyAuthSession(
+                user_id=default_user_id,
+                sharekhan_client_id=client_id,
+                request_token=token_from_provider,
+                access_token=sk.access_token,
+                session_token=sk.session_token,
+                authenticated_at=datetime.now(),
+                expires_at=datetime.now() + timedelta(hours=24),
+                is_valid=True,
+                last_error=None,
+            )
+            try:
+                redis = await get_redis()
+                if redis:
+                    payload = {
+                        "user_id": session.user_id,
+                        "sharekhan_client_id": session.sharekhan_client_id,
+                        "request_token": session.request_token,
+                        "access_token": session.access_token,
+                        "session_token": session.session_token,
+                        "authenticated_at": session.authenticated_at.isoformat(),
+                        "expires_at": session.expires_at.isoformat(),
+                        "is_valid": session.is_valid,
+                        "last_error": session.last_error,
+                    }
+                    key = f"sharekhan:session:{session_key}"
+                    await redis.set(key, json.dumps(payload))
+                    await redis.expire(key, 24*3600)
+            except Exception:
+                pass
+        except Exception:
+            pass
+
+        return HTMLResponse(
+            """
+            <html>
+              <body>
+                <h2>✅ ShareKhan Authentication Successful</h2>
+                <p>You can close this window and return to the app.</p>
+                <script>
+                  try { window.opener && window.opener.postMessage({ type: 'SHAREKHAN_AUTH_SUCCESS' }, '*'); } catch (e) {}
+                  setTimeout(() => window.close(), 1500);
+                </script>
+              </body>
+            </html>
+            """
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in ShareKhan POST callback: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/auth/sharekhan")
 async def sharekhan_auth_redirect():
     """Serve a page with a link to ShareKhan auth using production callback URL."""
